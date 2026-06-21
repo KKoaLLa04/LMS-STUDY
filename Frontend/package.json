@@ -12,6 +12,9 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.2.0",
+    "admin-lte": "^4.0.0-beta",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "@angular/common": "^17.2.0",
     "@angular/compiler": "^17.2.0",
     "@angular/core": "^17.2.0",
