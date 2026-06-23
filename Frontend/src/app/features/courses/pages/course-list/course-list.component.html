@@ -1,0 +1,202 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Danh sách khóa học</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item active">Khóa học</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    @if (successMessage) {
+      <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
+        <!-- Search -->
+        <div class="input-group" style="max-width: 360px;">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Tìm kiếm khóa học..."
+            [(ngModel)]="searchInput"
+            (keyup.enter)="onSearch()"
+          />
+          <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+
+        <!-- Add button -->
+        <a routerLink="/courses/create" class="btn btn-primary">
+          <i class="bi bi-plus-circle me-1"></i>Thêm khóa học
+        </a>
+      </div>
+
+      <div class="card-body p-0">
+        @if (loading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+          </div>
+        } @else if (courses.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            @if (keyword) {
+              Không tìm thấy khóa học nào với từ khóa "<strong>{{ keyword }}</strong>"
+            } @else {
+              Chưa có khóa học nào. <a routerLink="/courses/create">Thêm khóa học đầu tiên</a>
+            }
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center" style="width: 60px">#</th>
+                  <th style="width: 80px">Ảnh</th>
+                  <th>Tên khóa học</th>
+                  <th style="width: 130px">Giá</th>
+                  <th style="width: 130px">Trạng thái</th>
+                  <th style="width: 120px">Ngày tạo</th>
+                  <th class="text-center" style="width: 110px">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (course of courses; track course.id; let i = $index) {
+                  <tr>
+                    <td class="text-center align-middle text-muted">
+                      {{ startIndex + i }}
+                    </td>
+                    <td class="align-middle">
+                      @if (course.thumbnail) {
+                        <img
+                          [src]="course.thumbnail"
+                          [alt]="course.title"
+                          class="rounded"
+                          style="width: 60px; height: 40px; object-fit: cover;"
+                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                        />
+                        <div class="rounded bg-secondary d-none align-items-center justify-content-center text-white"
+                          style="width: 60px; height: 40px;">
+                          <i class="bi bi-image"></i>
+                        </div>
+                      } @else {
+                        <div class="rounded bg-secondary d-flex align-items-center justify-content-center text-white"
+                          style="width: 60px; height: 40px;">
+                          <i class="bi bi-book"></i>
+                        </div>
+                      }
+                    </td>
+                    <td class="align-middle fw-semibold">{{ course.title }}</td>
+                    <td class="align-middle">{{ formatPrice(course.price) }}</td>
+                    <td class="align-middle">
+                      <span class="badge" [ngClass]="getStatusClass(course.status)">
+                        {{ getStatusLabel(course.status) }}
+                      </span>
+                    </td>
+                    <td class="align-middle text-muted">{{ formatDate(course.createdAt) }}</td>
+                    <td class="text-center align-middle">
+                      <div class="d-flex gap-1 justify-content-center">
+                        <a
+                          [routerLink]="['/courses', course.id, 'edit']"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Chỉnh sửa"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <button
+                          class="btn btn-sm btn-outline-danger"
+                          title="Xóa"
+                          [disabled]="deleting === course.id"
+                          (click)="onDelete(course.id, course.title)"
+                        >
+                          @if (deleting === course.id) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            <i class="bi bi-trash"></i>
+                          }
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      @if (!loading && totalCount > 0) {
+        <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="text-muted small">
+            Hiển thị {{ startIndex }}–{{ endIndex }} trong tổng số {{ totalCount }} khóa học
+          </div>
+
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="page === 1">
+                <button class="page-link" (click)="onPageChange(page - 1)">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+              </li>
+
+              @if (pageNumbers[0] > 1) {
+                <li class="page-item">
+                  <button class="page-link" (click)="onPageChange(1)">1</button>
+                </li>
+                @if (pageNumbers[0] > 2) {
+                  <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+              }
+
+              @for (p of pageNumbers; track p) {
+                <li class="page-item" [class.active]="p === page">
+                  <button class="page-link" (click)="onPageChange(p)">{{ p }}</button>
+                </li>
+              }
+
+              @if (pageNumbers[pageNumbers.length - 1] < totalPages) {
+                @if (pageNumbers[pageNumbers.length - 1] < totalPages - 1) {
+                  <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="onPageChange(totalPages)">{{ totalPages }}</button>
+                </li>
+              }
+
+              <li class="page-item" [class.disabled]="page === totalPages">
+                <button class="page-link" (click)="onPageChange(page + 1)">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
