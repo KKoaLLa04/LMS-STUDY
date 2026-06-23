@@ -150,12 +150,12 @@
       </div>
 
       @if (!loading && totalCount > 0) {
-        <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="card-footer d-flex align-items-center flex-wrap gap-2">
           <div class="text-muted small">
             Hiển thị {{ startIndex }}–{{ endIndex }} trong tổng số {{ totalCount }} khóa học
           </div>
 
-          <nav>
+          <nav class="ms-auto">
             <ul class="pagination pagination-sm mb-0">
               <li class="page-item" [class.disabled]="page === 1">
                 <button class="page-link" (click)="onPageChange(page - 1)">

@@ -1,0 +1,17 @@
+<div class="toast-container">
+  @for (toast of toasts; track toast.id) {
+    <div class="toast-item toast-{{ toast.type }}" [@toastAnim]>
+      <div class="toast-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+             [innerHTML]="iconFor(toast.type)">
+        </svg>
+      </div>
+      <span class="toast-message">{{ toast.message }}</span>
+      <button class="toast-close" (click)="dismiss(toast.id)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  }
+</div>
