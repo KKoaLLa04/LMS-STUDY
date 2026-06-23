@@ -1,0 +1,499 @@
+<div class="landing-wrapper">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="landing-nav" [class.scrolled]="isScrolled">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-name">EduStar<span class="brand-dot">.</span></span>
+      </div>
+
+      <ul class="nav-links" [class.open]="mobileMenuOpen">
+        <li><a href="#" (click)="scrollToSection($event, 'features')">Tính năng</a></li>
+        <li><a href="#" (click)="scrollToSection($event, 'achievements')">Thành tích</a></li>
+        <li><a href="#" (click)="scrollToSection($event, 'benefits')">Lợi ích</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a routerLink="/dashboard" class="btn-nav-login">Đăng nhập</a>
+        <button class="btn-nav-register">Đăng ký miễn phí</button>
+      </div>
+
+      <button class="hamburger" [class.active]="mobileMenuOpen" (click)="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero-section">
+    <!-- Các hạt nền hero (particle effects) -->
+    <div class="hero-particles">
+      <div
+        class="particle"
+        *ngFor="let p of particlesArray; let i = index"
+        [style.--i]="i"
+      ></div>
+    </div>
+
+    <div class="hero-container">
+      <!-- Nội dung chữ bên trái -->
+      <div class="hero-content">
+        <div class="hero-pill">
+          <span class="pill-dot"></span>
+          🎓 Nền tảng học tập #1 cho học sinh
+        </div>
+
+        <h1 class="hero-title">
+          Học vui mỗi ngày,<br />
+          <span class="hero-title-highlight">Tiến bộ mỗi giờ!</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Nền tảng LMS gamification đầu tiên dành riêng cho học sinh
+          <strong>Tiểu học & THCS</strong>. Học bài, nhận huy hiệu, chinh
+          phục thử thách mỗi ngày!
+        </p>
+
+        <div class="hero-cta-group">
+          <button class="btn-hero-primary" (click)="scrollToSection($event, 'features')">
+            <span class="btn-icon">🚀</span> Khám phá ngay
+          </button>
+          <button class="btn-hero-secondary">
+            <span class="play-circle">▶</span> Xem demo
+          </button>
+        </div>
+
+        <div class="hero-social-proof">
+          <div class="proof-item">
+            <span class="proof-value">10,000+</span>
+            <span class="proof-label">Học sinh</span>
+          </div>
+          <div class="proof-divider"></div>
+          <div class="proof-item">
+            <span class="proof-value">500+</span>
+            <span class="proof-label">Khóa học</span>
+          </div>
+          <div class="proof-divider"></div>
+          <div class="proof-item">
+            <span class="proof-value">4.9 ⭐</span>
+            <span class="proof-label">Đánh giá</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual bên phải: card + floating elements -->
+      <div class="hero-visual">
+        <!-- Card tiến độ học tập chính -->
+        <div class="hero-main-card">
+          <div class="card-titlebar">
+            <div class="titlebar-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <span class="titlebar-label">📊 Tiến độ học tập</span>
+          </div>
+
+          <div class="progress-list">
+            <div class="progress-row">
+              <span class="subject-label">📐 Toán học</span>
+              <div class="progress-track">
+                <div class="progress-fill" data-target="85%" style="width: 0%"></div>
+              </div>
+              <span class="progress-pct">85%</span>
+            </div>
+            <div class="progress-row">
+              <span class="subject-label">📖 Tiếng Việt</span>
+              <div class="progress-track">
+                <div class="progress-fill" data-target="72%" style="width: 0%"></div>
+              </div>
+              <span class="progress-pct">72%</span>
+            </div>
+            <div class="progress-row">
+              <span class="subject-label">🌍 Tiếng Anh</span>
+              <div class="progress-track">
+                <div class="progress-fill" data-target="90%" style="width: 0%"></div>
+              </div>
+              <span class="progress-pct">90%</span>
+            </div>
+          </div>
+
+          <div class="streak-row">
+            <span>🔥 Streak:</span>
+            <div class="streak-days">
+              <div class="streak-day active" *ngFor="let d of [0,1,2,3,4,5,6]">
+                {{ ['T2','T3','T4','T5','T6','T7','CN'][d] }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Badge nổi: vô địch toán -->
+        <div class="floating-badge fb-1">
+          <span>🏆</span>
+          <div class="fb-text">
+            <strong>Vô địch Toán!</strong>
+            <small>+500 điểm EXP</small>
+          </div>
+        </div>
+
+        <!-- Badge nổi: streak -->
+        <div class="floating-badge fb-2">
+          <span>🔥</span>
+          <div class="fb-text">
+            <strong>7 ngày streak!</strong>
+            <small>Tiếp tục phát huy</small>
+          </div>
+        </div>
+
+        <!-- Badge nổi: level up -->
+        <div class="floating-badge fb-3">
+          <span>⚡</span>
+          <div class="fb-text">
+            <strong>Level 15</strong>
+            <small>Đang nâng cấp...</small>
+          </div>
+        </div>
+
+        <!-- Các emoji nổi trang trí -->
+        <div class="deco-float deco-star">⭐</div>
+        <div class="deco-float deco-book">📚</div>
+        <div class="deco-float deco-rocket">🚀</div>
+        <div class="deco-float deco-trophy">🏆</div>
+        <div class="deco-float deco-gem">💎</div>
+      </div>
+    </div>
+
+    <!-- Wave chuyển tiếp sang section tiếp theo -->
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M0,40 C200,100 400,0 600,60 C800,120 1000,10 1200,60 C1300,85 1370,70 1440,60 L1440,120 L0,120 Z"
+          fill="#ffffff"
+        />
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="features-section" id="features">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-chip">✨ Tính năng nổi bật</div>
+        <h2>
+          Học tập trở nên
+          <span class="text-gradient">thú vị hơn</span>
+          bao giờ hết
+        </h2>
+        <p>
+          Chúng tôi kết hợp công nghệ giáo dục hiện đại với yếu tố
+          gamification để tạo ra trải nghiệm học tập không thể cưỡng lại.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div
+          class="feature-card reveal"
+          *ngFor="let feat of features; let i = index"
+          [style.transition-delay]="(i * 150) + 'ms'"
+          [style.--feat-color]="feat.color"
+          [style.--feat-bg]="feat.bg"
+        >
+          <div class="feat-icon-wrap">
+            <span class="feat-icon">{{ feat.icon }}</span>
+            <div class="feat-ring"></div>
+          </div>
+          <h3>{{ feat.title }}</h3>
+          <p>{{ feat.description }}</p>
+          <div class="feat-link">Tìm hiểu thêm <span class="feat-arrow">→</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-section">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-chip">🎯 Bắt đầu thế nào?</div>
+        <h2>Chỉ <span class="text-gradient">3 bước đơn giản</span></h2>
+      </div>
+
+      <div class="steps-wrapper">
+        <ng-container *ngFor="let step of steps; let i = index; let last = last">
+          <div
+            class="step-card reveal"
+            [style.transition-delay]="(i * 180) + 'ms'"
+          >
+            <div class="step-number">{{ step.number }}</div>
+            <div class="step-emoji">{{ step.icon }}</div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.desc }}</p>
+          </div>
+          <div class="step-arrow reveal" *ngIf="!last" [style.transition-delay]="(i * 180 + 90) + 'ms'">
+            ➜
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ACHIEVEMENTS SHOWCASE ===== -->
+  <section class="achievements-section" id="achievements">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-chip light">🏅 Hệ thống thành tích</div>
+        <h2>Thu thập <span class="text-gradient-light">huy hiệu</span> mỗi ngày</h2>
+        <p class="light-text">
+          Mỗi hành động học tập đều được ghi nhận và trao thưởng xứng đáng!
+        </p>
+      </div>
+
+      <div class="achievements-layout">
+        <!-- Lưới huy hiệu -->
+        <div class="badges-grid">
+          <div
+            class="badge-tile reveal"
+            *ngFor="let badge of badges; let i = index"
+            [style.transition-delay]="(i * 80) + 'ms'"
+            [style.--badge-color]="badge.color"
+          >
+            <div class="badge-glow-ring"></div>
+            <span class="badge-emoji">{{ badge.icon }}</span>
+            <span class="badge-label">{{ badge.name }}</span>
+          </div>
+        </div>
+
+        <!-- Card level & XP -->
+        <div class="level-card reveal" style="transition-delay: 200ms">
+          <div class="level-top">
+            <div>
+              <span class="level-caption">Cấp độ hiện tại</span>
+              <div class="level-display">⚡ Level 15</div>
+            </div>
+            <div class="level-badge-icon">🎖️</div>
+          </div>
+
+          <div class="xp-bar-wrapper">
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill"></div>
+            </div>
+            <div class="xp-numbers">
+              <span>1,250 XP</span>
+              <span>2,000 XP → Level 16</span>
+            </div>
+          </div>
+
+          <div class="recent-list">
+            <h4>🕐 Thành tích gần đây</h4>
+            <div
+              class="recent-item"
+              *ngFor="let item of recentAchievements"
+            >
+              <span class="recent-icon">{{ item.icon }}</span>
+              <span class="recent-text">{{ item.text }}</span>
+              <span class="xp-chip">{{ item.xp }}</span>
+            </div>
+          </div>
+
+          <!-- Rương kho báu animation -->
+          <div class="treasure-chest">
+            <span class="chest-emoji">🎁</span>
+            <div class="chest-label">Mở rương sau 2 ngày nữa!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BENEFITS ===== -->
+  <section class="benefits-section" id="benefits">
+    <div class="section-container">
+      <div class="benefits-layout">
+        <!-- Nội dung trái -->
+        <div class="benefits-content reveal">
+          <div class="section-chip">💡 Tại sao chọn chúng tôi?</div>
+          <h2>
+            Lý do học sinh
+            <span class="text-gradient">yêu thích</span>
+            EduStar
+          </h2>
+          <div class="benefits-list">
+            <div
+              class="benefit-row"
+              *ngFor="let b of benefits; let i = index"
+              [style.animation-delay]="(i * 80) + 'ms'"
+            >
+              <div class="benefit-icon-wrap">{{ b.icon }}</div>
+              <span>{{ b.text }}</span>
+            </div>
+          </div>
+          <button class="btn-primary-lg">
+            Bắt đầu học miễn phí <span>→</span>
+          </button>
+        </div>
+
+        <!-- Phone mockup bên phải -->
+        <div class="phone-mockup-wrap reveal" style="transition-delay: 200ms">
+          <div class="phone-outer">
+            <div class="phone-inner">
+              <div class="phone-notch"></div>
+
+              <div class="app-topbar">
+                <span>🎓 EduStar</span>
+                <span class="xp-display">⚡ 1,250 XP</span>
+              </div>
+
+              <div class="app-greeting">
+                <h4>Chào buổi sáng! 👋</h4>
+                <p>Hôm nay học tiếp nhé!</p>
+              </div>
+
+              <div class="quest-box">
+                <div class="quest-box-header">
+                  <span>📋 Nhiệm vụ hôm nay</span>
+                  <span class="quest-count">2/3</span>
+                </div>
+                <div
+                  class="quest-row"
+                  *ngFor="let q of questItems"
+                  [class.done]="q.done"
+                >
+                  <span>{{ q.icon }}</span>
+                  <span class="quest-text">{{ q.text }}</span>
+                  <span class="quest-xp">{{ q.reward }}</span>
+                </div>
+              </div>
+
+              <div class="streak-banner">
+                <span>🔥</span>
+                <strong>Streak 7 ngày liên tiếp!</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hào quang trang trí -->
+          <div class="phone-glow"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS COUNTER ===== -->
+  <section class="stats-section">
+    <div class="stats-particles">
+      <div class="sp" *ngFor="let p of [0,1,2,3,4,5,6]" [style.--j]="p"></div>
+    </div>
+    <div class="section-container">
+      <div class="stats-grid">
+        <div
+          class="stat-tile reveal"
+          *ngFor="let s of stats; let i = index"
+          [style.transition-delay]="(i * 120) + 'ms'"
+        >
+          <div class="stat-icon-big">{{ s.icon }}</div>
+          <div class="stat-number">
+            <span class="counter-value" [attr.data-target]="s.value">0</span
+            ><span class="stat-suffix">{{ s.suffix }}</span>
+          </div>
+          <div class="stat-desc">{{ s.label }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA SECTION ===== -->
+  <section class="cta-section">
+    <div class="cta-inner reveal">
+      <!-- Trang trí bay lơ lửng -->
+      <div class="cta-floats">
+        <span class="cf cf1">⭐</span>
+        <span class="cf cf2">🏆</span>
+        <span class="cf cf3">🚀</span>
+        <span class="cf cf4">💎</span>
+        <span class="cf cf5">🎓</span>
+      </div>
+
+      <h2>Sẵn sàng bắt đầu<br /><span>hành trình học tập?</span></h2>
+      <p>
+        Hơn <strong>10,000 học sinh</strong> đã tin tưởng và đang học tập
+        cùng EduStar mỗi ngày.
+      </p>
+
+      <div class="cta-buttons">
+        <button class="btn-cta-main">
+          🚀 Đăng ký miễn phí ngay
+        </button>
+        <a routerLink="/dashboard" class="btn-cta-ghost">
+          Trang quản trị →
+        </a>
+      </div>
+
+      <p class="cta-reassure">
+        ✅ Miễn phí hoàn toàn &nbsp;•&nbsp; ✅ Không cần thẻ tín dụng
+        &nbsp;•&nbsp; ✅ Bắt đầu ngay lập tức
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="landing-footer">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-logo">
+          <span>🎓</span> EduStar<span class="brand-dot">.</span>
+        </div>
+        <p>
+          Nền tảng học tập gamification hàng đầu dành cho học sinh Tiểu
+          học và THCS Việt Nam.
+        </p>
+        <div class="footer-socials">
+          <a href="#">📘</a>
+          <a href="#">📷</a>
+          <a href="#">📺</a>
+          <a href="#">💬</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Môn học</h4>
+        <ul>
+          <li><a href="#">📐 Toán học</a></li>
+          <li><a href="#">📖 Tiếng Việt</a></li>
+          <li><a href="#">🌍 Tiếng Anh</a></li>
+          <li><a href="#">🔬 Khoa học</a></li>
+          <li><a href="#">🎨 Nghệ thuật</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Hỗ trợ</h4>
+        <ul>
+          <li><a href="#">Hướng dẫn sử dụng</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Liên hệ hỗ trợ</a></li>
+          <li><a href="#">Báo lỗi hệ thống</a></li>
+          <li><a href="#">Blog giáo dục</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Liên hệ</h4>
+        <ul>
+          <li>📧 info&#64;edustar.vn</li>
+          <li>📞 1900 1234</li>
+          <li>📍 Hà Nội, Việt Nam</li>
+          <li>🕐 8:00 – 22:00 hằng ngày</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>
+        © 2024 EduStar LMS. All rights reserved. Made with ❤️ for
+        Vietnamese students.
+      </p>
+    </div>
+  </footer>
+</div>
