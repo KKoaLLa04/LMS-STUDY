@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { lastValueFrom } from 'rxjs';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
@@ -19,11 +19,11 @@ const slideOut = [
 ];
 
 @Component({
-  selector: 'app-course-create',
+  selector: 'app-course-edit',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './course-create.component.html',
-  styleUrls: ['./course-create.component.scss'],
+  templateUrl: './course-edit.component.html',
+  styleUrls: ['./course-edit.component.scss'],
   animations: [
     trigger('stepAnim', [
       transition(':enter', slideUp),
@@ -41,15 +41,22 @@ const slideOut = [
     ])
   ]
 })
-export class CourseCreateComponent implements OnInit {
+export class CourseEditComponent implements OnInit {
   form: FormGroup;
+  courseId!: number;
   currentStep = 1;
+  loading = true;
   submitting = false;
   thumbnailError = false;
   priceDisplay = '0';
 
+  // Track IDs that were removed so we can delete them on save
+  deletedSectionIds: number[] = [];
+  deletedLessonIds: number[] = [];
+
   constructor(
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private courseService: CourseService,
     private sectionService: SectionService,
     private lessonService: LessonService,
@@ -66,7 +73,65 @@ export class CourseCreateComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.courseId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadCourse();
+  }
+
+  private async loadCourse(): Promise<void> {
+    try {
+      const res = await lastValueFrom(this.courseService.getCourseById(this.courseId));
+      if (!res.success || !res.data) {
+        this.toast.error(res.message || 'Không tìm thấy khóa học.');
+        this.router.navigate(['/courses']);
+        return;
+      }
+
+      const course = res.data;
+      const price = course.price ?? 0;
+      this.priceDisplay = price === 0 ? '0' : price.toLocaleString('vi-VN');
+
+      this.form.patchValue({
+        title: course.title,
+        description: course.description ?? '',
+        thumbnail: course.thumbnail ?? '',
+        price,
+        status: course.status
+      });
+
+      const sectionsArray = this.form.get('sections') as FormArray;
+      sectionsArray.clear();
+
+      for (const section of (course.sections ?? [])) {
+        const lessonsArray = this.fb.array(
+          (section.lessons ?? []).map(lesson =>
+            this.fb.group({
+              id: [lesson.id],
+              title: [lesson.title, [Validators.required, Validators.maxLength(255)]],
+              content: [lesson.content ?? ''],
+              videoUrl: [lesson.videoUrl ?? '', Validators.maxLength(500)],
+              lessonType: [lesson.lessonType],
+              position: [lesson.position, Validators.min(0)]
+            })
+          )
+        );
+
+        sectionsArray.push(
+          this.fb.group({
+            id: [section.id],
+            title: [section.title, [Validators.required, Validators.maxLength(255)]],
+            position: [section.position, Validators.min(0)],
+            lessons: lessonsArray
+          })
+        );
+      }
+    } catch {
+      this.toast.error('Không thể tải dữ liệu khóa học.');
+      this.router.navigate(['/courses']);
+    } finally {
+      this.loading = false;
+    }
+  }
 
   get sections(): FormArray {
     return this.form.get('sections') as FormArray;
@@ -100,6 +165,7 @@ export class CourseCreateComponent implements OnInit {
   addSection(): void {
     this.sections.push(
       this.fb.group({
+        id: [null],
         title: ['', [Validators.required, Validators.maxLength(255)]],
         position: [this.sections.length + 1, Validators.min(0)],
         lessons: this.fb.array([])
@@ -108,6 +174,8 @@ export class CourseCreateComponent implements OnInit {
   }
 
   removeSection(i: number): void {
+    const sectionId = this.sections.at(i).get('id')?.value;
+    if (sectionId) this.deletedSectionIds.push(sectionId);
     this.sections.removeAt(i);
   }
 
@@ -115,6 +183,7 @@ export class CourseCreateComponent implements OnInit {
     const lessons = this.getSectionLessons(si);
     lessons.push(
       this.fb.group({
+        id: [null],
         title: ['', [Validators.required, Validators.maxLength(255)]],
         content: [''],
         videoUrl: ['', Validators.maxLength(500)],
@@ -125,6 +194,8 @@ export class CourseCreateComponent implements OnInit {
   }
 
   removeLesson(si: number, li: number): void {
+    const lessonId = this.getSectionLessons(si).at(li).get('id')?.value;
+    if (lessonId) this.deletedLessonIds.push(lessonId);
     this.getSectionLessons(si).removeAt(li);
   }
 
@@ -177,8 +248,9 @@ export class CourseCreateComponent implements OnInit {
     try {
       const v = this.form.value;
 
+      // 1. Update course info
       const courseRes = await lastValueFrom(
-        this.courseService.createCourse({
+        this.courseService.updateCourse(this.courseId, {
           title: v.title,
           description: v.description || undefined,
           thumbnail: v.thumbnail || undefined,
@@ -188,40 +260,81 @@ export class CourseCreateComponent implements OnInit {
       );
 
       if (!courseRes.success) {
-        this.toast.error(courseRes.message || 'Tạo khóa học thất bại');
+        this.toast.error(courseRes.message || 'Cập nhật khóa học thất bại');
         return;
       }
 
-      const courseId = courseRes.data!.id;
+      // 2. Delete removed lessons then removed sections
+      for (const lid of this.deletedLessonIds) {
+        await lastValueFrom(this.lessonService.deleteLesson(lid));
+      }
+      for (const sid of this.deletedSectionIds) {
+        await lastValueFrom(this.sectionService.deleteSection(sid));
+      }
 
+      // 3. Create or update sections & lessons
       for (const section of v.sections) {
-        const sRes = await lastValueFrom(
-          this.sectionService.createSection({ courseId, title: section.title, position: section.position })
-        );
-        if (!sRes.success) {
-          this.toast.error(sRes.message || 'Tạo chương học thất bại');
-          return;
+        let sectionId: number;
+
+        if (section.id) {
+          // Update existing section
+          const sRes = await lastValueFrom(
+            this.sectionService.updateSection(section.id, { title: section.title, position: section.position })
+          );
+          if (!sRes.success) {
+            this.toast.error(sRes.message || 'Cập nhật chương học thất bại');
+            return;
+          }
+          sectionId = section.id;
+        } else {
+          // Create new section
+          const sRes = await lastValueFrom(
+            this.sectionService.createSection({ courseId: this.courseId, title: section.title, position: section.position })
+          );
+          if (!sRes.success) {
+            this.toast.error(sRes.message || 'Tạo chương học thất bại');
+            return;
+          }
+          sectionId = sRes.data!.id;
         }
 
-        const sectionId = sRes.data!.id;
         for (const lesson of section.lessons) {
-          const lRes = await lastValueFrom(
-            this.lessonService.createLesson({
-              sectionId, title: lesson.title,
-              content: lesson.content || undefined,
-              videoUrl: lesson.videoUrl || undefined,
-              lessonType: lesson.lessonType,
-              position: lesson.position
-            })
-          );
-          if (!lRes.success) {
-            this.toast.error(lRes.message || 'Tạo bài học thất bại');
-            return;
+          if (lesson.id) {
+            // Update existing lesson
+            const lRes = await lastValueFrom(
+              this.lessonService.updateLesson(lesson.id, {
+                title: lesson.title,
+                content: lesson.content || undefined,
+                videoUrl: lesson.videoUrl || undefined,
+                lessonType: lesson.lessonType,
+                position: lesson.position
+              })
+            );
+            if (!lRes.success) {
+              this.toast.error(lRes.message || 'Cập nhật bài học thất bại');
+              return;
+            }
+          } else {
+            // Create new lesson
+            const lRes = await lastValueFrom(
+              this.lessonService.createLesson({
+                sectionId,
+                title: lesson.title,
+                content: lesson.content || undefined,
+                videoUrl: lesson.videoUrl || undefined,
+                lessonType: lesson.lessonType,
+                position: lesson.position
+              })
+            );
+            if (!lRes.success) {
+              this.toast.error(lRes.message || 'Tạo bài học thất bại');
+              return;
+            }
           }
         }
       }
 
-      this.toast.success(`Tạo khóa học "${v.title}" thành công!`);
+      this.toast.success(`Cập nhật khóa học "${v.title}" thành công!`);
       this.router.navigate(['/courses']);
     } catch (err: any) {
       this.toast.error(err?.error?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');

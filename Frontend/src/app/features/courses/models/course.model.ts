@@ -68,7 +68,8 @@ export interface PagedResult<T> {
 }
 
 export interface ApiResponse<T> {
-  httpStatusCode: number;
+  success: boolean;
   message: string;
   data?: T;
+  httpStatusCode?: number;
 }

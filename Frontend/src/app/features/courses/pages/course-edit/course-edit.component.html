@@ -1,0 +1,386 @@
+@if (loading) {
+  <div class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <p>Đang tải dữ liệu khóa học...</p>
+  </div>
+} @else {
+<div class="create-page">
+
+  <!-- ── Sticky wizard header ── -->
+  <header class="wizard-header">
+    <a routerLink="/courses" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Quay lại
+    </a>
+
+    <h1>Chỉnh sửa khóa học</h1>
+
+    <div class="wizard-steps">
+      <div class="wizard-step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
+        <div class="step-num">
+          @if (currentStep > 1) {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          } @else { 1 }
+        </div>
+        <span class="step-label">Thông tin</span>
+      </div>
+
+      <div class="step-connector" [class.filled]="currentStep > 1"></div>
+
+      <div class="wizard-step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
+        <div class="step-num">
+          @if (currentStep > 2) {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          } @else { 2 }
+        </div>
+        <span class="step-label">Chương học</span>
+      </div>
+
+      <div class="step-connector" [class.filled]="currentStep > 2"></div>
+
+      <div class="wizard-step" [class.active]="currentStep === 3" (click)="goToStep(3)">
+        <div class="step-num">3</div>
+        <span class="step-label">Bài học</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Body ── -->
+  <div class="wizard-body">
+
+    <!-- Step 1: Course info -->
+    @if (currentStep === 1) {
+      <div [@stepAnim]>
+        <div class="wcard">
+          <div class="wcard-header">
+            <div class="icon-wrap violet">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div>
+              <h2>Thông tin cơ bản</h2>
+              <p>Cập nhật tên, mô tả và cấu hình khóa học</p>
+            </div>
+          </div>
+          <div class="wcard-body">
+            <form [formGroup]="form">
+
+              <!-- Title -->
+              <div class="form-group">
+                <label>Tên khóa học <span class="req">*</span></label>
+                <input
+                  class="form-input"
+                  [class.invalid]="form.get('title')?.invalid && form.get('title')?.touched"
+                  type="text"
+                  formControlName="title"
+                  placeholder="Ví dụ: Lập trình Angular từ cơ bản đến nâng cao"
+                />
+                @if (form.get('title')?.errors?.['required'] && form.get('title')?.touched) {
+                  <div class="field-error">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Tên khóa học là bắt buộc
+                  </div>
+                }
+                @if (form.get('title')?.errors?.['maxlength'] && form.get('title')?.touched) {
+                  <div class="field-error">Tên không được vượt quá 255 ký tự</div>
+                }
+              </div>
+
+              <!-- Description -->
+              <div class="form-group">
+                <label>Mô tả khóa học</label>
+                <textarea
+                  class="form-textarea"
+                  formControlName="description"
+                  placeholder="Mô tả nội dung, đối tượng học viên, và những gì họ sẽ học được..."
+                  rows="4"
+                ></textarea>
+              </div>
+
+              <div class="grid-2">
+                <!-- Price -->
+                <div class="form-group">
+                  <label>Học phí</label>
+                  <div class="price-input-wrap">
+                    <span class="currency">₫</span>
+                    <input
+                      class="form-input"
+                      [class.invalid]="form.get('price')?.errors?.['min'] && form.get('price')?.touched"
+                      type="text"
+                      inputmode="numeric"
+                      [value]="priceDisplay"
+                      (input)="onPriceInput($event)"
+                      placeholder="0"
+                    />
+                  </div>
+                  @if (form.get('price')?.errors?.['min'] && form.get('price')?.touched) {
+                    <div class="field-error">Học phí không được âm</div>
+                  }
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                  <label>Trạng thái</label>
+                  <div class="status-group">
+                    <button
+                      type="button"
+                      class="status-btn"
+                      [class.active-draft]="currentStatus === 'Draft'"
+                      (click)="setStatus('Draft')"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      Bản nháp
+                    </button>
+                    <button
+                      type="button"
+                      class="status-btn"
+                      [class.active-published]="currentStatus === 'Published'"
+                      (click)="setStatus('Published')"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      Xuất bản
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Thumbnail -->
+              <div class="form-group">
+                <label>URL ảnh bìa</label>
+                <input
+                  class="form-input"
+                  [class.invalid]="form.get('thumbnail')?.errors?.['maxlength'] && form.get('thumbnail')?.touched"
+                  type="text"
+                  formControlName="thumbnail"
+                  placeholder="https://example.com/image.jpg"
+                />
+                @if (thumbnailUrl) {
+                  <div class="thumbnail-preview">
+                    <img
+                      [src]="thumbnailUrl"
+                      alt="Ảnh bìa"
+                      (error)="thumbnailError = true"
+                      (load)="thumbnailError = false"
+                    />
+                    @if (thumbnailError) {
+                      <div class="no-thumb">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        URL không hợp lệ
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="thumbnail-preview">
+                    <div class="no-thumb">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      Chưa có ảnh bìa
+                    </div>
+                  </div>
+                }
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: Sections -->
+    @if (currentStep === 2) {
+      <div [@stepAnim]>
+        <div class="wcard">
+          <div class="wcard-header">
+            <div class="icon-wrap amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <h2>Chương học</h2>
+              <p>Thêm, sửa hoặc xóa các chương trong khóa học</p>
+            </div>
+          </div>
+          <div class="wcard-body">
+            <form [formGroup]="form">
+              <div formArrayName="sections">
+                @if (sections.length === 0) {
+                  <div class="empty-state">
+                    <div class="empty-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h3>Chưa có chương học nào</h3>
+                    <p>Thêm chương đầu tiên để bắt đầu tổ chức nội dung</p>
+                    <button type="button" class="btn btn-primary" (click)="addSection()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      Thêm chương đầu tiên
+                    </button>
+                  </div>
+                } @else {
+                  <div class="section-list" [@listStagger]="sections.length">
+                    @for (section of sections.controls; track section; let si = $index) {
+                      <div class="section-card" [formGroupName]="si">
+                        <div class="section-header">
+                          <div class="section-num">{{ si + 1 }}</div>
+                          <div class="section-title-text">
+                            {{ section.get('title')?.value || 'Chưa đặt tên' }}
+                          </div>
+                          <div class="section-actions">
+                            <button type="button" class="btn-icon" (click)="removeSection(si)" title="Xóa chương">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="section-body">
+                          <input
+                            class="section-title-input"
+                            [class.invalid]="section.get('title')?.invalid && section.get('title')?.touched"
+                            type="text"
+                            formControlName="title"
+                            placeholder="Tên chương, ví dụ: Giới thiệu Angular..."
+                          />
+                          @if (section.get('title')?.errors?.['required'] && section.get('title')?.touched) {
+                            <div class="field-error" style="margin-top:6px">Tên chương là bắt buộc</div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <button type="button" class="btn btn-outline-primary" style="margin-top:8px" (click)="addSection()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Thêm chương
+                  </button>
+                }
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Lessons -->
+    @if (currentStep === 3) {
+      <div [@stepAnim]>
+        <form [formGroup]="form">
+          <div formArrayName="sections">
+            @if (sections.length === 0) {
+              <div class="wcard">
+                <div class="wcard-body">
+                  <div class="empty-state">
+                    <div class="empty-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    </div>
+                    <h3>Chưa có chương nào</h3>
+                    <p>Quay lại bước 2 để thêm chương học trước</p>
+                    <button type="button" class="btn btn-ghost" (click)="goPrev()">Quay lại bước 2</button>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div [@listStagger]="sections.length" style="display:flex;flex-direction:column;gap:16px">
+                @for (section of sections.controls; track section; let si = $index) {
+                  <div class="wcard" [formGroupName]="si">
+                    <div class="wcard-header">
+                      <div class="icon-wrap green">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                      </div>
+                      <div>
+                        <h2>Chương {{ si + 1 }}: {{ section.get('title')?.value || 'Chưa đặt tên' }}</h2>
+                        <p>{{ getSectionLessons(si).length }} bài học</p>
+                      </div>
+                    </div>
+                    <div class="wcard-body">
+                      <div formArrayName="lessons">
+                        @if (getSectionLessons(si).length > 0) {
+                          <div class="lesson-list" [@listStagger]="getSectionLessons(si).length">
+                            @for (lesson of getSectionLessons(si).controls; track lesson; let li = $index) {
+                              <div class="lesson-item" [formGroupName]="li">
+                                <div>
+                                  <input
+                                    class="lesson-input"
+                                    [class.invalid]="lesson.get('title')?.invalid && lesson.get('title')?.touched"
+                                    type="text"
+                                    formControlName="title"
+                                    placeholder="Tên bài học..."
+                                  />
+                                  @if (lesson.get('title')?.errors?.['required'] && lesson.get('title')?.touched) {
+                                    <div class="field-error" style="margin-top:4px;font-size:11px">Bắt buộc</div>
+                                  }
+                                  <input
+                                    class="lesson-input"
+                                    type="text"
+                                    formControlName="videoUrl"
+                                    placeholder="URL Video (tuỳ chọn)..."
+                                    style="margin-top:6px"
+                                  />
+                                </div>
+                                <select class="lesson-type-select" formControlName="lessonType">
+                                  <option value="Video">Video</option>
+                                  <option value="Document">Tài liệu</option>
+                                </select>
+                                <button type="button" class="btn-icon" (click)="removeLesson(si, li)">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        }
+                        <button type="button" class="btn btn-outline-primary" style="margin-top:6px" (click)="addLesson(si)">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                          Thêm bài học
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </form>
+      </div>
+    }
+
+  </div>
+
+  <!-- ── Fixed footer ── -->
+  <footer class="wizard-footer">
+    <span class="step-hint">Bước {{ currentStep }} / 3</span>
+    <div class="footer-actions">
+      @if (currentStep > 1) {
+        <button type="button" class="btn btn-ghost" (click)="goPrev()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Quay lại
+        </button>
+      } @else {
+        <a routerLink="/courses" class="btn btn-ghost">Hủy</a>
+      }
+
+      @if (currentStep < 3) {
+        <button type="button" class="btn btn-primary" (click)="goNext()">
+          Tiếp theo
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="submitting"
+          (click)="onSubmit()"
+        >
+          @if (submitting) {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            Đang lưu...
+          } @else {
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Lưu thay đổi
+          }
+        </button>
+      }
+    </div>
+  </footer>
+
+</div>
+}
+
+<style>
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
