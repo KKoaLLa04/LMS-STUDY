@@ -40,7 +40,7 @@ public class KhoiHocService : IKhoiHocService
     {
         try
         {
-            var khoiHoc = await _context.KhoiHocs.FindAsync(id);
+            var khoiHoc = await _context.KhoiHocs.FirstOrDefaultAsync(k => k.Id == id);
             if (khoiHoc == null)
                 return ApiResponse<KhoiHocDto>.NotFound("Khối học không tồn tại");
 
@@ -86,7 +86,7 @@ public class KhoiHocService : IKhoiHocService
     {
         try
         {
-            var khoiHoc = await _context.KhoiHocs.FindAsync(id);
+            var khoiHoc = await _context.KhoiHocs.FirstOrDefaultAsync(k => k.Id == id);
             if (khoiHoc == null)
                 return ApiResponse<KhoiHocDto>.NotFound("Khối học không tồn tại");
 
@@ -115,11 +115,12 @@ public class KhoiHocService : IKhoiHocService
     {
         try
         {
-            var khoiHoc = await _context.KhoiHocs.FindAsync(id);
+            var khoiHoc = await _context.KhoiHocs.FirstOrDefaultAsync(k => k.Id == id);
             if (khoiHoc == null)
                 return ApiResponse<object?>.NotFound("Khối học không tồn tại");
 
-            _context.KhoiHocs.Remove(khoiHoc);
+            khoiHoc.IsDeleted = true;
+            khoiHoc.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return ApiResponse<object?>.Ok(null, "Xóa khối học thành công");

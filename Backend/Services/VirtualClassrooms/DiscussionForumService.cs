@@ -149,12 +149,11 @@ public class DiscussionForumService : IDiscussionForumService
     {
         try
         {
-            var post = await _context.DiscussionPosts.FindAsync(id);
-            if (post is null)
+            var exists = await _context.DiscussionPosts.AnyAsync(p => p.Id == id);
+            if (!exists)
                 return ApiResponse<object?>.NotFound("Không tìm thấy bài viết");
 
-            _context.DiscussionPosts.Remove(post);
-            await _context.SaveChangesAsync();
+            await SoftDeletePostRecursiveAsync(id, DateTime.UtcNow);
 
             return ApiResponse<object?>.Ok(null, "Xóa bài viết thành công");
         }
@@ -165,11 +164,32 @@ public class DiscussionForumService : IDiscussionForumService
         }
     }
 
+    // Trước đây replies bị cascade xóa cứng theo FK ParentPostId; nay phải tự đệ quy
+    // xóa mềm toàn bộ nhánh reply để không còn phản hồi "mồ côi" dưới bài viết đã xóa.
+    private async Task SoftDeletePostRecursiveAsync(int postId, DateTime deletedAt)
+    {
+        var replyIds = await _context.DiscussionPosts
+            .Where(p => p.ParentPostId == postId)
+            .Select(p => p.Id)
+            .ToListAsync();
+
+        foreach (var replyId in replyIds)
+        {
+            await SoftDeletePostRecursiveAsync(replyId, deletedAt);
+        }
+
+        await _context.DiscussionPosts
+            .Where(p => p.Id == postId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(x => x.IsDeleted, true)
+                .SetProperty(x => x.DeletedAt, deletedAt));
+    }
+
     public async Task<ApiResponse<DiscussionPostResponseDto>> ReplyToPostAsync(int parentPostId, CreateDiscussionPostDto dto)
     {
         try
         {
-            var parentPost = await _context.DiscussionPosts.FindAsync(parentPostId);
+            var parentPost = await _context.DiscussionPosts.FirstOrDefaultAsync(p => p.Id == parentPostId);
             if (parentPost is null)
                 return ApiResponse<DiscussionPostResponseDto>.NotFound("Không tìm thấy bài viết gốc");
 

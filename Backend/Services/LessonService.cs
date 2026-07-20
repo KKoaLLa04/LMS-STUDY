@@ -56,7 +56,7 @@ public class LessonService : ILessonService
     {
         try
         {
-            var lesson = await _context.Lessons.FindAsync(id);
+            var lesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == id);
             if (lesson == null)
                 return ApiResponse<LessonResponseDto>.NotFound("Bài học không tồn tại");
 
@@ -85,11 +85,12 @@ public class LessonService : ILessonService
     {
         try
         {
-            var lesson = await _context.Lessons.FindAsync(id);
+            var lesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == id);
             if (lesson == null)
                 return ApiResponse<object?>.NotFound("Bài học không tồn tại");
 
-            _context.Lessons.Remove(lesson);
+            lesson.IsDeleted = true;
+            lesson.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return ApiResponse<object?>.Ok(null, "Xóa bài học thành công");

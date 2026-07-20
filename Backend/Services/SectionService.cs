@@ -74,11 +74,20 @@ public class SectionService : ISectionService
     {
         try
         {
-            var section = await _context.Sections.FindAsync(id);
+            var section = await _context.Sections.FirstOrDefaultAsync(s => s.Id == id);
             if (section == null)
                 return ApiResponse<object?>.NotFound("Chương học không tồn tại");
 
-            _context.Sections.Remove(section);
+            var deletedAt = DateTime.UtcNow;
+
+            await _context.Lessons
+                .Where(l => l.SectionId == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, true)
+                    .SetProperty(x => x.DeletedAt, deletedAt));
+
+            section.IsDeleted = true;
+            section.DeletedAt = deletedAt;
             await _context.SaveChangesAsync();
 
             return ApiResponse<object?>.Ok(null, "Xóa chương học thành công");

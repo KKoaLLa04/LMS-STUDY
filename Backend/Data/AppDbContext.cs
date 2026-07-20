@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using Backend.Common;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,7 +59,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<KhoiHoc>(entity =>
         {
             entity.ToTable("KhoiHocs");
-            entity.HasIndex(k => k.Code).IsUnique();
+            // Filtered index: mã chỉ cần duy nhất trong số các bản ghi chưa bị xóa mềm,
+            // cho phép tái sử dụng mã sau khi khối học cũ đã bị xóa.
+            entity.HasIndex(k => k.Code).IsUnique().HasFilter("[IsDeleted] = 0");
         });
 
         modelBuilder.Entity<VirtualClassroom>(entity =>
@@ -117,5 +121,19 @@ public class AppDbContext : DbContext
                   .HasForeignKey(m => m.ChannelId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
+
+        // Xóa mềm: tự động loại bỏ các bản ghi có IsDeleted = true khỏi mọi truy vấn LINQ,
+        // áp dụng cho toàn bộ entity implement ISoftDelete mà không cần lặp lại Where() ở từng service.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType)) continue;
+
+            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var isDeletedProperty = Expression.Property(parameter, nameof(ISoftDelete.IsDeleted));
+            var notDeleted = Expression.Equal(isDeletedProperty, Expression.Constant(false));
+            var lambda = Expression.Lambda(notDeleted, parameter);
+
+            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+        }
     }
 }

@@ -124,11 +124,20 @@ public class ChatChannelService : IChatChannelService
     {
         try
         {
-            var channel = await _context.ChatChannels.FindAsync(id);
+            var channel = await _context.ChatChannels.FirstOrDefaultAsync(c => c.Id == id);
             if (channel is null)
                 return ApiResponse<object?>.NotFound("Không tìm thấy kênh chat");
 
-            _context.ChatChannels.Remove(channel);
+            var deletedAt = DateTime.UtcNow;
+
+            await _context.ChatMessages
+                .Where(m => m.ChannelId == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, true)
+                    .SetProperty(x => x.DeletedAt, deletedAt));
+
+            channel.IsDeleted = true;
+            channel.DeletedAt = deletedAt;
             await _context.SaveChangesAsync();
 
             return ApiResponse<object?>.Ok(null, "Xóa kênh chat thành công");

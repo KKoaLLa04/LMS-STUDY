@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Backend.Common;
 
 namespace Backend.Models;
 
 public enum MeetingPlatform { Zoom, GoogleMeet, MSTeams }
 public enum ClassroomStatus { Scheduled, Active, Ended, Cancelled }
 
-public class VirtualClassroom
+public class VirtualClassroom : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -38,4 +39,7 @@ public class VirtualClassroom
     public Course Course { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

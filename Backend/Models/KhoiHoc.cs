@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Backend.Common;
 
 namespace Backend.Models;
 
-public class KhoiHoc
+public class KhoiHoc : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -16,4 +17,7 @@ public class KhoiHoc
     public string Code { get; set; } = string.Empty;
 
     public int OrderNumber { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Backend.Common;
 
 namespace Backend.Models;
 
-public class Section
+public class Section : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -14,6 +15,9 @@ public class Section
     public string Title { get; set; } = string.Empty;
 
     public int Position { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 
     public Course Course { get; set; } = null!;
 

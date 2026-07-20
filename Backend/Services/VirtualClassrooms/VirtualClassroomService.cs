@@ -184,11 +184,12 @@ public class VirtualClassroomService : IVirtualClassroomService
     {
         try
         {
-            var classroom = await _context.VirtualClassrooms.FindAsync(id);
+            var classroom = await _context.VirtualClassrooms.FirstOrDefaultAsync(v => v.Id == id);
             if (classroom is null)
                 return ApiResponse<object?>.NotFound("Không tìm thấy phòng học trực tuyến");
 
-            _context.VirtualClassrooms.Remove(classroom);
+            classroom.IsDeleted = true;
+            classroom.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return ApiResponse<object?>.Ok(null, "Xóa phòng học thành công");

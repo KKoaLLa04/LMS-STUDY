@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Backend.Common;
 
 namespace Backend.Models;
 
-public class ChatChannel
+public class ChatChannel : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -18,10 +19,13 @@ public class ChatChannel
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+
     public ICollection<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
 }
 
-public class ChatMessage
+public class ChatMessage : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -36,4 +40,7 @@ public class ChatMessage
     public ChatChannel Channel { get; set; } = null!;
 
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

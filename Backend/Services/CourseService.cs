@@ -118,7 +118,7 @@ public class CourseService : ICourseService
     {
         try
         {
-            var course = await _context.Courses.FindAsync(id);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == id);
             if (course == null)
                 return ApiResponse<CourseListItemDto>.NotFound("Khóa học không tồn tại");
 
@@ -147,11 +147,68 @@ public class CourseService : ICourseService
     {
         try
         {
-            var course = await _context.Courses.FindAsync(id);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == id);
             if (course == null)
                 return ApiResponse<object?>.NotFound("Khóa học không tồn tại");
 
-            _context.Courses.Remove(course);
+            var deletedAt = DateTime.UtcNow;
+
+            // Xóa mềm toàn bộ dữ liệu con — trước đây các bảng này cascade xóa cứng theo Course,
+            // nay phải tự cascade xóa mềm để không còn dữ liệu "mồ côi" hiển thị dưới khóa học đã xóa.
+            var sectionIds = await _context.Sections
+                .Where(s => s.CourseId == id)
+                .Select(s => s.Id)
+                .ToListAsync();
+
+            if (sectionIds.Count > 0)
+            {
+                await _context.Lessons
+                    .Where(l => sectionIds.Contains(l.SectionId))
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(x => x.IsDeleted, true)
+                        .SetProperty(x => x.DeletedAt, deletedAt));
+            }
+
+            await _context.Sections
+                .Where(s => s.CourseId == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, true)
+                    .SetProperty(x => x.DeletedAt, deletedAt));
+
+            await _context.VirtualClassrooms
+                .Where(v => v.CourseId == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, true)
+                    .SetProperty(x => x.DeletedAt, deletedAt));
+
+            await _context.DiscussionPosts
+                .Where(p => p.CourseId == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, true)
+                    .SetProperty(x => x.DeletedAt, deletedAt));
+
+            var channelIds = await _context.ChatChannels
+                .Where(c => c.CourseId == id)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            if (channelIds.Count > 0)
+            {
+                await _context.ChatMessages
+                    .Where(m => channelIds.Contains(m.ChannelId))
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(x => x.IsDeleted, true)
+                        .SetProperty(x => x.DeletedAt, deletedAt));
+            }
+
+            await _context.ChatChannels
+                .Where(c => c.CourseId == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, true)
+                    .SetProperty(x => x.DeletedAt, deletedAt));
+
+            course.IsDeleted = true;
+            course.DeletedAt = deletedAt;
             await _context.SaveChangesAsync();
 
             return ApiResponse<object?>.Ok(null, "Xóa khóa học thành công");

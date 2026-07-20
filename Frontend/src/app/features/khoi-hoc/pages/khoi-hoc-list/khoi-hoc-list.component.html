@@ -24,11 +24,11 @@
       </div>
     }
 
-    <div class="card">
+    <div class="card kh-card">
       <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
-        <a routerLink="/khoi-hoc/create" class="btn btn-primary">
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
           <i class="bi bi-plus-circle me-1"></i>Thêm khối học
-        </a>
+        </button>
       </div>
 
       <div class="card-body p-0">
@@ -42,7 +42,8 @@
         } @else if (khoiHocs.length === 0) {
           <div class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            Chưa có khối học nào. <a routerLink="/khoi-hoc/create">Thêm khối học đầu tiên</a>
+            Chưa có khối học nào.
+            <a href="javascript:void(0)" (click)="openCreateModal()">Thêm khối học đầu tiên</a>
           </div>
         } @else {
           <div class="table-responsive">
@@ -61,28 +62,27 @@
                   <tr>
                     <td class="text-center align-middle text-muted">{{ i + 1 }}</td>
                     <td class="align-middle fw-semibold">{{ khoiHoc.name }}</td>
-                    <td class="align-middle">{{ khoiHoc.code }}</td>
+                    <td class="align-middle">
+                      <span class="badge kh-code-badge">{{ khoiHoc.code }}</span>
+                    </td>
                     <td class="align-middle">{{ khoiHoc.orderNumber }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
-                        <a
-                          [routerLink]="['/khoi-hoc', khoiHoc.id, 'edit']"
+                        <button
+                          type="button"
                           class="btn btn-sm btn-outline-primary"
                           title="Chỉnh sửa"
+                          (click)="openEditModal(khoiHoc)"
                         >
                           <i class="bi bi-pencil"></i>
-                        </a>
+                        </button>
                         <button
+                          type="button"
                           class="btn btn-sm btn-outline-danger"
                           title="Xóa"
-                          [disabled]="deleting === khoiHoc.id"
-                          (click)="onDelete(khoiHoc.id, khoiHoc.name)"
+                          (click)="openDeleteModal(khoiHoc)"
                         >
-                          @if (deleting === khoiHoc.id) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            <i class="bi bi-trash"></i>
-                          }
+                          <i class="bi bi-trash"></i>
                         </button>
                       </div>
                     </td>
@@ -95,5 +95,136 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Thêm / Chỉnh sửa khối học ═══════════════ -->
+<div #formModal class="modal fade kh-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="kh-modal-title">
+          <span class="kh-modal-icon">
+            <i class="bi" [class.bi-plus-lg]="modalMode === 'create'" [class.bi-pencil]="modalMode === 'edit'"></i>
+          </span>
+          <h5 class="modal-title mb-0">{{ modalTitle }}</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeFormModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tên khối học <span class="text-danger">*</span></label>
+            <input
+              #nameInput
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Ví dụ: Khối 10"
+              [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+            />
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+              <div class="invalid-feedback">Tên khối học không được để trống (tối đa 255 ký tự).</div>
+            }
+          </div>
+
+          <div class="row">
+            <div class="col-7 mb-3">
+              <label class="form-label">Mã khối học <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="code"
+                placeholder="Ví dụ: K10"
+                [class.is-invalid]="form.get('code')?.invalid && form.get('code')?.touched"
+              />
+              @if (form.get('code')?.invalid && form.get('code')?.touched) {
+                <div class="invalid-feedback">Mã khối học không được để trống (tối đa 50 ký tự).</div>
+              }
+            </div>
+
+            <div class="col-5 mb-3">
+              <label class="form-label">Thứ tự <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="orderNumber"
+                min="0"
+                [class.is-invalid]="form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched"
+              />
+              @if (form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched) {
+                <div class="invalid-feedback">Thứ tự không được âm.</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeFormModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting">
+            @if (submitting) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Lưu khối học
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Xác nhận xóa ═══════════════ -->
+<div #deleteModal class="modal fade kh-modal kh-modal-danger" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="kh-modal-title">
+          <span class="kh-modal-icon kh-modal-icon-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </span>
+          <h5 class="modal-title mb-0">Xóa khối học</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        @if (deleteTarget) {
+          <p class="mb-2">
+            Bạn sắp xóa khối học
+            <strong>{{ deleteTarget.name }}</strong>
+            (mã <span class="kh-code-badge badge">{{ deleteTarget.code }}</span>). Hành động này không thể hoàn tác.
+          </p>
+          <label class="form-label small text-muted">
+            Để xác nhận, vui lòng nhập lại tên khối học:
+            <strong class="text-body">{{ deleteTarget.name }}</strong>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="deleteConfirmInput"
+            [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="isDeleteConfirmValid && confirmDelete()"
+            placeholder="Nhập tên khối học..."
+            autocomplete="off"
+          />
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteModal()">Hủy</button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          [disabled]="!isDeleteConfirmValid || deleting"
+          (click)="confirmDelete()"
+        >
+          @if (deleting) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          Xóa vĩnh viễn
+        </button>
+      </div>
+    </div>
   </div>
 </div>

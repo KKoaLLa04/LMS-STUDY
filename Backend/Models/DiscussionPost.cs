@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Backend.Common;
 
 namespace Backend.Models;
 
-public class DiscussionPost
+public class DiscussionPost : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -26,4 +27,7 @@ public class DiscussionPost
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

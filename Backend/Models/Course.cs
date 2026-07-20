@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Backend.Common;
 
 namespace Backend.Models;
 
@@ -9,7 +10,7 @@ public enum CourseStatus
     Published
 }
 
-public class Course
+public class Course : ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -29,6 +30,9 @@ public class Course
     public CourseStatus Status { get; set; } = CourseStatus.Draft;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 
     public ICollection<Section> Sections { get; set; } = new List<Section>();
 }
