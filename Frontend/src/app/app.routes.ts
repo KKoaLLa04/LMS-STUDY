@@ -30,6 +30,13 @@ export const routes: Routes = [
             (m) => m.coursesRoutes
           ),
       },
+      {
+        path: 'khoi-hoc',
+        loadChildren: () =>
+          import('./features/khoi-hoc/khoi-hoc.routes').then(
+            (m) => m.khoiHocRoutes
+          ),
+      },
     ],
   },
 ];

@@ -1,0 +1,87 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Chỉnh sửa khối học</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item"><a routerLink="/khoi-hoc">Khối học</a></li>
+          <li class="breadcrumb-item active">Chỉnh sửa</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-body">
+        @if (loading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label class="form-label">Tên khối học <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Ví dụ: Khối 10"
+                [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+              />
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <div class="invalid-feedback">Tên khối học không được để trống (tối đa 255 ký tự).</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Mã khối học <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="code"
+                placeholder="Ví dụ: K10"
+                [class.is-invalid]="form.get('code')?.invalid && form.get('code')?.touched"
+              />
+              @if (form.get('code')?.invalid && form.get('code')?.touched) {
+                <div class="invalid-feedback">Mã khối học không được để trống (tối đa 50 ký tự).</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Thứ tự <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="orderNumber"
+                min="0"
+                [class.is-invalid]="form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched"
+              />
+              @if (form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched) {
+                <div class="invalid-feedback">Thứ tự không được âm.</div>
+              }
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                @if (submitting) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                Lưu thay đổi
+              </button>
+              <a routerLink="/khoi-hoc" class="btn btn-outline-secondary">Hủy</a>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  </div>
+</div>

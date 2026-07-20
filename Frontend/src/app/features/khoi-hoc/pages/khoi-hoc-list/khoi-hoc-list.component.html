@@ -1,0 +1,99 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Danh sách khối học</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item active">Khối học</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    @if (errorMessage) {
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
+        <a routerLink="/khoi-hoc/create" class="btn btn-primary">
+          <i class="bi bi-plus-circle me-1"></i>Thêm khối học
+        </a>
+      </div>
+
+      <div class="card-body p-0">
+        @if (loading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+          </div>
+        } @else if (khoiHocs.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            Chưa có khối học nào. <a routerLink="/khoi-hoc/create">Thêm khối học đầu tiên</a>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center" style="width: 60px">#</th>
+                  <th>Tên khối học</th>
+                  <th style="width: 160px">Mã</th>
+                  <th style="width: 120px">Thứ tự</th>
+                  <th class="text-center" style="width: 110px">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (khoiHoc of khoiHocs; track khoiHoc.id; let i = $index) {
+                  <tr>
+                    <td class="text-center align-middle text-muted">{{ i + 1 }}</td>
+                    <td class="align-middle fw-semibold">{{ khoiHoc.name }}</td>
+                    <td class="align-middle">{{ khoiHoc.code }}</td>
+                    <td class="align-middle">{{ khoiHoc.orderNumber }}</td>
+                    <td class="text-center align-middle">
+                      <div class="d-flex gap-1 justify-content-center">
+                        <a
+                          [routerLink]="['/khoi-hoc', khoiHoc.id, 'edit']"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Chỉnh sửa"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <button
+                          class="btn btn-sm btn-outline-danger"
+                          title="Xóa"
+                          [disabled]="deleting === khoiHoc.id"
+                          (click)="onDelete(khoiHoc.id, khoiHoc.name)"
+                        >
+                          @if (deleting === khoiHoc.id) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            <i class="bi bi-trash"></i>
+                          }
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

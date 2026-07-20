@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Section> Sections => Set<Section>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<KhoiHoc> KhoiHocs => Set<KhoiHoc>();
     public DbSet<VirtualClassroom> VirtualClassrooms => Set<VirtualClassroom>();
     public DbSet<DiscussionPost> DiscussionPosts => Set<DiscussionPost>();
     public DbSet<ChatChannel> ChatChannels => Set<ChatChannel>();
@@ -51,6 +52,12 @@ public class AppDbContext : DbContext
                   .WithMany(s => s.Lessons)
                   .HasForeignKey(l => l.SectionId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<KhoiHoc>(entity =>
+        {
+            entity.ToTable("KhoiHocs");
+            entity.HasIndex(k => k.Code).IsUnique();
         });
 
         modelBuilder.Entity<VirtualClassroom>(entity =>

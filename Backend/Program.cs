@@ -48,6 +48,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
+builder.Services.AddScoped<IKhoiHocService, KhoiHocService>();
 
 // Virtual Classrooms & Discussion & Chat
 builder.Services.AddScoped<IVirtualClassroomService, VirtualClassroomService>();
