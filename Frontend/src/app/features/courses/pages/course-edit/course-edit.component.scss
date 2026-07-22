@@ -42,18 +42,23 @@
   animation: spin .8s linear infinite;
 }
 
-/* ── Page wrapper ── */
+/* ── Page wrapper ──
+   Lives inside a Bootstrap .modal-content now, not a standalone routed page,
+   so height must be bounded here (not 100vh) and only .wizard-body scrolls —
+   header/footer used to be position:fixed/sticky to the *viewport*, which
+   would break out of the modal box. */
 .create-page {
   background: var(--bg);
-  min-height: 100vh;
-  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 3.5rem);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
-/* ── Sticky wizard header ── */
+/* ── Wizard header ── */
 .wizard-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  flex-shrink: 0;
   background: #fff;
   border-bottom: 1px solid var(--border);
   padding: 16px 24px;
@@ -66,10 +71,15 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     color: var(--muted);
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
+    font-family: inherit;
     transition: color 150ms;
     white-space: nowrap;
 
@@ -156,11 +166,16 @@
   &.filled { background: var(--green); }
 }
 
-/* ── Content area ── */
+/* ── Content area ──
+   No flex-grow: the modal should size to its (usually short) content,
+   not stretch to fill the max-height cap. max-height here only kicks in
+   to cap long content (many sections/lessons) with its own scrollbar. */
 .wizard-body {
   max-width: 860px;
-  margin: 32px auto;
-  padding: 0 24px;
+  margin: 0 auto;
+  padding: 24px;
+  overflow-y: auto;
+  max-height: 65vh;
 }
 
 /* ── Card ── */
@@ -489,6 +504,7 @@
   border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
   transition: transform 120ms, box-shadow 120ms, background 150ms, opacity 150ms;
   white-space: nowrap;
@@ -558,17 +574,13 @@
 
 /* ── Footer bar ── */
 .wizard-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
   background: #fff;
   border-top: 1px solid var(--border);
   padding: 14px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 100;
   box-shadow: 0 -4px 12px rgba(0,0,0,.06);
 
   .step-hint {
@@ -578,6 +590,72 @@
   }
 
   .footer-actions { display: flex; gap: 10px; }
+}
+
+/* ── Lesson video upload ── */
+.lesson-video-upload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-upload-video {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1.5px dashed var(--primary);
+  border-radius: 7px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms;
+  white-space: nowrap;
+
+  &:hover { background: #ddd6fe; }
+
+  &.disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .spinner-border-sm {
+    width: 12px;
+    height: 12px;
+    border-width: 2px;
+  }
+}
+
+.uploaded-file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: var(--green-light);
+  color: #065f46;
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 220px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    opacity: .7;
+
+    &:hover { opacity: 1; }
+  }
 }
 
 /* ── Empty state ── */

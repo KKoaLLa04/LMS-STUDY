@@ -33,6 +33,9 @@ public class AppDbContext : DbContext
             entity.Property(c => c.CreatedAt)
                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
                   .ValueGeneratedOnAdd();
+            // Chỉ số thường trên KhoiHocId để truy vấn nhanh — không khai báo quan hệ
+            // khóa ngoại (HasOne/WithMany), nên xóa KhoiHoc không bao giờ bị chặn.
+            entity.HasIndex(c => c.KhoiHocId);
         });
 
         modelBuilder.Entity<Section>(entity =>

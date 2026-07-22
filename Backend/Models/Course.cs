@@ -34,5 +34,9 @@ public class Course : ISoftDelete
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
 
+    // Lưu Id của KhoiHoc như một giá trị thường, không cấu hình quan hệ khóa ngoại —
+    // để việc xóa KhoiHoc không bao giờ bị chặn bởi các Course đang tham chiếu tới nó.
+    public int? KhoiHocId { get; set; }
+
     public ICollection<Section> Sections { get; set; } = new List<Section>();
 }

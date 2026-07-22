@@ -23,25 +23,33 @@ public class CourseService : ICourseService
     {
         try
         {
-            var query = _context.Courses.AsQueryable();
+            // Không có navigation property/FK giữa Course và KhoiHoc, nên join thủ công
+            // bằng LINQ (join theo Id) thay vì Include — KhoiHocId chỉ là 1 giá trị thường.
+            var query =
+                from c in _context.Courses
+                join k in _context.KhoiHocs on c.KhoiHocId equals k.Id into khoiJoin
+                from k in khoiJoin.DefaultIfEmpty()
+                select new { Course = c, KhoiHoc = k };
 
             if (!string.IsNullOrWhiteSpace(keyword))
-                query = query.Where(c => c.Title.Contains(keyword));
+                query = query.Where(x => x.Course.Title.Contains(keyword));
 
             var totalCount = await query.CountAsync();
 
             var items = await query
-                .OrderByDescending(c => c.CreatedAt)
+                .OrderByDescending(x => x.Course.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(c => new CourseListItemDto
+                .Select(x => new CourseListItemDto
                 {
-                    Id = c.Id,
-                    Title = c.Title,
-                    Thumbnail = c.Thumbnail,
-                    Price = c.Price,
-                    Status = c.Status.ToString(),
-                    CreatedAt = c.CreatedAt
+                    Id = x.Course.Id,
+                    Title = x.Course.Title,
+                    Thumbnail = x.Course.Thumbnail,
+                    Price = x.Course.Price,
+                    Status = x.Course.Status.ToString(),
+                    CreatedAt = x.Course.CreatedAt,
+                    KhoiHocId = x.Course.KhoiHocId,
+                    KhoiHocName = x.KhoiHoc != null ? x.KhoiHoc.Name : null
                 })
                 .ToListAsync();
 
@@ -75,7 +83,14 @@ public class CourseService : ICourseService
             if (course == null)
                 return ApiResponse<CourseDetailDto>.NotFound("Khóa học không tồn tại");
 
-            var dto = MapToCourseDetailDto(course);
+            string? khoiHocName = course.KhoiHocId.HasValue
+                ? await _context.KhoiHocs
+                    .Where(k => k.Id == course.KhoiHocId.Value)
+                    .Select(k => k.Name)
+                    .FirstOrDefaultAsync()
+                : null;
+
+            var dto = MapToCourseDetailDto(course, khoiHocName);
             return ApiResponse<CourseDetailDto>.Ok(dto);
         }
         catch (Exception ex)
@@ -99,7 +114,8 @@ public class CourseService : ICourseService
                 Description = dto.Description?.Trim(),
                 Thumbnail = dto.Thumbnail?.Trim(),
                 Price = dto.Price,
-                Status = status
+                Status = status,
+                KhoiHocId = dto.KhoiHocId
             };
 
             _context.Courses.Add(course);
@@ -131,6 +147,7 @@ public class CourseService : ICourseService
             course.Thumbnail = dto.Thumbnail?.Trim();
             course.Price = dto.Price;
             course.Status = status;
+            course.KhoiHocId = dto.KhoiHocId;
 
             await _context.SaveChangesAsync();
 
@@ -220,17 +237,19 @@ public class CourseService : ICourseService
         }
     }
 
-    private static CourseListItemDto MapToCourseListItemDto(Course course) => new()
+    private static CourseListItemDto MapToCourseListItemDto(Course course, string? khoiHocName = null) => new()
     {
         Id = course.Id,
         Title = course.Title,
         Thumbnail = course.Thumbnail,
         Price = course.Price,
         Status = course.Status.ToString(),
-        CreatedAt = course.CreatedAt
+        CreatedAt = course.CreatedAt,
+        KhoiHocId = course.KhoiHocId,
+        KhoiHocName = khoiHocName
     };
 
-    private static CourseDetailDto MapToCourseDetailDto(Course course) => new()
+    private static CourseDetailDto MapToCourseDetailDto(Course course, string? khoiHocName = null) => new()
     {
         Id = course.Id,
         Title = course.Title,
@@ -239,6 +258,8 @@ public class CourseService : ICourseService
         Price = course.Price,
         Status = course.Status.ToString(),
         CreatedAt = course.CreatedAt,
+        KhoiHocId = course.KhoiHocId,
+        KhoiHocName = khoiHocName,
         Sections = course.Sections.Select(s => new SectionDetailDto
         {
             Id = s.Id,

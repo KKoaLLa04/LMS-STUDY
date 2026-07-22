@@ -34,3 +34,9 @@
 ## OS
 .DS_Store
 Thumbs.db
+
+## Uploaded media (served from wwwroot, not committed)
+wwwroot/uploads/*
+!wwwroot/uploads/videos/
+wwwroot/uploads/videos/*
+!wwwroot/uploads/videos/.gitkeep

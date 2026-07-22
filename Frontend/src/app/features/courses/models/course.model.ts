@@ -4,6 +4,7 @@ export interface CreateCourseRequest {
   thumbnail?: string;
   price: number;
   status: string;
+  khoiHocId?: number;
 }
 
 export interface CreateSectionRequest {
@@ -28,6 +29,8 @@ export interface CourseListItem {
   price: number;
   status: string;
   createdAt: string;
+  khoiHocId?: number;
+  khoiHocName?: string;
 }
 
 export interface LessonResponse {
@@ -56,6 +59,8 @@ export interface CourseDetail {
   price: number;
   status: string;
   createdAt: string;
+  khoiHocId?: number;
+  khoiHocName?: string;
   sections: SectionDetail[];
 }
 

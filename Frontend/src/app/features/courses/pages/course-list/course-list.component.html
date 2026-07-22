@@ -48,9 +48,9 @@
         </div>
 
         <!-- Add button -->
-        <a routerLink="/courses/create" class="btn btn-primary">
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
           <i class="bi bi-plus-circle me-1"></i>Thêm khóa học
-        </a>
+        </button>
       </div>
 
       <div class="card-body p-0">
@@ -67,7 +67,7 @@
             @if (keyword) {
               Không tìm thấy khóa học nào với từ khóa "<strong>{{ keyword }}</strong>"
             } @else {
-              Chưa có khóa học nào. <a routerLink="/courses/create">Thêm khóa học đầu tiên</a>
+              Chưa có khóa học nào. <a href="javascript:void(0)" (click)="openCreateModal()">Thêm khóa học đầu tiên</a>
             }
           </div>
         } @else {
@@ -78,6 +78,7 @@
                   <th class="text-center" style="width: 60px">#</th>
                   <th style="width: 80px">Ảnh</th>
                   <th>Tên khóa học</th>
+                  <th style="width: 110px">Khối</th>
                   <th style="width: 130px">Giá</th>
                   <th style="width: 130px">Trạng thái</th>
                   <th style="width: 120px">Ngày tạo</th>
@@ -111,6 +112,13 @@
                       }
                     </td>
                     <td class="align-middle fw-semibold">{{ course.title }}</td>
+                    <td class="align-middle">
+                      @if (course.khoiHocName) {
+                        <span class="badge text-bg-light border">{{ course.khoiHocName }}</span>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
                     <td class="align-middle">{{ formatPrice(course.price) }}</td>
                     <td class="align-middle">
                       <span class="badge" [ngClass]="getStatusClass(course.status)">
@@ -120,13 +128,14 @@
                     <td class="align-middle text-muted">{{ formatDate(course.createdAt) }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
-                        <a
-                          [routerLink]="['/courses', course.id, 'edit']"
+                        <button
+                          type="button"
                           class="btn btn-sm btn-outline-primary"
                           title="Chỉnh sửa"
+                          (click)="openEditModal(course.id)"
                         >
                           <i class="bi bi-pencil"></i>
-                        </a>
+                        </button>
                         <button
                           class="btn btn-sm btn-outline-danger"
                           title="Xóa"
@@ -200,3 +209,6 @@
 
   </div>
 </div>
+
+<app-course-create (saved)="loadCourses()" />
+<app-course-edit (saved)="loadCourses()" />

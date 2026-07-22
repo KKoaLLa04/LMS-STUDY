@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { lastValueFrom } from 'rxjs';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
@@ -8,6 +7,18 @@ import { CourseService } from '../../services/course.service';
 import { SectionService } from '../../services/section.service';
 import { LessonService } from '../../services/lesson.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { UploadService } from '../../../../shared/services/upload.service';
+import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
+import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
+
+declare const bootstrap: any;
+
+const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
+
+interface UploadState {
+  uploading: boolean;
+  fileName?: string;
+}
 
 const slideUp = [
   style({ opacity: 0, transform: 'translateY(24px)' }),
@@ -21,7 +32,7 @@ const slideOut = [
 @Component({
   selector: 'app-course-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './course-edit.component.html',
   styleUrls: ['./course-edit.component.scss'],
   animations: [
@@ -41,7 +52,10 @@ const slideOut = [
     ])
   ]
 })
-export class CourseEditComponent implements OnInit {
+export class CourseEditComponent implements AfterViewInit {
+  @ViewChild('wizardModal') wizardModalEl!: ElementRef<HTMLElement>;
+  @Output() saved = new EventEmitter<void>();
+
   form: FormGroup;
   courseId!: number;
   currentStep = 1;
@@ -49,18 +63,22 @@ export class CourseEditComponent implements OnInit {
   submitting = false;
   thumbnailError = false;
   priceDisplay = '0';
+  khoiHocs: KhoiHoc[] = [];
+  uploadState = new Map<AbstractControl, UploadState>();
 
   // Track IDs that were removed so we can delete them on save
   deletedSectionIds: number[] = [];
   deletedLessonIds: number[] = [];
 
+  private modal: any;
+
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private courseService: CourseService,
     private sectionService: SectionService,
     private lessonService: LessonService,
-    private router: Router,
+    private khoiHocService: KhoiHocService,
+    private uploadService: UploadService,
     private toast: ToastService
   ) {
     this.form = this.fb.group({
@@ -69,13 +87,40 @@ export class CourseEditComponent implements OnInit {
       thumbnail: ['', Validators.maxLength(500)],
       price: [0, [Validators.min(0)]],
       status: ['Draft'],
+      khoiHocId: [null, Validators.required],
       sections: this.fb.array([])
     });
   }
 
-  ngOnInit(): void {
-    this.courseId = Number(this.route.snapshot.paramMap.get('id'));
+  ngAfterViewInit(): void {
+    this.modal = new bootstrap.Modal(this.wizardModalEl.nativeElement, {
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+
+  openForEdit(id: number): void {
+    this.courseId = id;
+    this.loading = true;
+    this.currentStep = 1;
+    this.thumbnailError = false;
+    this.uploadState.clear();
+    this.deletedSectionIds = [];
+    this.deletedLessonIds = [];
+    this.loadKhoiHocs();
     this.loadCourse();
+    this.modal.show();
+  }
+
+  close(): void {
+    this.modal.hide();
+  }
+
+  private loadKhoiHocs(): void {
+    this.khoiHocService.getKhoiHocs().subscribe({
+      next: (res) => (this.khoiHocs = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách khối học.')
+    });
   }
 
   private async loadCourse(): Promise<void> {
@@ -83,7 +128,7 @@ export class CourseEditComponent implements OnInit {
       const res = await lastValueFrom(this.courseService.getCourseById(this.courseId));
       if (!res.success || !res.data) {
         this.toast.error(res.message || 'Không tìm thấy khóa học.');
-        this.router.navigate(['/courses']);
+        this.modal.hide();
         return;
       }
 
@@ -96,7 +141,8 @@ export class CourseEditComponent implements OnInit {
         description: course.description ?? '',
         thumbnail: course.thumbnail ?? '',
         price,
-        status: course.status
+        status: course.status,
+        khoiHocId: course.khoiHocId ?? null
       });
 
       const sectionsArray = this.form.get('sections') as FormArray;
@@ -127,7 +173,7 @@ export class CourseEditComponent implements OnInit {
       }
     } catch {
       this.toast.error('Không thể tải dữ liệu khóa học.');
-      this.router.navigate(['/courses']);
+      this.modal.hide();
     } finally {
       this.loading = false;
     }
@@ -194,19 +240,66 @@ export class CourseEditComponent implements OnInit {
   }
 
   removeLesson(si: number, li: number): void {
-    const lessonId = this.getSectionLessons(si).at(li).get('id')?.value;
+    const lessons = this.getSectionLessons(si);
+    const lesson = lessons.at(li);
+    const lessonId = lesson.get('id')?.value;
     if (lessonId) this.deletedLessonIds.push(lessonId);
-    this.getSectionLessons(si).removeAt(li);
+    this.uploadState.delete(lesson);
+    lessons.removeAt(li);
+  }
+
+  getUploadState(lesson: AbstractControl): UploadState {
+    return this.uploadState.get(lesson) ?? { uploading: false };
+  }
+
+  onVideoFileSelected(event: Event, lesson: AbstractControl): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      this.toast.error('Vui lòng chọn một file video hợp lệ.');
+      return;
+    }
+    if (file.size > MAX_VIDEO_SIZE) {
+      this.toast.error('File video không được vượt quá 500MB.');
+      return;
+    }
+
+    this.uploadState.set(lesson, { uploading: true });
+    this.uploadService.uploadVideo(file).subscribe({
+      next: (res) => {
+        if (!res.success || !res.data) {
+          this.uploadState.set(lesson, { uploading: false });
+          this.toast.error(res.message || 'Tải video lên thất bại');
+          return;
+        }
+        lesson.get('videoUrl')?.setValue(res.data.url);
+        this.uploadState.set(lesson, { uploading: false, fileName: file.name });
+      },
+      error: (err) => {
+        this.uploadState.set(lesson, { uploading: false });
+        this.toast.error(err?.error?.message || 'Tải video lên thất bại');
+      }
+    });
+  }
+
+  clearUploadedVideo(lesson: AbstractControl): void {
+    lesson.get('videoUrl')?.setValue('');
+    this.uploadState.delete(lesson);
   }
 
   isStep1Valid(): boolean {
     const t = this.form.get('title');
-    return !!(t && t.valid && t.value?.trim());
+    const k = this.form.get('khoiHocId');
+    return !!(t && t.valid && t.value?.trim()) && !!(k && k.valid && k.value);
   }
 
   goNext(): void {
     if (this.currentStep === 1) {
       this.form.get('title')?.markAsTouched();
+      this.form.get('khoiHocId')?.markAsTouched();
       if (!this.isStep1Valid()) return;
     }
     if (this.currentStep < 3) this.currentStep++;
@@ -223,7 +316,7 @@ export class CourseEditComponent implements OnInit {
   }
 
   private firstInvalidStep(): number {
-    if (this.form.get('title')?.invalid) return 1;
+    if (this.form.get('title')?.invalid || this.form.get('khoiHocId')?.invalid) return 1;
     for (let i = 0; i < this.sections.length; i++) {
       if (this.sections.at(i).get('title')?.invalid) return 2;
       const lessons = this.getSectionLessons(i);
@@ -255,7 +348,8 @@ export class CourseEditComponent implements OnInit {
           description: v.description || undefined,
           thumbnail: v.thumbnail || undefined,
           price: v.price,
-          status: v.status
+          status: v.status,
+          khoiHocId: v.khoiHocId
         })
       );
 
@@ -335,7 +429,8 @@ export class CourseEditComponent implements OnInit {
       }
 
       this.toast.success(`Cập nhật khóa học "${v.title}" thành công!`);
-      this.router.navigate(['/courses']);
+      this.modal.hide();
+      this.saved.emit();
     } catch (err: any) {
       this.toast.error(err?.error?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {

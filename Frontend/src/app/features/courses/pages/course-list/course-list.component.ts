@@ -1,17 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseService } from '../../services/course.service';
 import { CourseListItem } from '../../models/course.model';
+import { CourseCreateComponent } from '../course-create/course-create.component';
+import { CourseEditComponent } from '../course-edit/course-edit.component';
 
 @Component({
   selector: 'app-course-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, CourseCreateComponent, CourseEditComponent],
   templateUrl: './course-list.component.html'
 })
 export class CourseListComponent implements OnInit {
+  @ViewChild(CourseCreateComponent) createModal!: CourseCreateComponent;
+  @ViewChild(CourseEditComponent) editModal!: CourseEditComponent;
+
   courses: CourseListItem[] = [];
   loading = false;
   deleting: number | null = null;
@@ -25,10 +30,27 @@ export class CourseListComponent implements OnInit {
   searchInput = '';
   keyword = '';
 
-  constructor(private courseService: CourseService) {}
+  constructor(
+    private courseService: CourseService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadCourses();
+
+    if (this.route.snapshot.queryParamMap.get('create') === '1') {
+      this.createModal.open();
+      this.router.navigate([], { queryParams: {} });
+    }
+  }
+
+  openCreateModal(): void {
+    this.createModal.open();
+  }
+
+  openEditModal(courseId: number): void {
+    this.editModal.openForEdit(courseId);
   }
 
   loadCourses(): void {

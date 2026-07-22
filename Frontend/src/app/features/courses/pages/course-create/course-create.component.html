@@ -1,11 +1,14 @@
+<div #wizardModal class="modal fade" tabindex="-1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-xl">
+<div class="modal-content">
 <div class="create-page">
 
   <!-- ── Sticky wizard header ── -->
   <header class="wizard-header">
-    <a routerLink="/courses" class="back-link">
+    <button type="button" class="back-link" (click)="close()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Quay lại
-    </a>
+      Đóng
+    </button>
 
     <h1>Tạo khóa học mới</h1>
 
@@ -76,6 +79,24 @@
                 }
                 @if (form.get('title')?.errors?.['maxlength'] && form.get('title')?.touched) {
                   <div class="field-error">Tên không được vượt quá 255 ký tự</div>
+                }
+              </div>
+
+              <!-- Khối -->
+              <div class="form-group">
+                <label>Khối <span class="req">*</span></label>
+                <select
+                  class="form-select"
+                  [class.invalid]="form.get('khoiHocId')?.invalid && form.get('khoiHocId')?.touched"
+                  formControlName="khoiHocId"
+                >
+                  <option [ngValue]="null" disabled>-- Chọn khối --</option>
+                  @for (k of khoiHocs; track k.id) {
+                    <option [ngValue]="k.id">{{ k.name }}</option>
+                  }
+                </select>
+                @if (form.get('khoiHocId')?.errors?.['required'] && form.get('khoiHocId')?.touched) {
+                  <div class="field-error">Vui lòng chọn khối cho khóa học</div>
                 }
               </div>
 
@@ -304,6 +325,33 @@
                                     placeholder="URL Video (tuỳ chọn)..."
                                     style="margin-top:6px"
                                   />
+                                  <div class="lesson-video-upload">
+                                    <label class="btn-upload-video" [class.disabled]="getUploadState(lesson).uploading">
+                                      @if (getUploadState(lesson).uploading) {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                        Đang tải lên...
+                                      } @else {
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                        Tải video lên
+                                      }
+                                      <input
+                                        type="file"
+                                        hidden
+                                        accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
+                                        [disabled]="getUploadState(lesson).uploading"
+                                        (change)="onVideoFileSelected($event, lesson)"
+                                      />
+                                    </label>
+                                    @if (getUploadState(lesson).fileName) {
+                                      <span class="uploaded-file-badge">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        {{ getUploadState(lesson).fileName }}
+                                        <button type="button" (click)="clearUploadedVideo(lesson)" title="Xóa video">
+                                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </button>
+                                      </span>
+                                    }
+                                  </div>
                                 </div>
                                 <select class="lesson-type-select" formControlName="lessonType">
                                   <option value="Video">Video</option>
@@ -343,7 +391,7 @@
           Quay lại
         </button>
       } @else {
-        <a routerLink="/courses" class="btn btn-ghost">Hủy</a>
+        <button type="button" class="btn btn-ghost" (click)="close()">Hủy</button>
       }
 
       @if (currentStep < 3) {
@@ -370,7 +418,9 @@
     </div>
   </footer>
 
-
+</div>
+</div>
+</div>
 </div>
 
 <style>

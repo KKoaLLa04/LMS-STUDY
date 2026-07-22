@@ -6,6 +6,7 @@ using Backend.Services.Interfaces;
 using Backend.Services.MeetingProviders;
 using Backend.Services.VirtualClassrooms;
 using Backend.Services.VirtualClassrooms.Interfaces;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,6 +50,13 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IKhoiHocService, KhoiHocService>();
+builder.Services.AddScoped<IUploadService, UploadService>();
+
+// Cho phép upload video kích thước lớn (tối đa 500MB) qua multipart/form-data
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 500 * 1024 * 1024;
+});
 
 // Virtual Classrooms & Discussion & Chat
 builder.Services.AddScoped<IVirtualClassroomService, VirtualClassroomService>();
@@ -115,6 +123,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("AllowAngularDev");
 app.UseAuthorization();
 app.MapControllers();

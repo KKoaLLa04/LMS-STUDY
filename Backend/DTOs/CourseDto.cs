@@ -17,6 +17,8 @@ public class CreateCourseDto
     public decimal Price { get; set; }
 
     public string Status { get; set; } = "Draft";
+
+    public int? KhoiHocId { get; set; }
 }
 
 public class UpdateCourseDto
@@ -34,6 +36,8 @@ public class UpdateCourseDto
     public decimal Price { get; set; }
 
     public string Status { get; set; } = "Draft";
+
+    public int? KhoiHocId { get; set; }
 }
 
 public class CourseListItemDto
@@ -44,6 +48,8 @@ public class CourseListItemDto
     public decimal Price { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public int? KhoiHocId { get; set; }
+    public string? KhoiHocName { get; set; }
 }
 
 public class CourseDetailDto
@@ -55,5 +61,7 @@ public class CourseDetailDto
     public decimal Price { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public int? KhoiHocId { get; set; }
+    public string? KhoiHocName { get; set; }
     public List<SectionDetailDto> Sections { get; set; } = new();
 }

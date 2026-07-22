@@ -62,7 +62,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a routerLink="/courses/create" routerLinkActive="active" class="nav-link">
+              <a routerLink="/courses" [queryParams]="{ create: '1' }" routerLinkActive="active" class="nav-link">
                 <i class="nav-icon bi bi-dot"></i>
                 <p>Thêm khóa học</p>
               </a>
