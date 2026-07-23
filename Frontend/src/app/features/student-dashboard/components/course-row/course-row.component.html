@@ -1,0 +1,15 @@
+<div class="course-row">
+  <div class="course-emoji" [style.background]="course.subjectBg">{{ course.emoji }}</div>
+  <div class="course-info">
+    <div class="course-name">{{ course.name }}</div>
+    <div class="course-meta">GV {{ course.teacher }} &middot; Tiếp theo: {{ course.nextLesson }}</div>
+    <div class="course-progress-row">
+      <div class="course-progress-track">
+        <div class="course-progress-fill" [style.width.%]="course.progress" [style.background]="course.progressColor"></div>
+      </div>
+      <span class="course-progress-pct">{{ course.progress }}%</span>
+    </div>
+  </div>
+  <span class="course-status" [style.background]="course.statusBg" [style.color]="course.statusColor">{{ course.statusLabel }}</span>
+  <button type="button" class="course-action" [style.background]="course.actionBg" [style.color]="course.actionColor">{{ course.actionLabel }}</button>
+</div>

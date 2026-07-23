@@ -1,0 +1,72 @@
+<div class="sd-greeting-row">
+        <div>
+          <h1 class="sd-greeting-title">{{ greeting }}</h1>
+          <p class="sd-greeting-sub">Hôm nay bạn có 2 bài học mới đang chờ đấy!</p>
+        </div>
+        <div class="sd-level-card">
+          <div class="sd-level-icon">
+            <app-sd-icon name="star" [size]="18" color="#fff" [strokeWidth]="2.2" />
+          </div>
+          <div>
+            <div class="sd-level-label">Cấp độ {{ student.level }}</div>
+            <div class="sd-xp-track">
+              <div class="sd-xp-fill" [style.width.%]="student.xpPercent"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sd-stats-grid" [@listStagger]="stats.length">
+        @for (stat of stats; track stat.label) {
+          <app-stat-card [stat]="stat" />
+        }
+      </div>
+
+      <div class="sd-columns">
+        <div class="sd-card sd-courses-card">
+          <div class="sd-card-header">
+            <div class="sd-card-header-left">
+              <div class="sd-card-icon sd-card-icon-indigo">
+                <app-sd-icon name="book" [size]="17" color="#6366F1" [strokeWidth]="2.2" />
+              </div>
+              <h2>Khóa học của tôi</h2>
+            </div>
+            <a href="javascript:void(0)" class="sd-see-all">Xem tất cả</a>
+          </div>
+          <div [@listStagger]="courses.length">
+            @for (course of courses; track course.name) {
+              <app-course-row [course]="course" />
+            }
+          </div>
+        </div>
+
+        <div class="sd-side-column">
+          <div class="sd-card sd-deadlines-card">
+            <div class="sd-card-header sd-card-header-tight">
+              <div class="sd-card-icon sd-card-icon-rose">
+                <app-sd-icon name="calendar" [size]="17" color="#F43F5E" [strokeWidth]="2.2" />
+              </div>
+              <h2>Sắp đến hạn</h2>
+            </div>
+            <div class="sd-deadline-list" [@listStagger]="deadlines.length">
+              @for (deadline of deadlines; track deadline.title) {
+                <app-deadline-item [deadline]="deadline" />
+              }
+            </div>
+          </div>
+
+          <div class="sd-card sd-activity-card">
+            <div class="sd-card-header sd-card-header-tight">
+              <div class="sd-card-icon sd-card-icon-cyan">
+                <app-sd-icon name="clock" [size]="17" color="#0891B2" [strokeWidth]="2.2" />
+              </div>
+              <h2>Hoạt động gần đây</h2>
+            </div>
+            <div class="sd-activity-list" [@listStagger]="activities.length">
+              @for (activity of activities; track activity.text) {
+                <app-activity-item [activity]="activity" />
+              }
+            </div>
+          </div>
+        </div>
+      </div>

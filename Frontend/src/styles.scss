@@ -3,3 +3,39 @@
 app-root {
   display: contents;
 }
+
+/* Student dashboard design tokens — prefixed --sd- so nothing collides with
+   Bootstrap/AdminLTE's own --bs-* variables used by the admin pages. */
+:root {
+  --sd-bg: #F8FAFC;
+  --sd-text: #1E293B;
+  --sd-heading: #1E1B4B;
+  --sd-muted: #64748B;
+  --sd-subtle: #94A3B8;
+
+  --sd-indigo: #6366F1;
+  --sd-indigo-light: #818CF8;
+  --sd-violet: #A78BFA;
+
+  --sd-cyan-from: #67E8F9;
+  --sd-cyan-to: #0891B2;
+  --sd-emerald-from: #6EE7B7;
+  --sd-emerald-to: #059669;
+  --sd-amber-from: #FDBA74;
+  --sd-amber-to: #EA580C;
+  --sd-coral: #F43F5E;
+
+  --sd-sidebar-bg: #1E1B4B;
+  --sd-sidebar-active: #312E81;
+  --sd-sidebar-text: #C7D2FE;
+  --sd-sidebar-text-muted: #A5B4FC;
+
+  --sd-radius-card: 20px;
+  --sd-radius-sm: 14px;
+  --sd-radius-pill: 999px;
+
+  --sd-shadow-card: 0 4px 16px rgba(15, 23, 42, 0.04);
+  --sd-shadow-stat: 0 8px 24px rgba(99, 102, 241, 0.08);
+
+  --sd-font: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}

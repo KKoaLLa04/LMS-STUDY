@@ -1,0 +1,12 @@
+<div class="stat-card">
+  <div class="stat-card-top">
+    <div class="stat-icon" [style.background]="'linear-gradient(135deg,' + stat.gradientFrom + ',' + stat.gradientTo + ')'">
+      <app-sd-icon [name]="stat.icon" [size]="20" color="#fff" />
+    </div>
+    <span class="stat-note" [style.color]="stat.noteColor" [style.background]="stat.noteBg">{{ stat.note }}</span>
+  </div>
+  <div>
+    <div class="stat-value">{{ stat.value }}</div>
+    <div class="stat-label">{{ stat.label }}</div>
+  </div>
+</div>

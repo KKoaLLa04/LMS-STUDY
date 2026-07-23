@@ -1,0 +1,111 @@
+.sd-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 28px;
+  background: rgba(248, 250, 252, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.sd-header-left,
+.sd-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sd-icon-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: background 150ms ease;
+
+  &:hover {
+    background: #EEF2FF;
+  }
+}
+
+.sd-header-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--sd-indigo);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sd-header-date {
+  font-size: 13.5px;
+  color: var(--sd-muted);
+}
+
+.sd-streak-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+  border: 1px solid #FED7AA;
+  padding: 8px 14px;
+  border-radius: var(--sd-radius-pill);
+}
+
+.sd-streak-emoji {
+  font-size: 16px;
+  display: inline-block;
+  animation: sd-flame-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes sd-flame-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.sd-streak-count {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #C2410C;
+}
+
+.sd-bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--sd-coral);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--sd-bg);
+}
+
+.sd-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--sd-indigo-light), var(--sd-indigo));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
+  font-size: 14.5px;
+  cursor: pointer;
+}

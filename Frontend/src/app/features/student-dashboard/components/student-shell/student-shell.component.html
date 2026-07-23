@@ -1,0 +1,29 @@
+<div class="sd-root">
+  @if (showBackdrop()) {
+    <div class="sd-backdrop" (click)="closeMobileSidebar()"></div>
+  }
+
+  <app-student-sidebar
+    [collapsed]="collapsed()"
+    [isMobile]="isMobile()"
+    [mobileOpen]="mobileOpen()"
+    [studentName]="student.name"
+    [grade]="student.grade"
+    [level]="student.level"
+  />
+
+  <div class="sd-main">
+    <app-student-dashboard-header
+      [dateLabel]="dateLabel"
+      [streakDays]="student.streakDays"
+      [initials]="initials"
+      (menuToggle)="toggleSidebar()"
+    />
+
+    <div class="sd-content">
+      <router-outlet />
+    </div>
+  </div>
+
+  <app-toast />
+</div>

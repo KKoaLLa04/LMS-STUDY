@@ -1,0 +1,9 @@
+<div class="activity-row">
+  <div class="activity-icon" [style.background]="activity.iconBg">
+    <app-sd-icon [name]="activity.icon" [size]="17" [color]="activity.iconColor" [strokeWidth]="activity.iconStrokeWidth" />
+  </div>
+  <div class="activity-info">
+    <div class="activity-text">{{ activity.text }}</div>
+    <div class="activity-time">{{ activity.time }}</div>
+  </div>
+</div>

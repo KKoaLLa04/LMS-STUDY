@@ -1,0 +1,54 @@
+<aside
+  class="sd-sidebar"
+  [style.width]="width"
+  [style.min-width]="width"
+  [style.position]="position"
+  [style.left]="left"
+>
+  <div class="sd-logo-row">
+    <div class="sd-logo-tile">
+      <app-sd-icon name="graduation-cap" [size]="20" color="#fff" [strokeWidth]="2" />
+    </div>
+    @if (showLabels) {
+      <div class="sd-logo-text" @fadeLabel>
+        <div class="sd-brand">HocVui</div>
+        <div class="sd-brand-sub">K-12 Learning</div>
+      </div>
+    }
+  </div>
+
+  <nav class="sd-nav">
+    @for (item of navItems; track item.label) {
+      @if (item.link) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="sd-nav-item"
+        >
+          <app-sd-icon [name]="item.icon" [size]="22" />
+          @if (showLabels) {
+            <span @fadeLabel>{{ item.label }}</span>
+          }
+        </a>
+      } @else {
+        <div class="sd-nav-item">
+          <app-sd-icon [name]="item.icon" [size]="22" />
+          @if (showLabels) {
+            <span @fadeLabel>{{ item.label }}</span>
+          }
+        </div>
+      }
+    }
+  </nav>
+
+  <div class="sd-profile-row">
+    <div class="sd-avatar">{{ initials }}</div>
+    @if (showLabels) {
+      <div class="sd-profile-text" @fadeLabel>
+        <div class="sd-profile-name">{{ studentName }}</div>
+        <div class="sd-profile-meta">{{ grade }} &middot; Cấp {{ level }}</div>
+      </div>
+    }
+  </div>
+</aside>

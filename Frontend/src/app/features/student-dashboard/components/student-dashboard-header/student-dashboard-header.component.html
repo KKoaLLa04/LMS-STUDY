@@ -1,0 +1,23 @@
+<header class="sd-header">
+  <div class="sd-header-left">
+    <button type="button" class="sd-icon-btn" (click)="menuToggle.emit()" aria-label="Đóng/mở menu">
+      <app-sd-icon name="menu" [size]="18" color="#4338CA" [strokeWidth]="2.4" />
+    </button>
+    <div>
+      <div class="sd-header-title">Trang chủ</div>
+      <div class="sd-header-date">{{ dateLabel }}</div>
+    </div>
+  </div>
+
+  <div class="sd-header-right">
+    <div class="sd-streak-pill">
+      <span class="sd-streak-emoji">🔥</span>
+      <span class="sd-streak-count">{{ streakDays }} ngày</span>
+    </div>
+    <button type="button" class="sd-icon-btn sd-bell-btn" aria-label="Thông báo">
+      <app-sd-icon name="bell" [size]="18" color="#475569" [strokeWidth]="2" />
+      <span class="sd-bell-badge">3</span>
+    </button>
+    <div class="sd-avatar-circle">{{ initials }}</div>
+  </div>
+</header>

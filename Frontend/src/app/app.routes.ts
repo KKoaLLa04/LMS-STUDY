@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { LayoutComponent } from './layout/layout.component';
+import { StudentShellComponent } from './features/student-dashboard/components/student-shell/student-shell.component';
 
 export const routes: Routes = [
-  // Landing page — hiển thị độc lập, không qua admin layout
+  // Landing page — hiển thị độc lập, không qua shell
   {
     path: '',
     pathMatch: 'full',
@@ -11,16 +11,17 @@ export const routes: Routes = [
         (m) => m.LandingComponent
       ),
   },
-  // Admin routes — sử dụng LayoutComponent (sidebar + navbar)
+  // Shell chung (sidebar + header mới) cho toàn bộ các trang sau đăng nhập,
+  // để điều hướng giữa các trang không bị đổi lại sidebar/header cũ
   {
     path: '',
-    component: LayoutComponent,
+    component: StudentShellComponent,
     children: [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./pages/dashboard/dashboard.component').then(
-            (m) => m.DashboardComponent
+          import('./features/student-dashboard/pages/dashboard/student-dashboard.component').then(
+            (m) => m.StudentDashboardComponent
           ),
       },
       {

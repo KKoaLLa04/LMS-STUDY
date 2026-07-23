@@ -7,6 +7,10 @@
   --radius-sm: 10px;
 }
 
+.kh-container {
+  max-width: 960px;
+}
+
 .kh-card {
   border-radius: var(--radius);
   border: 1px solid #eceef2;
