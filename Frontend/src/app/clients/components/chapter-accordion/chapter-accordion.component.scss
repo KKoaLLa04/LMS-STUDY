@@ -1,0 +1,102 @@
+.oc-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oc-accordion__chapter {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.oc-accordion__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--oc-space-3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.oc-accordion__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oc-accordion__title {
+  font-size: 15px;
+}
+
+.oc-accordion__meta {
+  font-size: 11px;
+}
+
+.oc-accordion__chevron {
+  display: flex;
+  flex: none;
+  transition: transform 0.3s ease;
+
+  &.is-open {
+    transform: rotate(180deg);
+  }
+}
+
+.oc-accordion__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-accordion__lesson {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px var(--oc-space-3);
+  border-top: 1px solid var(--oc-divider);
+
+  &.is-highlighted {
+    background: var(--oc-accent-100);
+  }
+}
+
+.oc-accordion__lesson-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+
+  &.is-done {
+    background: var(--oc-accent);
+  }
+
+  &.is-locked {
+    background: var(--oc-neutral-200);
+  }
+
+  &.is-current {
+    background: var(--oc-accent-2-200);
+    padding-left: 1px;
+  }
+}
+
+.oc-accordion__lesson-title {
+  flex: 1;
+  font-size: 13px;
+
+  &.is-locked {
+    opacity: 0.45;
+  }
+}
+
+.oc-accordion__lesson-duration {
+  font-size: 11px;
+}

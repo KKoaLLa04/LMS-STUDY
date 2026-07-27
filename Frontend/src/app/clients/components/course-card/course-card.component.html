@@ -1,0 +1,63 @@
+@if (variant === 'compact') {
+  <a
+    class="oc-card oc-elev-sm oc-course-card oc-course-card--compact"
+    [routerLink]="[course.id]"
+    [style.animation-delay.s]="animationDelay"
+  >
+    <div class="oc-course-card__thumb" [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'">
+      <app-oc-icon name="book-open" [size]="30" color="rgba(255,255,255,0.9)"></app-oc-icon>
+    </div>
+    <div class="oc-card-title oc-course-card__title">{{ course.title }}</div>
+    <div class="oc-course-card__progress-track">
+      <div class="oc-course-card__progress-fill" [style.width.%]="course.progressPercent"></div>
+    </div>
+    <div class="oc-course-card__meta">
+      <span>{{ course.progressPercent }}% hoàn thành</span>
+      <span class="oc-course-card__continue">Tiếp tục →</span>
+    </div>
+  </a>
+} @else {
+  <a
+    class="oc-card oc-elev-sm oc-course-card"
+    [routerLink]="[course.id]"
+    [style.animation-delay.s]="animationDelay"
+  >
+    <div class="oc-course-card__thumb" [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'">
+      <app-oc-icon name="book-open" [size]="34" color="rgba(255,255,255,0.92)"></app-oc-icon>
+      <span class="oc-course-card__subject-tag">{{ course.subject }}</span>
+      <span class="oc-course-card__duration-tag">{{ course.durationMinutes | ocDuration }}</span>
+    </div>
+
+    <div class="oc-card-title">{{ course.title }}</div>
+
+    <div class="oc-course-card__teacher">
+      <span class="oc-course-card__teacher-avatar">{{ course.teacherInitials }}</span>
+      <span class="oc-text-muted">{{ course.teacher }}</span>
+    </div>
+
+    <div class="oc-course-card__stats oc-text-muted">
+      <span class="oc-course-card__rating">
+        <app-oc-icon name="star" [size]="13" color="var(--oc-accent-700)"></app-oc-icon>
+        {{ course.rating }}
+      </span>
+      <span>
+        <app-oc-icon name="book-open" [size]="13"></app-oc-icon>
+        {{ course.lessonsCount }} bài
+      </span>
+    </div>
+
+    @if (course.purchased) {
+      <div class="oc-course-card__purchased">
+        <div class="oc-course-card__progress-track oc-course-card__progress-track--sm">
+          <div class="oc-course-card__progress-fill" [style.width.%]="course.progressPercent"></div>
+        </div>
+        <span class="oc-tag oc-tag-accent-2">{{ course.progressPercent }}% hoàn thành</span>
+      </div>
+    } @else {
+      <div class="oc-course-card__buy">
+        <span class="oc-course-card__price">{{ course.price | ocPrice }}</span>
+        <span class="oc-btn oc-btn-ghost oc-course-card__cta">Xem chi tiết</span>
+      </div>
+    }
+  </a>
+}

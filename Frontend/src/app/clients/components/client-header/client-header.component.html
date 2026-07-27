@@ -1,0 +1,31 @@
+<header class="oc-header">
+  <a class="oc-header__brand" routerLink="/client">
+    <span class="oc-header__logo">
+      <app-oc-icon name="book-open" [size]="19" color="var(--oc-bg)"></app-oc-icon>
+    </span>
+    <span class="oc-header__brand-name">Học Vui</span>
+  </a>
+
+  <nav class="oc-header__nav">
+    <a routerLink="/client" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Khóa học</a>
+    <a class="is-muted">Của tôi</a>
+    <a class="is-muted">Yêu thích</a>
+  </nav>
+
+  <div class="oc-header__search">
+    <app-oc-icon name="search" [size]="16" color="color-mix(in srgb, var(--oc-text) 50%, transparent)"></app-oc-icon>
+    <input
+      class="oc-input"
+      type="text"
+      placeholder="Tìm kiếm khóa học..."
+      [value]="searchQuery"
+      (input)="onSearchInput($event)"
+    />
+  </div>
+
+  <button class="oc-btn oc-btn-icon oc-btn-secondary" type="button" aria-label="Thông báo">
+    <app-oc-icon name="bell" [size]="17"></app-oc-icon>
+  </button>
+
+  <div class="oc-header__avatar cursor-pointer" aria-hidden="true" [routerLink]="'/login'">HS</div>
+</header>

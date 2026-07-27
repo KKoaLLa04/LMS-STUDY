@@ -1,0 +1,12 @@
+<div class="oc-chips">
+  @for (category of categories; track category) {
+    <button
+      type="button"
+      class="oc-chips__chip"
+      [class.is-active]="category === activeCategory"
+      (click)="activeCategoryChange.emit(category)"
+    >
+      {{ category }}
+    </button>
+  }
+</div>

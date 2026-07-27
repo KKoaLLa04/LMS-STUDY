@@ -1,4 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'app/clients/theme/organic-theme';
 
 app-root {
   display: contents;
@@ -48,4 +49,8 @@ app-root {
   --sd-shadow-stat: 0 8px 24px rgba(99, 102, 241, 0.08);
 
   --sd-font: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+.cursor-pointer{
+  cursor: pointer !important;
 }

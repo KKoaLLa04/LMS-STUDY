@@ -1,0 +1,40 @@
+<div class="oc-accordion">
+  @for (chapter of chapters; track chapter.id) {
+    <div class="oc-card oc-elev-sm oc-accordion__chapter">
+      <button type="button" class="oc-accordion__header" (click)="toggle(chapter.id)">
+        <div class="oc-accordion__heading">
+          <span class="oc-card-title oc-accordion__title">{{ chapter.title }}</span>
+          <span class="oc-text-muted oc-accordion__meta">{{ chapterMeta(chapter) }}</span>
+        </div>
+        <span class="oc-accordion__chevron" [class.is-open]="isExpanded(chapter.id)">
+          <app-oc-icon name="chevron-down" [size]="18"></app-oc-icon>
+        </span>
+      </button>
+
+      <div class="oc-accordion__body" [@expandCollapse]="isExpanded(chapter.id) ? 'expanded' : 'collapsed'">
+        @for (lesson of chapter.lessons; track lesson.id) {
+          <div
+            class="oc-accordion__lesson"
+            [class.is-highlighted]="lesson.id === nextLessonId"
+          >
+            <span class="oc-accordion__lesson-icon" [class]="'is-' + lesson.status">
+              @switch (lesson.status) {
+                @case ('done') {
+                  <app-oc-icon name="check" [size]="13" color="var(--oc-bg)"></app-oc-icon>
+                }
+                @case ('locked') {
+                  <app-oc-icon name="lock" [size]="12" color="var(--oc-text)"></app-oc-icon>
+                }
+                @default {
+                  <app-oc-icon name="play" [size]="12" color="var(--oc-accent-2-800)"></app-oc-icon>
+                }
+              }
+            </span>
+            <span class="oc-accordion__lesson-title" [class.is-locked]="lesson.status === 'locked'">{{ lesson.title }}</span>
+            <span class="oc-text-muted oc-accordion__lesson-duration">{{ lesson.durationMinutes }}p</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

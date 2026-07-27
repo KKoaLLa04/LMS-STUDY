@@ -1,0 +1,30 @@
+.oc-chips {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.oc-chips__chip {
+  flex: none;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--oc-divider);
+  background: var(--oc-surface);
+  color: var(--oc-text);
+  font-family: var(--oc-font-heading);
+  font-weight: 400;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.is-active {
+    border-color: var(--oc-accent);
+    background: var(--oc-accent);
+    color: var(--oc-bg);
+  }
+
+  &:not(.is-active):hover {
+    border-color: color-mix(in srgb, var(--oc-text) 35%, transparent);
+  }
+}

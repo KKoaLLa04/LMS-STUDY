@@ -4,13 +4,19 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   // Landing page — hiển thị độc lập, không qua shell
+  // {
+  //   path: '',
+  //   pathMatch: 'full',
+  //   loadComponent: () =>
+  //     import('./pages/landing/landing.component').then(
+  //       (m) => m.LandingComponent
+  //     ),
+  // },
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () =>
-      import('./pages/landing/landing.component').then(
-        (m) => m.LandingComponent
-      ),
+    loadChildren: () =>
+      import('./clients/clients.routes').then((m) => m.clientsRoutes),
   },
   // Đăng nhập — public, ngoài shell
   {
@@ -19,6 +25,12 @@ export const routes: Routes = [
       import('./features/auth/pages/login/login.component').then(
         (m) => m.LoginComponent
       ),
+  },
+  // Khu vực học sinh (client) — giao diện Organic riêng, độc lập với shell admin.
+  {
+    path: 'client',
+    loadChildren: () =>
+      import('./clients/clients.routes').then((m) => m.clientsRoutes),
   },
   // Shell chung (sidebar + header mới) cho toàn bộ các trang sau đăng nhập,
   // để điều hướng giữa các trang không bị đổi lại sidebar/header cũ.

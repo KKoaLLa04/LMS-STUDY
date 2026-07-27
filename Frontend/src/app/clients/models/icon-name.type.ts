@@ -1,0 +1,18 @@
+export type OcIconName =
+  | 'book-open'
+  | 'search'
+  | 'bell'
+  | 'arrow-right'
+  | 'arrow-left'
+  | 'star'
+  | 'clock'
+  | 'chevron-down'
+  | 'check'
+  | 'lock'
+  | 'play'
+  | 'users'
+  | 'layers'
+  | 'file'
+  | 'file-text'
+  | 'download'
+  | 'message-circle';

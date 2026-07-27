@@ -1,0 +1,37 @@
+@if (activeCourse; as course) {
+  <section
+    class="oc-carousel"
+    [class.oc-carousel--variant2]="course.id % 2 === 0"
+  >
+    <div class="oc-carousel__blob oc-carousel__blob--1"></div>
+    <div class="oc-carousel__blob oc-carousel__blob--2"></div>
+
+    <div class="oc-carousel__content">
+      <span class="oc-tag oc-carousel__kicker">✦ Khóa học nổi bật</span>
+      <h2 class="oc-carousel__title">{{ course.title }}</h2>
+      <p class="oc-carousel__desc">{{ course.description }}</p>
+      <div>
+        <button type="button" class="oc-btn oc-carousel__cta" (click)="openActiveCourse()">
+          Xem ngay
+          <app-oc-icon name="arrow-right" [size]="15"></app-oc-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="oc-carousel__icon">
+      <app-oc-icon name="book-open" [size]="64" color="#fff"></app-oc-icon>
+    </div>
+
+    <div class="oc-carousel__dots">
+      @for (item of courses; track item.id; let i = $index) {
+        <button
+          type="button"
+          class="oc-carousel__dot"
+          [class.is-active]="i === activeIndex()"
+          (click)="goToSlide(i)"
+          [attr.aria-label]="'Xem khóa học nổi bật ' + (i + 1)"
+        ></button>
+      }
+    </div>
+  </section>
+}
