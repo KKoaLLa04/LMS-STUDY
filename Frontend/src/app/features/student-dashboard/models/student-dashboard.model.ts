@@ -13,7 +13,8 @@ export type IconName =
   | 'bell'
   | 'graduation-cap'
   | 'clock'
-  | 'layers';
+  | 'layers'
+  | 'log-out';
 
 export interface Student {
   name: string;

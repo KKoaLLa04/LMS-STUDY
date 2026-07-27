@@ -1,11 +1,13 @@
 using Backend.DTOs;
 using Backend.Services.VirtualClassrooms.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers.VirtualClassrooms;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin")]
 public class DiscussionForumsController : ControllerBase
 {
     private readonly IDiscussionForumService _service;

@@ -7,7 +7,8 @@ namespace Backend.Models;
 public enum CourseStatus
 {
     Draft,
-    Published
+    Published,
+    Upcoming
 }
 
 public class Course : ISoftDelete
@@ -23,6 +24,12 @@ public class Course : ISoftDelete
 
     [MaxLength(500)]
     public string? Thumbnail { get; set; }
+
+    [MaxLength(255)]
+    public string? Teacher { get; set; }
+
+    [MaxLength(16)]
+    public string? Emoji { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }

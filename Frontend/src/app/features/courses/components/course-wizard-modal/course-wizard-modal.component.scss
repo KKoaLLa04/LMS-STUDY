@@ -1,12 +1,15 @@
-/* Design tokens */
+/* Design tokens — indigo/violet palette */
 :host {
-  --primary: #7c3aed;
-  --primary-light: #ede9fe;
-  --primary-dark: #5b21b6;
+  --primary: #6366F1;
+  --primary-light: #EEF2FF;
+  --primary-dark: #4338CA;
+  --gradient: linear-gradient(135deg, #818CF8, #6366F1);
   --green: #10b981;
   --green-light: #d1fae5;
   --amber: #f59e0b;
   --amber-light: #fef3c7;
+  --gray: #64748B;
+  --gray-light: #F1F5F9;
   --red: #ef4444;
   --red-light: #fee2e2;
   --bg: #fafafa;
@@ -20,13 +23,23 @@
   --shadow-hover: 0 4px 12px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.08);
 }
 
-/* ── Loading state ── */
+/* ── Modal sizing ── */
+.course-wizard-dialog {
+  max-width: 640px;
+}
+
+.modal-content {
+  border-radius: 22px;
+  overflow: hidden;
+  border: none;
+}
+
 .loading-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
+  min-height: 40vh;
   gap: 16px;
   color: var(--muted);
   font-size: 14px;
@@ -43,16 +56,13 @@
 }
 
 /* ── Page wrapper ──
-   Lives inside a Bootstrap .modal-content now, not a standalone routed page,
-   so height must be bounded here (not 100vh) and only .wizard-body scrolls —
-   header/footer used to be position:fixed/sticky to the *viewport*, which
-   would break out of the modal box. */
+   Lives inside a Bootstrap .modal-content, so height must be bounded here
+   (not 100vh) and only .wizard-body scrolls. */
 .create-page {
   background: var(--bg);
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 3.5rem);
-  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -61,11 +71,12 @@
   flex-shrink: 0;
   background: #fff;
   border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
+  padding: 16px 22px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  flex-wrap: wrap;
 
   .back-link {
     display: flex;
@@ -87,7 +98,7 @@
   }
 
   h1 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     color: var(--text);
     margin: 0;
@@ -100,25 +111,25 @@
   align-items: center;
   gap: 0;
   flex: 1;
-  max-width: 480px;
+  min-width: 220px;
   margin-left: auto;
 }
 
 .wizard-step {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   cursor: pointer;
 
   .step-num {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     border: 2px solid var(--border);
     background: #fff;
@@ -128,7 +139,7 @@
   }
 
   .step-label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--muted);
     transition: color 200ms;
@@ -157,23 +168,18 @@
 
 .step-connector {
   height: 2px;
-  flex: 1;
+  flex: 0 0 24px;
   background: var(--border);
-  margin: 0 4px;
+  margin: 0 2px;
   border-radius: 2px;
   transition: background 300ms;
 
   &.filled { background: var(--green); }
 }
 
-/* ── Content area ──
-   No flex-grow: the modal should size to its (usually short) content,
-   not stretch to fill the max-height cap. max-height here only kicks in
-   to cap long content (many sections/lessons) with its own scrollbar. */
+/* ── Content area ── */
 .wizard-body {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 24px;
+  padding: 22px;
   overflow-y: auto;
   max-height: 65vh;
 }
@@ -191,7 +197,7 @@
 }
 
 .wcard-header {
-  padding: 20px 24px 16px;
+  padding: 18px 20px 14px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -212,25 +218,25 @@
   }
 
   h2 {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--text);
     margin: 0;
   }
   p {
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--muted);
     margin: 2px 0 0;
   }
 }
 
 .wcard-body {
-  padding: 24px;
+  padding: 20px;
 }
 
 /* ── Form controls ── */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 
   label {
     display: block;
@@ -270,7 +276,14 @@
   }
 }
 
-.form-textarea { resize: vertical; min-height: 100px; }
+.emoji-input {
+  text-align: center;
+  font-size: 18px;
+}
+
+.form-textarea { resize: vertical; min-height: 90px; }
+
+.form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 
 .field-error {
   font-size: 12px;
@@ -297,50 +310,70 @@
   .form-input { padding-left: 50px; }
 }
 
-/* ── Thumbnail preview ── */
-.thumbnail-preview {
+/* ── Cover image dropzone ── */
+.cover-dropzone {
+  display: block;
+  position: relative;
   margin-top: 10px;
   border-radius: var(--radius-sm);
-  overflow: hidden;
-  height: 140px;
+  border: 1.5px dashed #c7c9f5;
   background: var(--primary-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  height: 120px;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms;
+
+  &:hover { border-color: var(--primary); }
 
   img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
 
-  .no-thumb {
+  .cover-dropzone-overlay {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 6px;
     color: var(--primary);
-    opacity: .5;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
+    text-align: center;
+    padding: 0 16px;
+  }
+
+  &.has-image .cover-dropzone-overlay {
+    background: rgba(15, 23, 42, 0.45);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 150ms;
+  }
+
+  &.has-image:hover .cover-dropzone-overlay {
+    opacity: 1;
   }
 }
 
-/* ── Status toggle ── */
+/* ── Status toggle (3-way) ── */
 .status-group {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .status-btn {
   flex: 1;
-  padding: 10px 16px;
+  padding: 10px 8px;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   background: #fff;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--muted);
   transition: all 150ms;
@@ -348,17 +381,24 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-
-  &.active-draft {
-    border-color: var(--amber);
-    background: var(--amber-light);
-    color: #92400e;
-  }
+  white-space: nowrap;
 
   &.active-published {
-    border-color: var(--green);
-    background: var(--green-light);
-    color: #065f46;
+    border-color: #6ee7b7;
+    background: #ECFDF5;
+    color: #047857;
+  }
+
+  &.active-upcoming {
+    border-color: #fde68a;
+    background: #FEF9C3;
+    color: #A16207;
+  }
+
+  &.active-draft {
+    border-color: #cbd5e1;
+    background: #F1F5F9;
+    color: #64748B;
   }
 }
 
@@ -380,7 +420,7 @@
   &:hover {
     border-color: var(--primary-light);
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(124,58,237,.08);
+    box-shadow: 0 4px 16px rgba(99,102,241,.12);
   }
 }
 
@@ -442,23 +482,40 @@
   &.invalid { border-color: var(--red); }
 }
 
-/* ── Lesson cards ── */
+/* ── Lesson cards ──
+   Stacked vertically (not a wide grid row) so everything stays usable at the
+   wizard's narrower ~640px width. */
 .lesson-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin: 12px 0 10px;
 }
 
 .lesson-item {
-  display: grid;
-  grid-template-columns: 1fr 110px auto;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: start;
-  padding: 10px 12px;
+  padding: 12px;
   background: #f9fafb;
   border-radius: 8px;
   border: 1px solid var(--border);
+}
+
+.lesson-item-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  .lesson-input { flex: 1; }
+}
+
+.lesson-item-row {
+  display: flex;
+  gap: 8px;
+
+  .lesson-type-select { width: 120px; flex-shrink: 0; }
+  .lesson-input { flex: 1; }
 }
 
 .lesson-input {
@@ -478,7 +535,6 @@
 }
 
 .lesson-type-select {
-  width: 100%;
   padding: 7px 28px 7px 10px;
   border: 1.5px solid var(--border);
   border-radius: 7px;
@@ -515,14 +571,13 @@
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: var(--gradient);
   color: #fff;
-  padding: 12px 24px;
-  box-shadow: 0 4px 14px rgba(124,58,237,.35);
+  padding: 12px 22px;
+  box-shadow: 0 4px 14px rgba(99,102,241,.35);
 
   &:hover:not(:disabled) {
-    background: var(--primary-dark);
-    box-shadow: 0 6px 20px rgba(124,58,237,.45);
+    box-shadow: 0 6px 20px rgba(99,102,241,.45);
     transform: translateY(-1px);
   }
 }
@@ -555,8 +610,8 @@
 }
 
 .btn-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border-radius: 8px;
   border: 1.5px solid transparent;
@@ -577,7 +632,7 @@
   flex-shrink: 0;
   background: #fff;
   border-top: 1px solid var(--border);
-  padding: 14px 24px;
+  padding: 14px 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -597,7 +652,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
   flex-wrap: wrap;
 }
 
@@ -616,7 +670,7 @@
   transition: background 150ms;
   white-space: nowrap;
 
-  &:hover { background: #ddd6fe; }
+  &:hover { background: #e0e7ff; }
 
   &.disabled {
     opacity: .6;
@@ -661,12 +715,12 @@
 /* ── Empty state ── */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 36px 20px;
   color: var(--muted);
 
   .empty-icon {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--primary-light);
     display: flex;
@@ -692,10 +746,4 @@
 @media (max-width: 600px) {
   .grid-2 { grid-template-columns: 1fr; }
   .wizard-step .step-label { display: none; }
-  .lesson-item { grid-template-columns: 1fr auto; }
-  .lesson-item .lesson-type-select { display: none; }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }

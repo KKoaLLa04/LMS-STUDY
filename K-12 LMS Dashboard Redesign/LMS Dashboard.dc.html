@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; background:#F8FAFC; }
+    * { box-sizing:border-box; }
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-thumb { background:#E2E8F0; border-radius:8px; }
+    @keyframes flamePulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.08); } }
+    @keyframes popIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; width:100%; background:#F8FAFC; font-family:'Plus Jakarta Sans', 'Inter', sans-serif; color:#1E293B; position:relative; overflow-x:hidden;">
+
+  <sc-if value="{{ showBackdrop }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeMobileSidebar }}" style="position:fixed; inset:0; background:rgba(15,23,42,0.35); z-index:40; backdrop-filter:blur(2px);"></div>
+  </sc-if>
+
+  <div style="width:{{ sidebarWidthVal }}; min-width:{{ sidebarWidthVal }}; position:{{ sidebarPosition }}; left:{{ sidebarLeft }}; top:0; height:100vh; z-index:50; background:#1E1B4B; display:flex; flex-direction:column; padding:20px 14px; transition:all .28s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 24px rgba(30,27,75,0.12);">
+
+    <div style="display:flex; align-items:center; gap:10px; padding:6px 6px 22px 6px; overflow:hidden;">
+      <div style="width:38px; height:38px; min-width:38px; border-radius:12px; background:linear-gradient(135deg,#818CF8,#6366F1); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(99,102,241,0.4);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"></path><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"></path></svg>
+      </div>
+      <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}">
+        <div style="white-space:nowrap;">
+          <div style="font-weight:800; font-size:17px; color:#fff; line-height:1.1;">HocVui</div>
+          <div style="font-size:11px; color:#A5B4FC; font-weight:600; letter-spacing:.02em;">K-12 Learning</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:4px; flex:1; overflow-y:auto;">
+      <div onClick="{{ goToDashboard }}" style="display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:14px; cursor:pointer; background:{{ dashboardNavBg }}; color:{{ dashboardNavColor }}; font-weight:{{ dashboardNavWeight }}; margin-bottom:2px;" style-hover="background:#312E81; color:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px; white-space:nowrap;">Tổng quan</span></sc-if>
+      </div>
+      <div onClick="{{ goToCourses }}" style="display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:14px; cursor:pointer; background:{{ coursesNavBg }}; color:{{ coursesNavColor }}; font-weight:{{ coursesNavWeight }}; margin-bottom:2px;" style-hover="background:#312E81; color:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px; white-space:nowrap;">Khóa học của tôi</span></sc-if>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:14px; cursor:pointer; color:#C7D2FE; margin-bottom:2px;" style-hover="background:#312E81; color:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px; white-space:nowrap;">Bài tập</span></sc-if>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:14px; cursor:pointer; color:#C7D2FE; margin-bottom:2px;" style-hover="background:#312E81; color:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path></svg>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px; white-space:nowrap;">Thành tích</span></sc-if>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:14px; cursor:pointer; color:#C7D2FE; margin-bottom:2px;" style-hover="background:#312E81; color:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px; white-space:nowrap;">Lịch học</span></sc-if>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:14px; cursor:pointer; color:#C7D2FE; margin-bottom:2px;" style-hover="background:#312E81; color:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.2.75.2 1.13"></path></svg>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px; white-space:nowrap;">Cài đặt</span></sc-if>
+      </div>
+    </div>
+
+    <div style="margin-top:12px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px;">
+      <div style="width:40px; height:40px; min-width:40px; border-radius:12px; background:linear-gradient(135deg,#FDE68A,#FB923C); display:flex; align-items:center; justify-content:center; font-weight:800; color:#7C2D12; font-size:15px; box-shadow:0 3px 8px rgba(251,146,60,0.35);">{{ initials }}</div>
+      <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}">
+        <div style="overflow:hidden;">
+          <div style="font-size:13.5px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ studentName }}</div>
+          <div style="font-size:11.5px; color:#A5B4FC; font-weight:600; white-space:nowrap;">{{ grade }} &middot; Cấp {{ level }}</div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow-y:auto;">
+
+    <div style="position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 28px; background:rgba(248,250,252,0.85); backdrop-filter:blur(10px); border-bottom:1px solid #E2E8F0;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div onClick="{{ toggleSidebar }}" style="width:38px; height:38px; border-radius:11px; background:#fff; border:1px solid #E2E8F0; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 2px rgba(15,23,42,0.04);" style-hover="background:#EEF2FF;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4338CA" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </div>
+        <div>
+          <div style="font-size:12.5px; font-weight:700; color:#6366F1; text-transform:uppercase; letter-spacing:.04em;">Trang chủ</div>
+          <div style="font-size:13.5px; color:#64748B;">Thứ Tư, 22 Tháng 7</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="display:flex; align-items:center; gap:6px; background:linear-gradient(135deg,#FFF7ED,#FFEDD5); border:1px solid #FED7AA; padding:8px 14px; border-radius:999px;">
+          <span style="font-size:16px; display:inline-block; animation:flamePulse 1.6s ease-in-out infinite;">🔥</span>
+          <span style="font-size:13.5px; font-weight:800; color:#C2410C;">{{ streakDays }} ngày</span>
+        </div>
+        <div style="position:relative; width:38px; height:38px; border-radius:11px; background:#fff; border:1px solid #E2E8F0; display:flex; align-items:center; justify-content:center; cursor:pointer;" style-hover="background:#EEF2FF;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div style="position:absolute; top:-4px; right:-4px; width:17px; height:17px; border-radius:50%; background:#F43F5E; color:#fff; font-size:9.5px; font-weight:800; display:flex; align-items:center; justify-content:center; border:2px solid #F8FAFC;">3</div>
+        </div>
+        <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg,#818CF8,#6366F1); display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:14.5px; cursor:pointer;">{{ initials }}</div>
+      </div>
+    </div>
+
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:24px 28px 40px 28px; display:flex; flex-direction:column; gap:22px;">
+
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div>
+          <h1 style="margin:0; font-size:28px; font-weight:800; color:#1E1B4B;">Chào buổi sáng, {{ studentName }}! 👋</h1>
+          <p style="margin:6px 0 0 0; font-size:14.5px; color:#64748B; font-weight:500;">Hôm nay bạn có 2 bài học mới đang chờ đấy!</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:10px 16px; box-shadow:0 1px 3px rgba(15,23,42,0.04);">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#A78BFA,#6366F1); display:flex; align-items:center; justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 14.5 8.5 21 9l-5 4.4L17.5 20 12 16.3 6.5 20 8 13.4 3 9l6.5-.5Z"></path></svg>
+          </div>
+          <div>
+            <div style="font-size:12px; color:#64748B; font-weight:600;">Cấp độ {{ level }}</div>
+            <div style="width:120px; height:6px; background:#E2E8F0; border-radius:99px; margin-top:4px; overflow:hidden;">
+              <div style="width:{{ xpPercent }}%; height:100%; background:linear-gradient(90deg,#6366F1,#A78BFA); border-radius:99px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px;">
+        <div style="background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.6); border-radius:20px; padding:20px; box-shadow:0 8px 24px rgba(99,102,241,0.08); display:flex; flex-direction:column; gap:14px;" style-hover="transform:translateY(-3px);">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,#67E8F9,#0891B2); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(8,145,178,0.3);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
+            </div>
+            <span style="font-size:11.5px; font-weight:700; color:#0891B2; background:#ECFEFF; padding:4px 10px; border-radius:999px;">+2 mới</span>
+          </div>
+          <div>
+            <div style="font-size:26px; font-weight:800; color:#1E1B4B; line-height:1;">{{ courseCount }}</div>
+            <div style="font-size:13.5px; color:#64748B; font-weight:600; margin-top:5px;">Khóa học đang học</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.6); border-radius:20px; padding:20px; box-shadow:0 8px 24px rgba(99,102,241,0.08); display:flex; flex-direction:column; gap:14px;" style-hover="transform:translateY(-3px);">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,#FDBA74,#EA580C); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(234,88,12,0.3);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17c1.5 0 2-1 2-2 0-1.5-1.5-2-1.5-4 2 1 4 3.5 4 6a5.5 5.5 0 1 1-11 0c0-2 .5-3.5 2-5.5 0 1.5.5 2.5 2 2.5Z"></path></svg>
+            </div>
+            <span style="font-size:11.5px; font-weight:700; color:#C2410C; background:#FFF7ED; padding:4px 10px; border-radius:999px;">Tuyệt vời!</span>
+          </div>
+          <div>
+            <div style="font-size:26px; font-weight:800; color:#1E1B4B; line-height:1;">{{ streakDays }} ngày</div>
+            <div style="font-size:13.5px; color:#64748B; font-weight:600; margin-top:5px;">Chuỗi ngày học</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.6); border-radius:20px; padding:20px; box-shadow:0 8px 24px rgba(99,102,241,0.08); display:flex; flex-direction:column; gap:14px;" style-hover="transform:translateY(-3px);">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,#A78BFA,#6366F1); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(99,102,241,0.35);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 14.5 8.5 21 9l-5 4.4L17.5 20 12 16.3 6.5 20 8 13.4 3 9l6.5-.5Z"></path></svg>
+            </div>
+            <span style="font-size:11.5px; font-weight:700; color:#4338CA; background:#EEF2FF; padding:4px 10px; border-radius:999px;">Cấp {{ level }}</span>
+          </div>
+          <div>
+            <div style="font-size:26px; font-weight:800; color:#1E1B4B; line-height:1;">2,450</div>
+            <div style="font-size:13.5px; color:#64748B; font-weight:600; margin-top:5px;">Điểm thưởng (XP)</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.6); border-radius:20px; padding:20px; box-shadow:0 8px 24px rgba(99,102,241,0.08); display:flex; flex-direction:column; gap:14px;" style-hover="transform:translateY(-3px);">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,#6EE7B7,#059669); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(5,150,105,0.3);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path></svg>
+            </div>
+            <span style="font-size:11.5px; font-weight:700; color:#047857; background:#ECFDF5; padding:4px 10px; border-radius:999px;">2 mới</span>
+          </div>
+          <div>
+            <div style="font-size:26px; font-weight:800; color:#1E1B4B; line-height:1;">9</div>
+            <div style="font-size:13.5px; color:#64748B; font-weight:600; margin-top:5px;">Huy hiệu đạt được</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr); gap:20px; align-items:start;">
+
+        <div style="background:#fff; border:1px solid #EEF0F4; border-radius:20px; box-shadow:0 4px 16px rgba(15,23,42,0.04); overflow:hidden;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 22px; border-bottom:1px solid #F1F5F9;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:34px; height:34px; border-radius:10px; background:#EEF2FF; display:flex; align-items:center; justify-content:center;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
+              </div>
+              <h2 style="margin:0; font-size:17px; font-weight:700; color:#1E1B4B;">Khóa học của tôi</h2>
+            </div>
+            <a onClick="{{ goToCourses }}" style="font-size:13.5px; font-weight:700; color:#6366F1; text-decoration:none; cursor:pointer;" style-hover="text-decoration:underline;">Xem tất cả</a>
+          </div>
+
+          <div>
+            <sc-for list="{{ courses }}" as="c" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:16px; padding:16px 22px; border-bottom:1px solid #F8FAFC;" style-hover="background:#FAFAFF;">
+                <div style="width:46px; height:46px; min-width:46px; border-radius:14px; background:{{ c.subjectBg }}; display:flex; align-items:center; justify-content:center; font-size:20px;">{{ c.emoji }}</div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:14.5px; font-weight:700; color:#1E293B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ c.name }}</div>
+                  <div style="font-size:12.5px; color:#94A3B8; font-weight:500; margin-top:2px;">GV {{ c.teacher }} &middot; Tiếp theo: {{ c.next }}</div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-top:8px; max-width:260px;">
+                    <div style="flex:1; height:6px; background:#F1F5F9; border-radius:99px; overflow:hidden;">
+                      <div style="width:{{ c.progress }}%; height:100%; background:{{ c.progressColor }}; border-radius:99px;"></div>
+                    </div>
+                    <span style="font-size:11.5px; font-weight:700; color:#64748B; min-width:30px;">{{ c.progress }}%</span>
+                  </div>
+                </div>
+                <span style="font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:999px; background:{{ c.statusBg }}; color:{{ c.statusColor }}; white-space:nowrap;">{{ c.status }}</span>
+                <button style="border:none; background:{{ c.btnBg }}; color:{{ c.btnColor }}; font-weight:700; font-size:12.5px; padding:9px 16px; border-radius:12px; cursor:pointer; white-space:nowrap;" style-hover="filter:brightness(0.95);">{{ c.action }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:20px;">
+
+          <div style="background:#fff; border:1px solid #EEF0F4; border-radius:20px; box-shadow:0 4px 16px rgba(15,23,42,0.04); padding:20px 22px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+              <div style="width:34px; height:34px; border-radius:10px; background:#FEF2F2; display:flex; align-items:center; justify-content:center;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F43F5E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+              </div>
+              <h2 style="margin:0; font-size:16px; font-weight:700; color:#1E1B4B;">Sắp đến hạn</h2>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <sc-for list="{{ deadlines }}" as="d" hint-placeholder-count="3">
+                <div style="display:flex; align-items:center; gap:12px; padding:10px; border-radius:14px; background:#F8FAFC;">
+                  <div style="width:8px; height:8px; border-radius:50%; background:{{ d.dot }}; min-width:8px;"></div>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:13px; font-weight:700; color:#1E293B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ d.title }}</div>
+                    <div style="font-size:11.5px; color:#94A3B8; font-weight:600; margin-top:2px;">{{ d.due }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff; border:1px solid #EEF0F4; border-radius:20px; box-shadow:0 4px 16px rgba(15,23,42,0.04); padding:20px 22px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+              <div style="width:34px; height:34px; border-radius:10px; background:#ECFEFF; display:flex; align-items:center; justify-content:center;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="9"></circle></svg>
+              </div>
+              <h2 style="margin:0; font-size:16px; font-weight:700; color:#1E1B4B;">Hoạt động gần đây</h2>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:34px; height:34px; min-width:34px; border-radius:11px; background:#ECFDF5; display:flex; align-items:center; justify-content:center;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; color:#334155; line-height:1.45; font-weight:500;">{{ studentName }} đã hoàn thành Bài 5 Toán học</div>
+                  <div style="font-size:11.5px; color:#94A3B8; font-weight:600; margin-top:3px;">5 phút trước</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:34px; height:34px; min-width:34px; border-radius:11px; background:#FFF7ED; display:flex; align-items:center; justify-content:center;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path></svg>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; color:#334155; line-height:1.45; font-weight:500;">Nhận được huy hiệu "Ngôi sao chăm chỉ"</div>
+                  <div style="font-size:11.5px; color:#94A3B8; font-weight:600; margin-top:3px;">1 giờ trước</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:34px; height:34px; min-width:34px; border-radius:11px; background:#ECFEFF; display:flex; align-items:center; justify-content:center;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"></path></svg>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; color:#334155; line-height:1.45; font-weight:500;">Cô Lan đã nhận xét bài tập của bạn</div>
+                  <div style="font-size:11.5px; color:#94A3B8; font-weight:600; margin-top:3px;">3 giờ trước</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:34px; height:34px; min-width:34px; border-radius:11px; background:#EEF2FF; display:flex; align-items:center; justify-content:center;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4338CA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; color:#334155; line-height:1.45; font-weight:500;">Bạn đã bắt đầu khóa Nghệ thuật</div>
+                  <div style="font-size:11.5px; color:#94A3B8; font-weight:600; margin-top:3px;">Hôm qua</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isCourses }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:24px 28px 40px 28px; display:flex; flex-direction:column; gap:22px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div>
+          <h1 style="margin:0; font-size:26px; font-weight:800; color:#1E1B4B;">Danh sách khóa học</h1>
+          <p style="margin:6px 0 0 0; font-size:14px; color:#64748B; font-weight:500;">Quản lý tất cả khóa học đang học, sắp tới và bản nháp.</p>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid #EEF0F4; border-radius:20px; box-shadow:0 4px 16px rgba(15,23,42,0.04); overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:18px 22px; border-bottom:1px solid #F1F5F9;">
+          <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:320px;">
+            <input value="{{ searchQuery }}" onChange="{{ setSearch }}" placeholder="Tìm kiếm khóa học..." style="flex:1; padding:10px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:13.5px; font-family:inherit; outline:none; color:#1E293B;" />
+            <div style="width:38px; height:38px; min-width:38px; border-radius:12px; border:1.5px solid #E2E8F0; display:flex; align-items:center; justify-content:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            </div>
+          </div>
+          <button onClick="{{ openAddModal }}" style="border:none; display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,#818CF8,#6366F1); color:#fff; font-weight:700; font-size:13.5px; padding:11px 18px; border-radius:12px; cursor:pointer; box-shadow:0 6px 16px rgba(99,102,241,0.3); white-space:nowrap;" style-hover="filter:brightness(1.05);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Thêm khóa học
+          </button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:.5fr 1.6fr 2fr .9fr .9fr 1fr 1fr .9fr; gap:12px; padding:14px 22px; background:#F8FAFC; border-bottom:1px solid #F1F5F9;">
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">#</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">Ảnh</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">Tên khóa học</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">Khối</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">Giá</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">Trạng thái</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em;">Ngày tạo</span>
+          <span style="font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.04em; text-align:right;">Thao tác</span>
+        </div>
+        <sc-for list="{{ filteredCourses }}" as="c" hint-placeholder-count="5">
+          <div style="display:grid; grid-template-columns:.5fr 1.6fr 2fr .9fr .9fr 1fr 1fr .9fr; gap:12px; align-items:center; padding:14px 22px; border-bottom:1px solid #F8FAFC;" style-hover="background:#FAFAFF;">
+            <span style="font-size:13px; font-weight:700; color:#94A3B8;">{{ c.rowIndex }}</span>
+            <div style="width:40px; height:40px; min-width:40px; border-radius:12px; background:{{ c.subjectBg }}; display:flex; align-items:center; justify-content:center; font-size:18px;">{{ c.emoji }}</div>
+            <div style="min-width:0;">
+              <div style="font-size:14px; font-weight:700; color:#1E293B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ c.name }}</div>
+              <div style="font-size:12px; color:#94A3B8; font-weight:500; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Tiếp theo: {{ c.next }}</div>
+            </div>
+            <div><span style="font-size:12px; font-weight:700; padding:4px 10px; border-radius:8px; background:#EEF2FF; color:#4338CA; white-space:nowrap;">{{ c.grade }}</span></div>
+            <div style="font-size:13px; font-weight:700; color:#1E293B; white-space:nowrap;">{{ c.priceLabel }}</div>
+            <div><span style="font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:999px; background:{{ c.statusBg }}; color:{{ c.statusColor }}; white-space:nowrap;">{{ c.status }}</span></div>
+            <div style="font-size:12.5px; color:#64748B; font-weight:600; white-space:nowrap;">{{ c.createdDate }}</div>
+            <div style="display:flex; align-items:center; gap:6px; justify-content:flex-end;">
+              <div onClick="{{ c.editHandler }}" style="width:32px; height:32px; border-radius:10px; background:#EEF2FF; display:flex; align-items:center; justify-content:center; cursor:pointer;" style-hover="background:#E0E7FF;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4338CA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+              </div>
+              <div onClick="{{ c.deleteHandler }}" style="width:32px; height:32px; border-radius:10px; background:#FEF2F2; display:flex; align-items:center; justify-content:center; cursor:pointer;" style-hover="background:#FEE2E2;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6M14 11v6"></path></svg>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+</div>
+
+<sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; width:100%; max-width:620px; max-height:88vh; border-radius:22px; box-shadow:0 24px 60px rgba(15,23,42,0.25); animation:popIn .18s ease; display:flex; flex-direction:column; overflow:hidden;">
+
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 24px; border-bottom:1px solid #F1F5F9;">
+        <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+          <div onClick="{{ closeModal }}" style="display:flex; align-items:center; gap:4px; color:#94A3B8; font-weight:700; font-size:13.5px; cursor:pointer; white-space:nowrap;" style-hover="color:#475569;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+            Đóng
+          </div>
+          <h2 style="margin:0; font-size:17px; font-weight:800; color:#1E1B4B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ modalTitle }}</h2>
+        </div>
+        <div style="display:flex; align-items:center; gap:0; flex-shrink:0;">
+          <sc-for list="{{ stepIndicator }}" as="st" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:26px; height:26px; min-width:26px; border-radius:50%; background:{{ st.bg }}; color:{{ st.color }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;" dangerously-set-inner-html="{{ st.badge }}"></div>
+                <span style="font-size:12.5px; font-weight:700; color:{{ st.labelColor }}; white-space:nowrap;">{{ st.label }}</span>
+              </div>
+              <sc-if value="{{ st.hasLine }}" hint-placeholder-val="{{ true }}">
+                <div style="width:36px; height:2px; background:{{ st.lineColor }}; margin:0 10px;"></div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="flex:1; overflow-y:auto; padding:22px 24px;">
+
+        <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <div style="width:38px; height:38px; min-width:38px; border-radius:11px; background:#EEF2FF; display:flex; align-items:center; justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
+          </div>
+          <div>
+            <div style="font-size:15px; font-weight:800; color:#1E1B4B;">Thông tin cơ bản</div>
+            <div style="font-size:12.5px; color:#94A3B8; font-weight:500;">Đặt tên, mô tả và cấu hình khóa học của bạn</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Tên khóa học <span style="color:#F43F5E;">*</span></label>
+            <input value="{{ form.name }}" onChange="{{ setName }}" placeholder="VD: Toán học - Số và phép tính" style="width:100%; padding:11px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; outline:none; color:#1E293B;" />
+          </div>
+          <div style="display:grid; grid-template-columns:70px 1fr; gap:12px;">
+            <div>
+              <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Biểu tượng</label>
+              <input value="{{ form.emoji }}" onChange="{{ setEmoji }}" style="width:100%; padding:11px 0; text-align:center; border-radius:12px; border:1.5px solid #E2E8F0; font-size:18px; font-family:inherit; outline:none;" />
+            </div>
+            <div>
+              <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Khối <span style="color:#F43F5E;">*</span></label>
+              <select value="{{ form.grade }}" onChange="{{ setGrade }}" style="width:100%; padding:11px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; outline:none; color:#1E293B; background:#fff;">
+                <sc-for list="{{ gradeOptions }}" as="g" hint-placeholder-count="5">
+                  <option value="{{ g }}">{{ g }}</option>
+                </sc-for>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Giáo viên</label>
+            <input value="{{ form.teacher }}" onChange="{{ setTeacher }}" placeholder="Tên giáo viên" style="width:100%; padding:11px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; outline:none; color:#1E293B;" />
+          </div>
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Mô tả khóa học</label>
+            <textarea value="{{ form.description }}" onChange="{{ setDescription }}" placeholder="Mô tả nội dung, đối tượng học viên, và những gì họ sẽ học được..." rows="3" style="width:100%; padding:11px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; outline:none; color:#1E293B; resize:vertical;"></textarea>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Học phí</label>
+              <div style="display:flex; align-items:center; border-radius:12px; border:1.5px solid #E2E8F0; overflow:hidden;">
+                <span style="padding:11px 12px; background:#F8FAFC; color:#94A3B8; font-weight:700; font-size:13px;">đ</span>
+                <input type="number" min="0" value="{{ form.price }}" onChange="{{ setPrice }}" style="flex:1; padding:11px 12px; border:none; font-size:14px; font-family:inherit; outline:none; color:#1E293B;" />
+              </div>
+            </div>
+            <div>
+              <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Trạng thái</label>
+              <div style="display:flex; gap:6px;">
+                <sc-for list="{{ statusOptions }}" as="opt" hint-placeholder-count="3">
+                  <div onClick="{{ opt.select }}" style="flex:1; text-align:center; padding:9px 4px; border-radius:12px; font-size:11.5px; font-weight:700; cursor:pointer; background:{{ opt.activeBg }}; color:{{ opt.activeColor }}; border:1.5px solid {{ opt.activeBg }};">{{ opt.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:#475569; display:block; margin-bottom:6px;">URL ảnh bìa</label>
+            <input value="{{ form.coverUrl }}" onChange="{{ setCoverUrl }}" placeholder="https://example.com/image.jpg" style="width:100%; padding:11px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; font-family:inherit; outline:none; color:#1E293B;" />
+          </div>
+          <div style="border:1.5px dashed #C7D2FE; background:#EEF2FF; border-radius:14px; padding:26px; text-align:center;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 8px auto; display:block;"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg>
+            <span style="font-size:12.5px; color:#818CF8; font-weight:700;">Chưa có ảnh bìa</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <div style="width:38px; height:38px; min-width:38px; border-radius:11px; background:#FEF9C3; display:flex; align-items:center; justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A16207" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2Z"></path></svg>
+          </div>
+          <div>
+            <div style="font-size:15px; font-weight:800; color:#1E1B4B;">Chương học</div>
+            <div style="font-size:12.5px; color:#94A3B8; font-weight:500;">Thêm, sửa hoặc xóa các chương trong khóa học</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ chaptersView }}" as="ch" hint-placeholder-count="2">
+            <div style="border:1.5px solid #EEF0F4; border-radius:14px; padding:14px; background:#FAFAFF;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:26px; height:26px; min-width:26px; border-radius:50%; background:#6366F1; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;">{{ ch.index }}</div>
+                <input value="{{ ch.title }}" onChange="{{ ch.setTitle }}" style="flex:1; padding:9px 12px; border-radius:10px; border:1.5px solid #E2E8F0; font-size:13.5px; font-family:inherit; outline:none; color:#1E293B;" />
+                <div onClick="{{ ch.remove }}" style="width:30px; height:30px; min-width:30px; border-radius:9px; background:#FEF2F2; display:flex; align-items:center; justify-content:center; cursor:pointer;" style-hover="background:#FEE2E2;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path></svg>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+          <div onClick="{{ addChapter }}" style="text-align:center; padding:11px; border-radius:12px; background:#EEF2FF; color:#4338CA; font-weight:700; font-size:13px; cursor:pointer;" style-hover="background:#E0E7FF;">+ Thêm chương</div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <div style="width:38px; height:38px; min-width:38px; border-radius:11px; background:#ECFDF5; display:flex; align-items:center; justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="m10 8 5 4-5 4Z"></path></svg>
+          </div>
+          <div>
+            <div style="font-size:15px; font-weight:800; color:#1E1B4B;">Bài học</div>
+            <div style="font-size:12.5px; color:#94A3B8; font-weight:500;">Thêm nội dung bài học cho từng chương</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <sc-for list="{{ chaptersView }}" as="ch" hint-placeholder-count="2">
+            <div>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <div style="width:30px; height:30px; min-width:30px; border-radius:9px; background:#ECFDF5; display:flex; align-items:center; justify-content:center;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="m10 8 5 4-5 4Z"></path></svg>
+                </div>
+                <div>
+                  <div style="font-size:13.5px; font-weight:800; color:#1E1B4B;">Chương {{ ch.index }}: {{ ch.title }}</div>
+                  <div style="font-size:11.5px; color:#94A3B8; font-weight:600;">{{ ch.lessonCount }} bài học</div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px; padding-left:6px;">
+                <sc-for list="{{ ch.lessons }}" as="l" hint-placeholder-count="1">
+                  <div style="border:1.5px solid #EEF0F4; border-radius:12px; padding:12px; background:#FAFAFF;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                      <input value="{{ l.title }}" onChange="{{ l.setTitle }}" style="flex:1; padding:9px 12px; border-radius:10px; border:1.5px solid #E2E8F0; font-size:13px; font-family:inherit; outline:none; color:#1E293B;" />
+                      <select value="{{ l.type }}" onChange="{{ l.setType }}" style="padding:9px 10px; border-radius:10px; border:1.5px solid #E2E8F0; font-size:12.5px; font-family:inherit; outline:none; color:#1E293B; background:#fff;">
+                        <option value="Video">Video</option>
+                        <option value="Tài liệu">Tài liệu</option>
+                        <option value="Quiz">Quiz</option>
+                      </select>
+                      <div onClick="{{ l.remove }}" style="width:28px; height:28px; min-width:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#94A3B8;" style-hover="background:#F1F5F9;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+                      </div>
+                    </div>
+                    <input value="{{ l.url }}" onChange="{{ l.setUrl }}" placeholder="URL nội dung..." style="width:100%; padding:9px 12px; border-radius:10px; border:1.5px solid #E2E8F0; font-size:12.5px; font-family:inherit; outline:none; color:#1E293B; margin-bottom:8px;" />
+                    <span style="display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:10px; border:1.5px dashed #C7D2FE; color:#6366F1; font-size:12px; font-weight:700; cursor:pointer;">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 8 5-5 5 5"></path><path d="M5 21h14"></path></svg>
+                      Tải video lên
+                    </span>
+                  </div>
+                </sc-for>
+                <div onClick="{{ ch.addLesson }}" style="text-align:center; padding:10px; border-radius:12px; background:#EEF2FF; color:#4338CA; font-weight:700; font-size:12.5px; cursor:pointer;" style-hover="background:#E0E7FF;">+ Thêm bài học</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 24px; border-top:1px solid #F1F5F9;">
+        <span style="font-size:12.5px; color:#94A3B8; font-weight:700;">Bước {{ wizardStep }}/3</span>
+        <div style="display:flex; gap:10px;">
+          <sc-if value="{{ showBackButton }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ prevStep }}" style="border:1.5px solid #E2E8F0; background:#fff; color:#475569; font-weight:700; font-size:13.5px; padding:10px 18px; border-radius:12px; cursor:pointer;">Quay lại</button>
+          </sc-if>
+          <sc-if value="{{ showCancelButton }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ closeModal }}" style="border:1.5px solid #E2E8F0; background:#fff; color:#475569; font-weight:700; font-size:13.5px; padding:10px 18px; border-radius:12px; cursor:pointer;">Hủy</button>
+          </sc-if>
+          <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ saveCourse }}" disabled="{{ notCanSave }}" style="border:none; display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,#818CF8,#6366F1); color:#fff; font-weight:700; font-size:13.5px; padding:10px 20px; border-radius:12px; cursor:pointer; opacity:{{ saveOpacity }};">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path></svg>
+              Lưu thay đổi
+            </button>
+          </sc-if>
+          <sc-if value="{{ showNextButton }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ nextStep }}" disabled="{{ notCanSave }}" style="border:none; display:flex; align-items:center; gap:6px; background:linear-gradient(135deg,#818CF8,#6366F1); color:#fff; font-weight:700; font-size:13.5px; padding:10px 20px; border-radius:12px; cursor:pointer; opacity:{{ saveOpacity }};">
+              Tiếp theo
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </sc-if>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ deleteOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ cancelDelete }}" style="position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:110; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div onClick="{{ stopProp }}" style="background:#fff; width:100%; max-width:400px; border-radius:22px; padding:26px; box-shadow:0 24px 60px rgba(15,23,42,0.25); animation:popIn .18s ease; text-align:center;">
+      <div style="width:56px; height:56px; border-radius:16px; background:#FEF2F2; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6M14 11v6"></path></svg>
+      </div>
+      <h2 style="margin:0 0 8px 0; font-size:17px; font-weight:800; color:#1E1B4B;">Xóa khóa học này?</h2>
+      <p style="margin:0 0 22px 0; font-size:13.5px; color:#64748B; line-height:1.5;">Bạn có chắc muốn xóa <strong style="color:#1E293B;">{{ deleteTargetName }}</strong>? Hành động này không thể hoàn tác.</p>
+      <div style="display:flex; gap:10px;">
+        <button onClick="{{ cancelDelete }}" style="flex:1; border:none; background:#F1F5F9; color:#475569; font-weight:700; font-size:13.5px; padding:11px 20px; border-radius:12px; cursor:pointer;">Hủy</button>
+        <button onClick="{{ confirmDelete }}" style="flex:1; border:none; background:#DC2626; color:#fff; font-weight:700; font-size:13.5px; padding:11px 20px; border-radius:12px; cursor:pointer;">Xóa khóa học</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}, &quot;studentName&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Bảo Anh&quot;, &quot;tsType&quot;: &quot;string&quot;}, &quot;grade&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Lớp 3A&quot;, &quot;tsType&quot;: &quot;string&quot;}, &quot;streakDays&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 12, &quot;tsType&quot;: &quot;number&quot;, &quot;min&quot;: 0, &quot;max&quot;: 999}}">
+const GRADE_OPTIONS = ['Lớp 1', 'Lớp 2', 'Lớp 3', 'Lớp 4', 'Lớp 5'];
+const EMPTY_FORM = { name: '', emoji: '📘', subjectBg: '#EEF2FF', teacher: '', next: '', progress: 0, status: 'Đang học', grade: GRADE_OPTIONS[0], description: '', price: 0, coverUrl: '', chapters: [] };
+const STATUS_STYLES = {
+  'Đang học': { statusBg: '#ECFDF5', statusColor: '#047857', btnBg: '#EEF2FF', btnColor: '#4338CA', action: 'Tiếp tục' },
+  'Sắp tới': { statusBg: '#FEF9C3', statusColor: '#A16207', btnBg: '#FEF9C3', btnColor: '#A16207', action: 'Xem trước' },
+  'Bản nháp': { statusBg: '#F1F5F9', statusColor: '#64748B', btnBg: '#F1F5F9', btnColor: '#64748B', action: 'Bắt đầu' },
+};
+const PROGRESS_COLORS = ['#6366F1', '#F59E0B', '#10B981', '#F43F5E', '#0891B2'];
+let nextCourseId = 100;
+let nextChapterId = 100;
+let nextLessonId = 100;
+const newChapter = (title) => ({ id: nextChapterId++, title, lessons: [] });
+const newLesson = (title) => ({ id: nextLessonId++, title, type: 'Video', url: '' });
+
+class Component extends DCLogic {
+  state = {
+    collapsed: false, isMobile: false, mobileOpen: false,
+    view: 'dashboard',
+    searchQuery: '',
+    courses: [
+      { id: 1, name: 'Toán học - Số và phép tính', emoji: '🔢', subjectBg: '#EEF2FF', teacher: 'Nguyễn Thị Lan', next: 'Bài 5: Phép nhân', progress: 78, status: 'Đang học', grade: 'Lớp 3', price: 0, description: '', coverUrl: '', createdDate: '15/7/2026', chapters: [{ id: 1, title: 'Chương 1: Phép cộng và trừ', lessons: [newLesson('Bài 1: Ôn tập phép cộng')] }] },
+      { id: 2, name: 'Tiếng Việt - Tập đọc', emoji: '📖', subjectBg: '#FEF3C7', teacher: 'Trần Văn Minh', next: 'Bài 8: Ông lão đánh cá', progress: 45, status: 'Đang học', grade: 'Lớp 3', price: 0, description: '', coverUrl: '', createdDate: '12/7/2026', chapters: [] },
+      { id: 3, name: 'Khoa học - Khám phá thiên nhiên', emoji: '🌱', subjectBg: '#ECFDF5', teacher: 'Lê Thị Hoa', next: 'Chương 2: Cây xanh', progress: 15, status: 'Sắp tới', grade: 'Lớp 4', price: 0, description: '', coverUrl: '', createdDate: '18/7/2026', chapters: [] },
+      { id: 4, name: 'Tiếng Anh vui - Unit 3', emoji: '🗣️', subjectBg: '#FEE2E2', teacher: 'Sarah Johnson', next: 'Ôn tập cuối chương', progress: 92, status: 'Đang học', grade: 'Lớp 2', price: 150000, description: '', coverUrl: '', createdDate: '20/7/2026', chapters: [] },
+      { id: 5, name: 'Nghệ thuật - Vẽ và tô màu', emoji: '🎨', subjectBg: '#ECFEFF', teacher: 'Phạm Thu An', next: 'Chưa bắt đầu', progress: 0, status: 'Bản nháp', grade: 'Lớp 1', price: 0, description: '', coverUrl: '', createdDate: '22/7/2026', chapters: [] },
+    ],
+    modalOpen: false, editingId: null, wizardStep: 1, form: { ...EMPTY_FORM },
+    deleteTargetId: null,
+  };
+
+  componentDidMount() {
+    this.mq = window.matchMedia('(max-width: 900px)');
+    this.onMq = (e) => this.setState({ isMobile: e.matches, collapsed: e.matches, mobileOpen: false });
+    this.onMq(this.mq);
+    this.mq.addEventListener('change', this.onMq);
+  }
+  componentWillUnmount() {
+    if (this.mq) this.mq.removeEventListener('change', this.onMq);
+  }
+
+  toggleSidebar = () => {
+    this.setState((s) => (s.isMobile ? { mobileOpen: !s.mobileOpen } : { collapsed: !s.collapsed }));
+  };
+  closeMobileSidebar = () => this.setState({ mobileOpen: false });
+  goToDashboard = () => this.setState({ view: 'dashboard', mobileOpen: false });
+  goToCourses = () => this.setState({ view: 'courses', mobileOpen: false });
+  setSearch = (e) => this.setState({ searchQuery: e.target.value });
+
+  openAddModal = () => this.setState({ modalOpen: true, editingId: null, wizardStep: 1, form: { ...EMPTY_FORM, chapters: [] } });
+  openEditModal = (course) => this.setState({
+    modalOpen: true, editingId: course.id, wizardStep: 1,
+    form: { name: course.name, emoji: course.emoji, subjectBg: course.subjectBg, teacher: course.teacher, next: course.next, progress: course.progress, status: course.status, grade: course.grade, description: course.description, price: course.price, coverUrl: course.coverUrl, chapters: course.chapters.map((c) => ({ ...c, lessons: c.lessons.map((l) => ({ ...l })) })) },
+  });
+  closeModal = () => this.setState({ modalOpen: false });
+  nextStep = () => this.setState((s) => ({ wizardStep: Math.min(3, s.wizardStep + 1) }));
+  prevStep = () => this.setState((s) => ({ wizardStep: Math.max(1, s.wizardStep - 1) }));
+  setFormField = (field, value) => this.setState((s) => ({ form: { ...s.form, [field]: value } }));
+
+  addChapter = () => this.setState((s) => ({ form: { ...s.form, chapters: [...s.form.chapters, newChapter(`Chương ${s.form.chapters.length + 1}`)] } }));
+  removeChapter = (id) => this.setState((s) => ({ form: { ...s.form, chapters: s.form.chapters.filter((c) => c.id !== id) } }));
+  setChapterTitle = (id, value) => this.setState((s) => ({ form: { ...s.form, chapters: s.form.chapters.map((c) => (c.id === id ? { ...c, title: value } : c)) } }));
+  addLesson = (chapterId) => this.setState((s) => ({ form: { ...s.form, chapters: s.form.chapters.map((c) => (c.id === chapterId ? { ...c, lessons: [...c.lessons, newLesson(`Bài học ${c.lessons.length + 1}`)] } : c)) } }));
+  removeLesson = (chapterId, lessonId) => this.setState((s) => ({ form: { ...s.form, chapters: s.form.chapters.map((c) => (c.id === chapterId ? { ...c, lessons: c.lessons.filter((l) => l.id !== lessonId) } : c)) } }));
+  setLessonField = (chapterId, lessonId, field, value) => this.setState((s) => ({ form: { ...s.form, chapters: s.form.chapters.map((c) => (c.id === chapterId ? { ...c, lessons: c.lessons.map((l) => (l.id === lessonId ? { ...l, [field]: value } : l)) } : c)) } }));
+
+  saveCourse = () => {
+    const today = new Date().toLocaleDateString('vi-VN');
+    this.setState((s) => {
+      const f = s.form;
+      if (!f.name.trim() || !f.grade) return null;
+      if (s.editingId != null) {
+        return { courses: s.courses.map((c) => (c.id === s.editingId ? { ...c, ...f, progress: Number(f.progress), price: Number(f.price) } : c)), modalOpen: false };
+      }
+      return { courses: [...s.courses, { id: nextCourseId++, ...f, progress: Number(f.progress), price: Number(f.price), subjectBg: f.subjectBg || '#EEF2FF', createdDate: today }], modalOpen: false };
+    });
+  };
+  askDelete = (id) => this.setState({ deleteTargetId: id });
+  cancelDelete = () => this.setState({ deleteTargetId: null });
+  confirmDelete = () => this.setState((s) => ({ courses: s.courses.filter((c) => c.id !== s.deleteTargetId), deleteTargetId: null }));
+
+  renderVals() {
+    const { collapsed, isMobile, mobileOpen, view, modalOpen, editingId, wizardStep, form, deleteTargetId, searchQuery } = this.state;
+    const studentName = this.props.studentName ?? 'Bảo Anh';
+    const grade = this.props.grade ?? 'Lớp 3A';
+    const level = this.props.level ?? 5;
+
+    const decorate = (c) => ({ ...c, progressColor: PROGRESS_COLORS[(c.id ?? 0) % PROGRESS_COLORS.length], ...STATUS_STYLES[c.status] });
+    const courses = this.state.courses.slice(0, 5).map(decorate);
+    const allCoursesRaw = this.state.courses.filter((c) => c.name.toLowerCase().includes(searchQuery.trim().toLowerCase()));
+    const allCourses = allCoursesRaw.map(decorate);
+    const deleteTarget = this.state.courses.find((c) => c.id === deleteTargetId);
+
+    const deadlines = [
+      { title: 'Bài tập Toán: Ôn tập phép nhân', due: 'Ngày mai, 17:00', dot: '#F43F5E' },
+      { title: 'Bài kiểm tra Tiếng Việt', due: 'Thứ 6, 08:00', dot: '#F59E0B' },
+      { title: 'Nộp bài vẽ tranh', due: 'Tuần sau', dot: '#0891B2' },
+    ];
+
+    const STEP_LABELS = ['Thông tin', 'Chương học', 'Bài học'];
+    const stepIndicator = STEP_LABELS.map((label, i) => {
+      const n = i + 1;
+      const done = n < wizardStep;
+      const active = n === wizardStep;
+      return {
+        label,
+        hasLine: n < 3,
+        lineColor: n < wizardStep ? '#10B981' : '#E2E8F0',
+        bg: done ? '#10B981' : active ? '#6366F1' : '#F1F5F9',
+        color: done || active ? '#fff' : '#94A3B8',
+        badge: done ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg>' : String(n),
+        labelColor: active ? '#1E1B4B' : done ? '#059669' : '#94A3B8',
+      };
+    });
+
+    const chaptersView = form.chapters.map((c, i) => ({
+      id: c.id,
+      index: i + 1,
+      title: c.title,
+      lessonCount: c.lessons.length,
+      setTitle: (e) => this.setChapterTitle(c.id, e.target.value),
+      remove: () => this.removeChapter(c.id),
+      addLesson: () => this.addLesson(c.id),
+      lessons: c.lessons.map((l) => ({
+        ...l,
+        setTitle: (e) => this.setLessonField(c.id, l.id, 'title', e.target.value),
+        setType: (e) => this.setLessonField(c.id, l.id, 'type', e.target.value),
+        setUrl: (e) => this.setLessonField(c.id, l.id, 'url', e.target.value),
+        remove: () => this.removeLesson(c.id, l.id),
+      })),
+    }));
+
+    return {
+      studentName, grade, level,
+      initials: studentName.split(' ').slice(-1)[0]?.[0] ?? 'B',
+      streakDays: this.props.streakDays ?? 12,
+      xpPercent: 62,
+      showLabels: !collapsed,
+      sidebarWidthVal: isMobile ? '250px' : (collapsed ? '84px' : '250px'),
+      sidebarPosition: isMobile ? 'fixed' : 'relative',
+      sidebarLeft: isMobile ? (mobileOpen ? '0px' : '-260px') : '0px',
+      showBackdrop: isMobile && mobileOpen,
+      toggleSidebar: this.toggleSidebar,
+      closeMobileSidebar: this.closeMobileSidebar,
+      courses, deadlines,
+      isDashboard: view === 'dashboard',
+      isCourses: view === 'courses',
+      dashboardNavBg: view === 'dashboard' ? '#312E81' : 'transparent',
+      dashboardNavColor: view === 'dashboard' ? '#fff' : '#C7D2FE',
+      dashboardNavWeight: view === 'dashboard' ? 700 : 500,
+      coursesNavBg: view === 'courses' ? '#312E81' : 'transparent',
+      coursesNavColor: view === 'courses' ? '#fff' : '#C7D2FE',
+      coursesNavWeight: view === 'courses' ? 700 : 500,
+      goToDashboard: this.goToDashboard,
+      goToCourses: this.goToCourses,
+      searchQuery, setSearch: this.setSearch,
+      filteredCourses: allCourses.map((c, i) => ({
+        ...c, rowIndex: i + 1,
+        priceLabel: c.price ? `${Number(c.price).toLocaleString('vi-VN')} đ` : 'Miễn phí',
+        editHandler: () => this.openEditModal(this.state.courses.find((x) => x.id === c.id)),
+        deleteHandler: () => this.askDelete(c.id),
+      })),
+      courseCount: allCourses.length,
+      openAddModal: this.openAddModal,
+      stopProp: (e) => e.stopPropagation(),
+
+      modalOpen, isEditing: editingId != null,
+      modalTitle: editingId != null ? 'Chỉnh sửa khóa học' : 'Tạo khóa học mới',
+      form,
+      wizardStep, isStep1: wizardStep === 1, isStep2: wizardStep === 2, isStep3: wizardStep === 3,
+      showBackButton: wizardStep > 1,
+      showCancelButton: wizardStep === 1,
+      showNextButton: wizardStep < 3,
+      stepIndicator,
+      nextStep: this.nextStep, prevStep: this.prevStep,
+      gradeOptions: GRADE_OPTIONS,
+      setName: (e) => this.setFormField('name', e.target.value),
+      setTeacher: (e) => this.setFormField('teacher', e.target.value),
+      setNext: (e) => this.setFormField('next', e.target.value),
+      setEmoji: (e) => this.setFormField('emoji', e.target.value),
+      setGrade: (e) => this.setFormField('grade', e.target.value),
+      setDescription: (e) => this.setFormField('description', e.target.value),
+      setPrice: (e) => this.setFormField('price', e.target.value),
+      setCoverUrl: (e) => this.setFormField('coverUrl', e.target.value),
+      setProgress: (e) => this.setFormField('progress', e.target.value),
+      statusOptions: ['Đang học', 'Sắp tới', 'Bản nháp'].map((s) => ({ label: s, select: () => this.setFormField('status', s), activeBg: form.status === s ? STATUS_STYLES[s].statusBg : '#F8FAFC', activeColor: form.status === s ? STATUS_STYLES[s].statusColor : '#64748B' })),
+      chaptersView,
+      addChapter: this.addChapter,
+      closeModal: this.closeModal,
+      saveCourse: this.saveCourse,
+      notCanSave: !form.name.trim() || !form.grade,
+      saveOpacity: (form.name.trim() && form.grade) ? 1 : 0.55,
+
+      deleteOpen: deleteTargetId != null,
+      deleteTargetName: deleteTarget?.name ?? '',
+      cancelDelete: this.cancelDelete,
+      confirmDelete: this.confirmDelete,
+    };
+  }
+}
+</script>
+</body>
+</html>

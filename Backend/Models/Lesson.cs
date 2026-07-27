@@ -6,7 +6,8 @@ namespace Backend.Models;
 public enum LessonType
 {
     Video,
-    Document
+    Document,
+    Quiz
 }
 
 public class Lesson : ISoftDelete

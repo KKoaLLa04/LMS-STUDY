@@ -6,6 +6,7 @@ import { StudentSidebarComponent } from '../student-sidebar/student-sidebar.comp
 import { StudentDashboardHeaderComponent } from '../student-dashboard-header/student-dashboard-header.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { MOCK_STUDENT } from '../../data/mock-student.data';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 const MOBILE_BREAKPOINT = '(max-width: 900px)';
 
@@ -19,6 +20,7 @@ const MOBILE_BREAKPOINT = '(max-width: 900px)';
 export class StudentShellComponent {
   private breakpointObserver = inject(BreakpointObserver);
   private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService);
 
   readonly student = MOCK_STUDENT;
   readonly dateLabel = this.formatVietnameseDate(new Date());
@@ -55,6 +57,10 @@ export class StudentShellComponent {
 
   closeMobileSidebar(): void {
     this.mobileOpen.set(false);
+  }
+
+  onLogout(): void {
+    this.authService.logout();
   }
 
   private formatVietnameseDate(date: Date): string {

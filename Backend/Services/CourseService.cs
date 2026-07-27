@@ -45,6 +45,8 @@ public class CourseService : ICourseService
                     Id = x.Course.Id,
                     Title = x.Course.Title,
                     Thumbnail = x.Course.Thumbnail,
+                    Teacher = x.Course.Teacher,
+                    Emoji = x.Course.Emoji,
                     Price = x.Course.Price,
                     Status = x.Course.Status.ToString(),
                     CreatedAt = x.Course.CreatedAt,
@@ -106,13 +108,15 @@ public class CourseService : ICourseService
         {
             if (!Enum.TryParse<CourseStatus>(dto.Status, ignoreCase: true, out var status))
                 return ApiResponse<CourseListItemDto>.BadRequest(
-                    "Trạng thái không hợp lệ. Chỉ chấp nhận: Draft hoặc Published");
+                    "Trạng thái không hợp lệ. Chỉ chấp nhận: Draft, Published hoặc Upcoming");
 
             var course = new Course
             {
                 Title = dto.Title.Trim(),
                 Description = dto.Description?.Trim(),
                 Thumbnail = dto.Thumbnail?.Trim(),
+                Teacher = dto.Teacher?.Trim(),
+                Emoji = dto.Emoji?.Trim(),
                 Price = dto.Price,
                 Status = status,
                 KhoiHocId = dto.KhoiHocId
@@ -140,11 +144,13 @@ public class CourseService : ICourseService
 
             if (!Enum.TryParse<CourseStatus>(dto.Status, ignoreCase: true, out var status))
                 return ApiResponse<CourseListItemDto>.BadRequest(
-                    "Trạng thái không hợp lệ. Chỉ chấp nhận: Draft hoặc Published");
+                    "Trạng thái không hợp lệ. Chỉ chấp nhận: Draft, Published hoặc Upcoming");
 
             course.Title = dto.Title.Trim();
             course.Description = dto.Description?.Trim();
             course.Thumbnail = dto.Thumbnail?.Trim();
+            course.Teacher = dto.Teacher?.Trim();
+            course.Emoji = dto.Emoji?.Trim();
             course.Price = dto.Price;
             course.Status = status;
             course.KhoiHocId = dto.KhoiHocId;
@@ -242,6 +248,8 @@ public class CourseService : ICourseService
         Id = course.Id,
         Title = course.Title,
         Thumbnail = course.Thumbnail,
+        Teacher = course.Teacher,
+        Emoji = course.Emoji,
         Price = course.Price,
         Status = course.Status.ToString(),
         CreatedAt = course.CreatedAt,
@@ -255,6 +263,8 @@ public class CourseService : ICourseService
         Title = course.Title,
         Description = course.Description,
         Thumbnail = course.Thumbnail,
+        Teacher = course.Teacher,
+        Emoji = course.Emoji,
         Price = course.Price,
         Status = course.Status.ToString(),
         CreatedAt = course.CreatedAt,

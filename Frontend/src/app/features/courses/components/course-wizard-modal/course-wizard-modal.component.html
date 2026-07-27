@@ -1,7 +1,14 @@
-<div #wizardModal class="modal fade" tabindex="-1" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered modal-xl">
+<div #wizardModal class="modal fade" tabindex="-1" aria-hidden="true" aria-modal="true">
+<div class="modal-dialog modal-dialog-centered course-wizard-dialog">
 <div class="modal-content">
 <div class="create-page">
+
+@if (loading) {
+  <div class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <p>Đang tải dữ liệu khóa học...</p>
+  </div>
+} @else {
 
   <!-- ── Sticky wizard header ── -->
   <header class="wizard-header">
@@ -10,10 +17,10 @@
       Đóng
     </button>
 
-    <h1>Tạo khóa học mới</h1>
+    <h1>{{ title }}</h1>
 
     <div class="wizard-steps">
-      <div class="wizard-step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
+      <div class="wizard-step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" [attr.aria-current]="currentStep === 1 ? 'step' : null" (click)="goToStep(1)">
         <div class="step-num">
           @if (currentStep > 1) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -24,7 +31,7 @@
 
       <div class="step-connector" [class.filled]="currentStep > 1"></div>
 
-      <div class="wizard-step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
+      <div class="wizard-step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" [attr.aria-current]="currentStep === 2 ? 'step' : null" (click)="goToStep(2)">
         <div class="step-num">
           @if (currentStep > 2) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -35,7 +42,7 @@
 
       <div class="step-connector" [class.filled]="currentStep > 2"></div>
 
-      <div class="wizard-step" [class.active]="currentStep === 3" (click)="goToStep(3)">
+      <div class="wizard-step" [class.active]="currentStep === 3" [attr.aria-current]="currentStep === 3 ? 'step' : null" (click)="goToStep(3)">
         <div class="step-num">3</div>
         <span class="step-label">Bài học</span>
       </div>
@@ -82,22 +89,40 @@
                 }
               </div>
 
-              <!-- Khối -->
-              <div class="form-group">
-                <label>Khối <span class="req">*</span></label>
-                <select
-                  class="form-select"
-                  [class.invalid]="form.get('khoiHocId')?.invalid && form.get('khoiHocId')?.touched"
-                  formControlName="khoiHocId"
-                >
-                  <option [ngValue]="null" disabled>-- Chọn khối --</option>
-                  @for (k of khoiHocs; track k.id) {
-                    <option [ngValue]="k.id">{{ k.name }}</option>
+              <!-- Emoji + Khối -->
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>Biểu tượng</label>
+                  <input class="form-input emoji-input" type="text" formControlName="emoji" maxlength="4" placeholder="📘" />
+                </div>
+
+                <div class="form-group">
+                  <label>Khối <span class="req">*</span></label>
+                  <select
+                    class="form-select"
+                    [class.invalid]="form.get('khoiHocId')?.invalid && form.get('khoiHocId')?.touched"
+                    formControlName="khoiHocId"
+                  >
+                    <option [ngValue]="null" disabled>-- Chọn khối --</option>
+                    @for (k of khoiHocs; track k.id) {
+                      <option [ngValue]="k.id">{{ k.name }}</option>
+                    }
+                  </select>
+                  @if (form.get('khoiHocId')?.errors?.['required'] && form.get('khoiHocId')?.touched) {
+                    <div class="field-error">Vui lòng chọn khối cho khóa học</div>
                   }
-                </select>
-                @if (form.get('khoiHocId')?.errors?.['required'] && form.get('khoiHocId')?.touched) {
-                  <div class="field-error">Vui lòng chọn khối cho khóa học</div>
-                }
+                </div>
+              </div>
+
+              <!-- Teacher -->
+              <div class="form-group">
+                <label>Giáo viên</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  formControlName="teacher"
+                  placeholder="Ví dụ: Nguyễn Thị Lan"
+                />
               </div>
 
               <!-- Description -->
@@ -139,26 +164,32 @@
                     <button
                       type="button"
                       class="status-btn"
-                      [class.active-draft]="currentStatus === 'Draft'"
-                      (click)="setStatus('Draft')"
+                      [class.active-published]="currentStatus === 'Published'"
+                      (click)="setStatus('Published')"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      Bản nháp
+                      Đang học
                     </button>
                     <button
                       type="button"
                       class="status-btn"
-                      [class.active-published]="currentStatus === 'Published'"
-                      (click)="setStatus('Published')"
+                      [class.active-upcoming]="currentStatus === 'Upcoming'"
+                      (click)="setStatus('Upcoming')"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      Xuất bản
+                      Sắp tới
+                    </button>
+                    <button
+                      type="button"
+                      class="status-btn"
+                      [class.active-draft]="currentStatus === 'Draft'"
+                      (click)="setStatus('Draft')"
+                    >
+                      Bản nháp
                     </button>
                   </div>
                 </div>
               </div>
 
-              <!-- Thumbnail -->
+              <!-- Cover image -->
               <div class="form-group">
                 <label>URL ảnh bìa</label>
                 <input
@@ -168,29 +199,33 @@
                   formControlName="thumbnail"
                   placeholder="https://example.com/image.jpg"
                 />
-                @if (thumbnailUrl) {
-                  <div class="thumbnail-preview">
+
+                <label class="cover-dropzone" [class.has-image]="thumbnailUrl && !thumbnailError">
+                  @if (thumbnailUrl) {
                     <img
                       [src]="thumbnailUrl"
                       alt="Ảnh bìa"
                       (error)="thumbnailError = true"
                       (load)="thumbnailError = false"
                     />
-                    @if (thumbnailError) {
-                      <div class="no-thumb">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        URL không hợp lệ
-                      </div>
+                  }
+                  <div class="cover-dropzone-overlay">
+                    @if (imageUploadState.uploading) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                      <span>Đang tải lên...</span>
+                    } @else {
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      <span>Kéo thả hoặc bấm để tải ảnh bìa lên</span>
                     }
                   </div>
-                } @else {
-                  <div class="thumbnail-preview">
-                    <div class="no-thumb">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      Chưa có ảnh bìa
-                    </div>
-                  </div>
-                }
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    [disabled]="imageUploadState.uploading"
+                    (change)="onImageFileSelected($event)"
+                  />
+                </label>
               </div>
 
             </form>
@@ -307,7 +342,7 @@
                           <div class="lesson-list" [@listStagger]="getSectionLessons(si).length">
                             @for (lesson of getSectionLessons(si).controls; track lesson; let li = $index) {
                               <div class="lesson-item" [formGroupName]="li">
-                                <div>
+                                <div class="lesson-item-top">
                                   <input
                                     class="lesson-input"
                                     [class.invalid]="lesson.get('title')?.invalid && lesson.get('title')?.touched"
@@ -315,51 +350,55 @@
                                     formControlName="title"
                                     placeholder="Tên bài học..."
                                   />
-                                  @if (lesson.get('title')?.errors?.['required'] && lesson.get('title')?.touched) {
-                                    <div class="field-error" style="margin-top:4px;font-size:11px">Bắt buộc</div>
-                                  }
+                                  <button type="button" class="btn-icon" (click)="removeLesson(si, li)" title="Xóa bài học">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                  </button>
+                                </div>
+                                @if (lesson.get('title')?.errors?.['required'] && lesson.get('title')?.touched) {
+                                  <div class="field-error" style="font-size:11px">Bắt buộc</div>
+                                }
+
+                                <div class="lesson-item-row">
+                                  <select class="lesson-type-select" formControlName="lessonType">
+                                    <option value="Video">Video</option>
+                                    <option value="Document">Tài liệu</option>
+                                    <option value="Quiz">Quiz</option>
+                                  </select>
                                   <input
                                     class="lesson-input"
                                     type="text"
                                     formControlName="videoUrl"
                                     placeholder="URL Video (tuỳ chọn)..."
-                                    style="margin-top:6px"
                                   />
-                                  <div class="lesson-video-upload">
-                                    <label class="btn-upload-video" [class.disabled]="getUploadState(lesson).uploading">
-                                      @if (getUploadState(lesson).uploading) {
-                                        <span class="spinner-border spinner-border-sm"></span>
-                                        Đang tải lên...
-                                      } @else {
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                        Tải video lên
-                                      }
-                                      <input
-                                        type="file"
-                                        hidden
-                                        accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
-                                        [disabled]="getUploadState(lesson).uploading"
-                                        (change)="onVideoFileSelected($event, lesson)"
-                                      />
-                                    </label>
-                                    @if (getUploadState(lesson).fileName) {
-                                      <span class="uploaded-file-badge">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                        {{ getUploadState(lesson).fileName }}
-                                        <button type="button" (click)="clearUploadedVideo(lesson)" title="Xóa video">
-                                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                        </button>
-                                      </span>
-                                    }
-                                  </div>
                                 </div>
-                                <select class="lesson-type-select" formControlName="lessonType">
-                                  <option value="Video">Video</option>
-                                  <option value="Document">Tài liệu</option>
-                                </select>
-                                <button type="button" class="btn-icon" (click)="removeLesson(si, li)">
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
+
+                                <div class="lesson-video-upload">
+                                  <label class="btn-upload-video" [class.disabled]="getUploadState(lesson).uploading">
+                                    @if (getUploadState(lesson).uploading) {
+                                      <span class="spinner-border spinner-border-sm"></span>
+                                      Đang tải lên...
+                                    } @else {
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                      Tải video lên
+                                    }
+                                    <input
+                                      type="file"
+                                      hidden
+                                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
+                                      [disabled]="getUploadState(lesson).uploading"
+                                      (change)="onVideoFileSelected($event, lesson)"
+                                    />
+                                  </label>
+                                  @if (getUploadState(lesson).fileName) {
+                                    <span class="uploaded-file-badge">
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                      {{ getUploadState(lesson).fileName }}
+                                      <button type="button" (click)="clearUploadedVideo(lesson)" title="Xóa video">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                      </button>
+                                    </span>
+                                  }
+                                </div>
                               </div>
                             }
                           </div>
@@ -411,13 +450,14 @@
             Đang lưu...
           } @else {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Lưu khóa học
+            Lưu thay đổi
           }
         </button>
       }
     </div>
   </footer>
 
+}
 </div>
 </div>
 </div>

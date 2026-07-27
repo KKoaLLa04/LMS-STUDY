@@ -1,0 +1,28 @@
+<div #confirmModal class="modal fade dcm-modal" tabindex="-1" aria-hidden="true" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="dcm-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <h5 class="dcm-title">{{ title }}</h5>
+        <p class="dcm-body">
+          {{ bodyPrefix }} <strong>{{ itemName }}</strong>{{ bodySuffix }}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()" [disabled]="deleting">Hủy</button>
+        <button type="button" class="btn btn-danger" [disabled]="deleting" (click)="onConfirm()">
+          @if (deleting) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          {{ confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

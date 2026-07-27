@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { StudentShellComponent } from './features/student-dashboard/components/student-shell/student-shell.component';
+import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   // Landing page — hiển thị độc lập, không qua shell
@@ -11,11 +12,21 @@ export const routes: Routes = [
         (m) => m.LandingComponent
       ),
   },
+  // Đăng nhập — public, ngoài shell
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/pages/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+  },
   // Shell chung (sidebar + header mới) cho toàn bộ các trang sau đăng nhập,
-  // để điều hướng giữa các trang không bị đổi lại sidebar/header cũ
+  // để điều hướng giữa các trang không bị đổi lại sidebar/header cũ.
+  // Toàn bộ khu vực này yêu cầu đăng nhập admin (authGuard).
   {
     path: '',
     component: StudentShellComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',

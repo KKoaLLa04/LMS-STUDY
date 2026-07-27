@@ -13,4 +13,5 @@ export class StudentDashboardHeaderComponent {
   @Input({ required: true }) streakDays!: number;
   @Input({ required: true }) initials!: string;
   @Output() menuToggle = new EventEmitter<void>();
+  @Output() logout = new EventEmitter<void>();
 }

@@ -4,24 +4,29 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseService } from '../../services/course.service';
 import { CourseListItem } from '../../models/course.model';
-import { CourseCreateComponent } from '../course-create/course-create.component';
-import { CourseEditComponent } from '../course-edit/course-edit.component';
+import { CourseWizardModalComponent } from '../../components/course-wizard-modal/course-wizard-modal.component';
+import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal.component';
+import { ToastService } from '../../../../shared/services/toast.service';
+
+const SUBJECT_BG_PALETTE = ['#EEF2FF', '#FEF3C7', '#ECFDF5', '#FEE2E2', '#ECFEFF', '#F3E8FF'];
+const DEFAULT_EMOJI = '📘';
 
 @Component({
   selector: 'app-course-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CourseCreateComponent, CourseEditComponent],
-  templateUrl: './course-list.component.html'
+  imports: [CommonModule, FormsModule, RouterLink, CourseWizardModalComponent, DeleteConfirmModalComponent],
+  templateUrl: './course-list.component.html',
+  styleUrl: './course-list.component.scss'
 })
 export class CourseListComponent implements OnInit {
-  @ViewChild(CourseCreateComponent) createModal!: CourseCreateComponent;
-  @ViewChild(CourseEditComponent) editModal!: CourseEditComponent;
+  @ViewChild(CourseWizardModalComponent) wizard!: CourseWizardModalComponent;
+  @ViewChild(DeleteConfirmModalComponent) deleteModal!: DeleteConfirmModalComponent;
 
   courses: CourseListItem[] = [];
   loading = false;
   deleting: number | null = null;
+  pendingDeleteId: number | null = null;
   errorMessage = '';
-  successMessage = '';
 
   page = 1;
   pageSize = 10;
@@ -33,24 +38,25 @@ export class CourseListComponent implements OnInit {
   constructor(
     private courseService: CourseService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
     this.loadCourses();
 
     if (this.route.snapshot.queryParamMap.get('create') === '1') {
-      this.createModal.open();
+      this.wizard.openCreate();
       this.router.navigate([], { queryParams: {} });
     }
   }
 
   openCreateModal(): void {
-    this.createModal.open();
+    this.wizard.openCreate();
   }
 
   openEditModal(courseId: number): void {
-    this.editModal.openForEdit(courseId);
+    this.wizard.openEdit(courseId);
   }
 
   loadCourses(): void {
@@ -84,21 +90,27 @@ export class CourseListComponent implements OnInit {
     this.loadCourses();
   }
 
-  onDelete(id: number, title: string): void {
-    if (!confirm(`Bạn có chắc muốn xóa khóa học "${title}"?\nThao tác này sẽ xóa toàn bộ chương và bài học bên trong.`)) return;
+  openDeleteModal(course: CourseListItem): void {
+    this.pendingDeleteId = course.id;
+    this.deleteModal.open(course.title);
+  }
+
+  onConfirmDelete(): void {
+    if (this.pendingDeleteId === null) return;
+    const id = this.pendingDeleteId;
     this.deleting = id;
-    this.successMessage = '';
-    this.errorMessage = '';
     this.courseService.deleteCourse(id).subscribe({
       next: () => {
-        this.successMessage = `Đã xóa khóa học "${title}" thành công.`;
         this.deleting = null;
+        this.pendingDeleteId = null;
+        this.deleteModal.close();
+        this.toast.success('Đã xóa khóa học thành công.');
         if (this.courses.length === 1 && this.page > 1) this.page--;
         this.loadCourses();
       },
       error: () => {
-        this.errorMessage = 'Xóa khóa học thất bại. Vui lòng thử lại.';
         this.deleting = null;
+        this.toast.error('Xóa khóa học thất bại. Vui lòng thử lại.');
       }
     });
   }
@@ -123,11 +135,23 @@ export class CourseListComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    return status === 'Published' ? 'text-bg-success' : 'text-bg-secondary';
+    if (status === 'Published') return 'status-published';
+    if (status === 'Upcoming') return 'status-upcoming';
+    return 'status-draft';
   }
 
   getStatusLabel(status: string): string {
-    return status === 'Published' ? 'Đã xuất bản' : 'Bản nháp';
+    if (status === 'Published') return 'Đang học';
+    if (status === 'Upcoming') return 'Sắp tới';
+    return 'Bản nháp';
+  }
+
+  getEmoji(course: CourseListItem): string {
+    return course.emoji || DEFAULT_EMOJI;
+  }
+
+  getSubjectBg(id: number): string {
+    return SUBJECT_BG_PALETTE[id % SUBJECT_BG_PALETTE.length];
   }
 
   formatDate(dateStr: string): string {

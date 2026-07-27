@@ -6,6 +6,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 import { CourseService } from '../../services/course.service';
 import { SectionService } from '../../services/section.service';
 import { LessonService } from '../../services/lesson.service';
+import { CreateCourseRequest } from '../../models/course.model';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
@@ -14,6 +15,8 @@ import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
 declare const bootstrap: any;
 
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+const DEFAULT_EMOJI = '📘';
 
 interface UploadState {
   uploading: boolean;
@@ -30,11 +33,11 @@ const slideOut = [
 ];
 
 @Component({
-  selector: 'app-course-edit',
+  selector: 'app-course-wizard-modal',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './course-edit.component.html',
-  styleUrls: ['./course-edit.component.scss'],
+  templateUrl: './course-wizard-modal.component.html',
+  styleUrls: ['./course-wizard-modal.component.scss'],
   animations: [
     trigger('stepAnim', [
       transition(':enter', slideUp),
@@ -52,21 +55,23 @@ const slideOut = [
     ])
   ]
 })
-export class CourseEditComponent implements AfterViewInit {
+export class CourseWizardModalComponent implements AfterViewInit {
   @ViewChild('wizardModal') wizardModalEl!: ElementRef<HTMLElement>;
   @Output() saved = new EventEmitter<void>();
 
+  mode: 'add' | 'edit' = 'add';
+  courseId: number | null = null;
+
   form: FormGroup;
-  courseId!: number;
   currentStep = 1;
-  loading = true;
+  loading = false;
   submitting = false;
   thumbnailError = false;
   priceDisplay = '0';
   khoiHocs: KhoiHoc[] = [];
   uploadState = new Map<AbstractControl, UploadState>();
+  imageUploadState: UploadState = { uploading: false };
 
-  // Track IDs that were removed so we can delete them on save
   deletedSectionIds: number[] = [];
   deletedLessonIds: number[] = [];
 
@@ -83,6 +88,8 @@ export class CourseEditComponent implements AfterViewInit {
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255)]],
+      emoji: [DEFAULT_EMOJI, Validators.maxLength(16)],
+      teacher: ['', Validators.maxLength(255)],
       description: [''],
       thumbnail: ['', Validators.maxLength(500)],
       price: [0, [Validators.min(0)]],
@@ -99,16 +106,47 @@ export class CourseEditComponent implements AfterViewInit {
     });
   }
 
-  openForEdit(id: number): void {
+  get title(): string {
+    return this.mode === 'add' ? 'Tạo khóa học mới' : 'Chỉnh sửa khóa học';
+  }
+
+  openCreate(): void {
+    this.mode = 'add';
+    this.courseId = null;
+    this.sections.clear();
+    this.form.reset({
+      title: '',
+      emoji: DEFAULT_EMOJI,
+      teacher: '',
+      description: '',
+      thumbnail: '',
+      price: 0,
+      status: 'Draft',
+      khoiHocId: null
+    });
+    this.currentStep = 1;
+    this.priceDisplay = '0';
+    this.thumbnailError = false;
+    this.uploadState.clear();
+    this.imageUploadState = { uploading: false };
+    this.deletedSectionIds = [];
+    this.deletedLessonIds = [];
+    this.loadKhoiHocs();
+    this.modal.show();
+  }
+
+  openEdit(id: number): void {
+    this.mode = 'edit';
     this.courseId = id;
     this.loading = true;
     this.currentStep = 1;
     this.thumbnailError = false;
     this.uploadState.clear();
+    this.imageUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
     this.loadKhoiHocs();
-    this.loadCourse();
+    this.loadCourse(id);
     this.modal.show();
   }
 
@@ -123,9 +161,9 @@ export class CourseEditComponent implements AfterViewInit {
     });
   }
 
-  private async loadCourse(): Promise<void> {
+  private async loadCourse(id: number): Promise<void> {
     try {
-      const res = await lastValueFrom(this.courseService.getCourseById(this.courseId));
+      const res = await lastValueFrom(this.courseService.getCourseById(id));
       if (!res.success || !res.data) {
         this.toast.error(res.message || 'Không tìm thấy khóa học.');
         this.modal.hide();
@@ -138,6 +176,8 @@ export class CourseEditComponent implements AfterViewInit {
 
       this.form.patchValue({
         title: course.title,
+        emoji: course.emoji ?? DEFAULT_EMOJI,
+        teacher: course.teacher ?? '',
         description: course.description ?? '',
         thumbnail: course.thumbnail ?? '',
         price,
@@ -148,9 +188,9 @@ export class CourseEditComponent implements AfterViewInit {
       const sectionsArray = this.form.get('sections') as FormArray;
       sectionsArray.clear();
 
-      for (const section of (course.sections ?? [])) {
+      for (const section of course.sections ?? []) {
         const lessonsArray = this.fb.array(
-          (section.lessons ?? []).map(lesson =>
+          (section.lessons ?? []).map((lesson) =>
             this.fb.group({
               id: [lesson.id],
               title: [lesson.title, [Validators.required, Validators.maxLength(255)]],
@@ -206,6 +246,39 @@ export class CourseEditComponent implements AfterViewInit {
 
   setStatus(val: string): void {
     this.form.get('status')?.setValue(val);
+  }
+
+  onImageFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Vui lòng chọn một file ảnh hợp lệ.');
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      this.toast.error('File ảnh không được vượt quá 10MB.');
+      return;
+    }
+
+    this.imageUploadState = { uploading: true };
+    this.uploadService.uploadImage(file).subscribe({
+      next: (res) => {
+        if (!res.success || !res.data) {
+          this.imageUploadState = { uploading: false };
+          this.toast.error(res.message || 'Tải ảnh lên thất bại');
+          return;
+        }
+        this.form.get('thumbnail')?.setValue(res.data.url);
+        this.imageUploadState = { uploading: false, fileName: file.name };
+      },
+      error: (err) => {
+        this.imageUploadState = { uploading: false };
+        this.toast.error(err?.error?.message || 'Tải ảnh lên thất bại');
+      }
+    });
   }
 
   addSection(): void {
@@ -340,25 +413,35 @@ export class CourseEditComponent implements AfterViewInit {
 
     try {
       const v = this.form.value;
+      const payload: CreateCourseRequest = {
+        title: v.title,
+        description: v.description || undefined,
+        thumbnail: v.thumbnail || undefined,
+        teacher: v.teacher || undefined,
+        emoji: v.emoji || undefined,
+        price: v.price,
+        status: v.status,
+        khoiHocId: v.khoiHocId
+      };
 
-      // 1. Update course info
-      const courseRes = await lastValueFrom(
-        this.courseService.updateCourse(this.courseId, {
-          title: v.title,
-          description: v.description || undefined,
-          thumbnail: v.thumbnail || undefined,
-          price: v.price,
-          status: v.status,
-          khoiHocId: v.khoiHocId
-        })
-      );
+      let courseId: number;
 
-      if (!courseRes.success) {
-        this.toast.error(courseRes.message || 'Cập nhật khóa học thất bại');
-        return;
+      if (this.mode === 'add') {
+        const courseRes = await lastValueFrom(this.courseService.createCourse(payload));
+        if (!courseRes.success) {
+          this.toast.error(courseRes.message || 'Tạo khóa học thất bại');
+          return;
+        }
+        courseId = courseRes.data!.id;
+      } else {
+        const courseRes = await lastValueFrom(this.courseService.updateCourse(this.courseId!, payload));
+        if (!courseRes.success) {
+          this.toast.error(courseRes.message || 'Cập nhật khóa học thất bại');
+          return;
+        }
+        courseId = this.courseId!;
       }
 
-      // 2. Delete removed lessons then removed sections
       for (const lid of this.deletedLessonIds) {
         await lastValueFrom(this.lessonService.deleteLesson(lid));
       }
@@ -366,12 +449,10 @@ export class CourseEditComponent implements AfterViewInit {
         await lastValueFrom(this.sectionService.deleteSection(sid));
       }
 
-      // 3. Create or update sections & lessons
       for (const section of v.sections) {
         let sectionId: number;
 
         if (section.id) {
-          // Update existing section
           const sRes = await lastValueFrom(
             this.sectionService.updateSection(section.id, { title: section.title, position: section.position })
           );
@@ -381,9 +462,8 @@ export class CourseEditComponent implements AfterViewInit {
           }
           sectionId = section.id;
         } else {
-          // Create new section
           const sRes = await lastValueFrom(
-            this.sectionService.createSection({ courseId: this.courseId, title: section.title, position: section.position })
+            this.sectionService.createSection({ courseId, title: section.title, position: section.position })
           );
           if (!sRes.success) {
             this.toast.error(sRes.message || 'Tạo chương học thất bại');
@@ -393,33 +473,22 @@ export class CourseEditComponent implements AfterViewInit {
         }
 
         for (const lesson of section.lessons) {
+          const lessonPayload = {
+            title: lesson.title,
+            content: lesson.content || undefined,
+            videoUrl: lesson.videoUrl || undefined,
+            lessonType: lesson.lessonType,
+            position: lesson.position
+          };
+
           if (lesson.id) {
-            // Update existing lesson
-            const lRes = await lastValueFrom(
-              this.lessonService.updateLesson(lesson.id, {
-                title: lesson.title,
-                content: lesson.content || undefined,
-                videoUrl: lesson.videoUrl || undefined,
-                lessonType: lesson.lessonType,
-                position: lesson.position
-              })
-            );
+            const lRes = await lastValueFrom(this.lessonService.updateLesson(lesson.id, lessonPayload));
             if (!lRes.success) {
               this.toast.error(lRes.message || 'Cập nhật bài học thất bại');
               return;
             }
           } else {
-            // Create new lesson
-            const lRes = await lastValueFrom(
-              this.lessonService.createLesson({
-                sectionId,
-                title: lesson.title,
-                content: lesson.content || undefined,
-                videoUrl: lesson.videoUrl || undefined,
-                lessonType: lesson.lessonType,
-                position: lesson.position
-              })
-            );
+            const lRes = await lastValueFrom(this.lessonService.createLesson({ sectionId, ...lessonPayload }));
             if (!lRes.success) {
               this.toast.error(lRes.message || 'Tạo bài học thất bại');
               return;
@@ -428,7 +497,9 @@ export class CourseEditComponent implements AfterViewInit {
         }
       }
 
-      this.toast.success(`Cập nhật khóa học "${v.title}" thành công!`);
+      this.toast.success(
+        this.mode === 'add' ? `Tạo khóa học "${v.title}" thành công!` : `Cập nhật khóa học "${v.title}" thành công!`
+      );
       this.modal.hide();
       this.saved.emit();
     } catch (err: any) {

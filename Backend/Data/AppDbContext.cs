@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     public DbSet<DiscussionPost> DiscussionPosts => Set<DiscussionPost>();
     public DbSet<ChatChannel> ChatChannels => Set<ChatChannel>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -123,6 +124,18 @@ public class AppDbContext : DbContext
                   .WithMany(c => c.Messages)
                   .HasForeignKey(m => m.ChannelId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("Users");
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.Property(u => u.Role)
+                  .HasConversion<string>()
+                  .HasMaxLength(20);
+            entity.Property(u => u.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
         });
 
         // Xóa mềm: tự động loại bỏ các bản ghi có IsDeleted = true khỏi mọi truy vấn LINQ,

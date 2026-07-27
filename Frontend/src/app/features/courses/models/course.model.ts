@@ -1,7 +1,11 @@
+export type CourseStatus = 'Draft' | 'Published' | 'Upcoming';
+
 export interface CreateCourseRequest {
   title: string;
   description?: string;
   thumbnail?: string;
+  teacher?: string;
+  emoji?: string;
   price: number;
   status: string;
   khoiHocId?: number;
@@ -26,6 +30,8 @@ export interface CourseListItem {
   id: number;
   title: string;
   thumbnail?: string;
+  teacher?: string;
+  emoji?: string;
   price: number;
   status: string;
   createdAt: string;
@@ -56,6 +62,8 @@ export interface CourseDetail {
   title: string;
   description?: string;
   thumbnail?: string;
+  teacher?: string;
+  emoji?: string;
   price: number;
   status: string;
   createdAt: string;

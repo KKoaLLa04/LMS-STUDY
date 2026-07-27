@@ -1,14 +1,19 @@
+using System.Text;
 using Backend.Common;
 using Backend.Configuration;
 using Backend.Data;
+using Backend.Models;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Backend.Services.MeetingProviders;
 using Backend.Services.VirtualClassrooms;
 using Backend.Services.VirtualClassrooms.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +37,28 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Nhập token dạng: Bearer {token}"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // CORS – cho phép Angular dev server gọi API
 builder.Services.AddCors(options =>
@@ -51,6 +77,8 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IKhoiHocService, KhoiHocService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Cho phép upload video kích thước lớn (tối đa 500MB) qua multipart/form-data
 builder.Services.Configure<FormOptions>(options =>
@@ -93,6 +121,33 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Authentication (JWT) & Authorization
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSection["Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "Jwt:Key chưa được cấu hình. Chạy: dotnet user-secrets set \"Jwt:Key\" \"<chuỗi bí mật>\" trong thư mục Backend.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidAudience = jwtSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 // ──────────────────────────────────────────────────────────────
 // 2. Build ứng dụng
 // ──────────────────────────────────────────────────────────────
@@ -114,6 +169,20 @@ using (var scope = app.Services.CreateScope())
     {
         logger.LogError(ex, "An error occurred while applying database migrations.");
     }
+
+    // Seed tài khoản admin mặc định nếu chưa có
+    if (!await db.Users.AnyAsync(u => u.Username == "admin"))
+    {
+        db.Users.Add(new User
+        {
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            Role = UserRole.Admin,
+            CreatedAt = DateTime.UtcNow
+        });
+        await db.SaveChangesAsync();
+        logger.LogInformation("Đã seed tài khoản admin mặc định (username: admin).");
+    }
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -125,6 +194,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowAngularDev");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

@@ -18,6 +18,9 @@
       <app-sd-icon name="bell" [size]="18" color="#475569" [strokeWidth]="2" />
       <span class="sd-bell-badge">3</span>
     </button>
+    <button type="button" class="sd-icon-btn" aria-label="Đăng xuất" title="Đăng xuất" (click)="logout.emit()">
+      <app-sd-icon name="log-out" [size]="18" color="#475569" [strokeWidth]="2" />
+    </button>
     <div class="sd-avatar-circle">{{ initials }}</div>
   </div>
 </header>

@@ -1,0 +1,129 @@
+:host {
+  --primary: #6366F1;
+  --primary-light: #EEF2FF;
+  --primary-dark: #4338CA;
+  --radius: 16px;
+}
+
+.cl-card {
+  border-radius: var(--radius);
+  border: 1px solid #eceef2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.cl-search {
+  max-width: 320px;
+}
+
+.cl-btn-add {
+  background: linear-gradient(135deg, #818CF8, #6366F1);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, .35);
+  transition: box-shadow 150ms, transform 150ms;
+
+  &:hover {
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, .45);
+    transform: translateY(-1px);
+  }
+}
+
+.cl-table {
+  thead {
+    background: #f9fafb;
+
+    th {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+      border-bottom: 1px solid #eceef2;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+  }
+
+  tbody tr:hover {
+    background: #fafaff;
+  }
+}
+
+.cl-emoji-tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.cl-title {
+  font-weight: 600;
+  color: #111827;
+}
+
+.cl-subtext {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.cl-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.cl-pill-khoi {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.status-published {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+.status-upcoming {
+  background: #FEF9C3;
+  color: #A16207;
+}
+
+.status-draft {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.cl-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms, color 150ms;
+}
+
+.cl-action-edit {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+
+  &:hover { background: #e0e7ff; }
+}
+
+.cl-action-delete {
+  background: #FEE2E2;
+  color: #DC2626;
+
+  &:hover:not(:disabled) { background: #fecaca; }
+  &:disabled { opacity: .6; }
+}
