@@ -1,0 +1,154 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Xem trước khóa học</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item"><a routerLink="/courses">Khóa học</a></li>
+          <li class="breadcrumb-item active">Xem trước</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    <div class="mb-3">
+      <a routerLink="/courses" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+      </a>
+    </div>
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <div class="mt-2 text-muted">Đang tải dữ liệu khóa học...</div>
+      </div>
+    } @else if (errorMessage) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+      </div>
+    } @else if (course) {
+      <div class="cp-layout">
+
+        <!-- ── Main: player + course info ── -->
+        <div class="cp-main">
+          <div class="cp-player">
+            @if (selectedLesson && selectedLesson.lessonType === 'Video' && selectedLesson.videoUrl) {
+              @if (selectedEmbedUrl) {
+                <iframe
+                  [src]="selectedEmbedUrl"
+                  class="cp-video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              } @else {
+                <video [src]="selectedLesson.videoUrl" controls class="cp-video"></video>
+              }
+            } @else if (course.thumbnail) {
+              <img [src]="course.thumbnail" class="cp-thumb" alt="" />
+            } @else {
+              <div class="cp-thumb-placeholder">{{ emoji }}</div>
+            }
+          </div>
+
+          @if (selectedLesson) {
+            <div class="cp-lesson-meta">
+              <span class="cp-lesson-badge">
+                <i class="bi" [ngClass]="lessonIcon(selectedLesson.lessonType)"></i>
+                {{ lessonTypeLabel(selectedLesson.lessonType) }}
+              </span>
+              <span class="text-muted small">{{ selectedSection?.title }}</span>
+            </div>
+            <h4 class="cp-lesson-title">{{ selectedLesson.title }}</h4>
+            @if (selectedLesson.lessonType !== 'Video') {
+              <div class="cp-lesson-placeholder text-muted">
+                <i class="bi bi-info-circle me-1"></i>Bài học này chưa có nội dung xem trước cho học viên.
+              </div>
+            }
+            @if (selectedLesson.content) {
+              <p class="cp-lesson-content">{{ selectedLesson.content }}</p>
+            }
+          }
+
+          <hr />
+
+          <div class="cp-course-header">
+            <div class="cp-course-emoji">{{ emoji }}</div>
+            <div class="flex-grow-1">
+              <h3 class="mb-1">{{ course.title }}</h3>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="cp-pill" [ngClass]="getStatusClass(course.status)">{{ getStatusLabel(course.status) }}</span>
+                @if (course.khoiHocName) {
+                  <span class="cp-pill cp-pill-khoi">{{ course.khoiHocName }}</span>
+                }
+                <span class="cp-price">{{ formatPrice(course.price) }}</span>
+              </div>
+              @if (course.teacher) {
+                <div class="text-muted small mt-2"><i class="bi bi-person me-1"></i>GV: {{ course.teacher }}</div>
+              }
+            </div>
+            <button type="button" class="btn cp-btn-edit" (click)="editCourse()">
+              <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+            </button>
+          </div>
+
+          @if (course.description) {
+            <div class="cp-description">
+              <h5>Giới thiệu khóa học</h5>
+              <p>{{ course.description }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- ── Sidebar: curriculum outline ── -->
+        <aside class="cp-sidebar">
+          <div class="cp-sidebar-header">
+            <div class="fw-bold">Nội dung khóa học</div>
+            <div class="text-muted small">{{ course.sections.length }} chương · {{ totalLessons }} bài học</div>
+          </div>
+
+          @if (course.sections.length === 0) {
+            <div class="text-center text-muted py-4 small">Khóa học chưa có chương học nào.</div>
+          } @else {
+            <div class="cp-section-list">
+              @for (section of course.sections; track section.id) {
+                <div class="cp-section">
+                  <button type="button" class="cp-section-header" (click)="toggleSection(section.id)">
+                    <i class="bi" [ngClass]="isSectionCollapsed(section.id) ? 'bi-chevron-right' : 'bi-chevron-down'"></i>
+                    <span class="flex-grow-1 text-start">{{ section.title }}</span>
+                    <span class="text-muted small">{{ section.lessons.length }} bài</span>
+                  </button>
+
+                  @if (!isSectionCollapsed(section.id)) {
+                    <div class="cp-lesson-list">
+                      @for (lesson of section.lessons; track lesson.id) {
+                        <button
+                          type="button"
+                          class="cp-lesson-item"
+                          [class.active]="selectedLesson?.id === lesson.id"
+                          (click)="selectLesson(section, lesson)"
+                        >
+                          <i class="bi" [ngClass]="lessonIcon(lesson.lessonType)"></i>
+                          <span class="flex-grow-1 text-start">{{ lesson.title }}</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </aside>
+      </div>
+    }
+
+  </div>
+</div>

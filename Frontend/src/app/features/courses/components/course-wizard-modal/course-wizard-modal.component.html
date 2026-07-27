@@ -97,20 +97,13 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Khối <span class="req">*</span></label>
-                  <select
-                    class="form-select"
-                    [class.invalid]="form.get('khoiHocId')?.invalid && form.get('khoiHocId')?.touched"
-                    formControlName="khoiHocId"
-                  >
-                    <option [ngValue]="null" disabled>-- Chọn khối --</option>
+                  <label>Khối</label>
+                  <select class="form-select" formControlName="khoiHocId">
+                    <option [ngValue]="null">-- Chọn khối --</option>
                     @for (k of khoiHocs; track k.id) {
                       <option [ngValue]="k.id">{{ k.name }}</option>
                     }
                   </select>
-                  @if (form.get('khoiHocId')?.errors?.['required'] && form.get('khoiHocId')?.touched) {
-                    <div class="field-error">Vui lòng chọn khối cho khóa học</div>
-                  }
                 </div>
               </div>
 

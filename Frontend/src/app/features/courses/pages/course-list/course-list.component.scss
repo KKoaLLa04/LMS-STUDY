@@ -12,7 +12,8 @@
 }
 
 .cl-search {
-  max-width: 320px;
+  flex: 0 1 320px;
+  min-width: 200px;
 }
 
 .cl-btn-add {
@@ -111,6 +112,13 @@
   align-items: center;
   justify-content: center;
   transition: background 150ms, color 150ms;
+}
+
+.cl-action-preview {
+  background: #F1F5F9;
+  color: #475569;
+
+  &:hover { background: #e2e8f0; }
 }
 
 .cl-action-edit {

@@ -49,6 +49,12 @@ export class CourseListComponent implements OnInit {
       this.wizard.openCreate();
       this.router.navigate([], { queryParams: {} });
     }
+
+    const editId = this.route.snapshot.queryParamMap.get('edit');
+    if (editId) {
+      this.wizard.openEdit(Number(editId));
+      this.router.navigate([], { queryParams: {} });
+    }
   }
 
   openCreateModal(): void {

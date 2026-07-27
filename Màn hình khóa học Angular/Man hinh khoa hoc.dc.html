@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#f5ead8">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="54" fill="#c67139"/>
+    <path d="M40 34h20a12 12 0 0 1 12 12v40a9 9 0 0 0-9-9H40z" fill="#f5ead8"/>
+    <path d="M80 34h-20a12 12 0 0 0-12 12v40a9 9 0 0 1 9-9h23z" fill="#f5ead8" opacity="0.6"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="./organic.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; }
+    * { box-sizing: border-box; }
+    ::-webkit-scrollbar { display: none; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
+  </style>
+</helmet>
+<div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); display: flex; flex-direction: column;">
+
+  <header style="position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 24px; padding: 14px 32px; background: var(--color-bg); border-bottom: 1px solid var(--color-divider); flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onClick="{{ goHome }}">
+      <div style="width: 38px; height: 38px; border-radius: 999px; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: var(--color-bg); flex: none;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <span style="font-family: var(--font-heading); font-size: 21px; color: var(--color-text);">Học Vui</span>
+    </div>
+    <nav style="display: flex; align-items: center; gap: 20px; font-size: 14px; font-weight: 600;">
+      <a href="#" style="color: var(--color-accent); text-decoration: none;">Khóa học</a>
+      <a href="#" style="color: var(--color-text); opacity: 0.65; text-decoration: none;">Của tôi</a>
+      <a href="#" style="color: var(--color-text); opacity: 0.65; text-decoration: none;">Yêu thích</a>
+    </nav>
+    <div style="flex: 1; min-width: 180px; max-width: 420px; margin-left: auto; position: relative;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="input" style="padding-left: 36px;" placeholder="Tìm kiếm khóa học..." value="{{ searchQuery }}" onChange="{{ onSearchChange }}"/>
+    </div>
+    <button class="btn btn-icon btn-secondary" aria-label="Thông báo">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </button>
+    <div style="width: 38px; height: 38px; border-radius: 999px; background: var(--color-accent-2); display: flex; align-items: center; justify-content: center; color: var(--color-bg); font-weight: 700; font-size: 13px; flex: none;">HS</div>
+  </header>
+
+  <sc-if value="{{ isListView }}" hint-placeholder-val="{{ true }}">
+  <main style="padding: 28px 32px 64px; display: flex; flex-direction: column; gap: 36px; max-width: 1280px; margin: 0 auto; width: 100%;">
+
+    <section style="position: relative; border-radius: calc(var(--radius-lg) * 1.15); overflow: hidden; background: {{ featuredCourse.bannerBg }}; padding: 40px 44px; display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 230px; box-shadow: var(--shadow-lg); animation: fadeInUp .5s ease;">
+      <div style="position: absolute; right: -30px; top: -30px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.14); animation: floatSlow 6s ease-in-out infinite;"></div>
+      <div style="position: absolute; right: 90px; bottom: -50px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.10); animation: floatSlow 7s ease-in-out infinite 1s;"></div>
+      <div style="position: relative; max-width: 560px; display: flex; flex-direction: column; gap: 12px;">
+        <span class="tag" style="background: rgba(255,255,255,0.22); color: #fff; width: fit-content;">✦ Khóa học nổi bật</span>
+        <h2 style="color: #fff; font-size: 30px; margin: 0;">{{ featuredCourse.title }}</h2>
+        <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; max-width: 480px;">{{ featuredCourse.desc }}</p>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+          <button class="btn" style="background: #fff; color: var(--color-accent-800); border-radius: 999px; font-weight: 700;" onClick="{{ openFeatured }}">
+            Xem ngay
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="position: relative; width: 150px; height: 150px; border-radius: 32px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; flex: none;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div style="position: absolute; left: 44px; bottom: 16px; display: flex; gap: 6px;">
+        <sc-for list="{{ dots }}" as="dot" hint-placeholder-count="3">
+          <button onClick="{{ dot.onClick }}" style="width: {{ dot.size }}px; height: 8px; border-radius: 999px; border: none; background: rgba(255,255,255,{{ dot.opacity }}); cursor: pointer; padding: 0; transition: all .3s ease;"></button>
+        </sc-for>
+      </div>
+    </section>
+
+    <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 2px;">
+      <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="7">
+        <button onClick="{{ cat.onClick }}" style="flex: none; padding: 9px 18px; border-radius: 999px; border: 1px solid {{ cat.borderColor }}; background: {{ cat.bg }}; color: {{ cat.color }}; font-family: var(--font-heading); font-weight: 400; font-size: 13px; cursor: pointer; transition: all .2s ease;">{{ cat.name }}</button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ hasInProgress }}" hint-placeholder-val="{{ false }}">
+      <section style="display: flex; flex-direction: column; gap: 14px;">
+        <h3 style="margin: 0; font-size: 22px;">Đang học dở</h3>
+        <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px;">
+          <sc-for list="{{ inProgressCourses }}" as="course" hint-placeholder-count="3">
+            <div class="card elev-sm" style="flex: none; width: 280px; cursor: pointer; animation: fadeInUp .5s ease;" onClick="{{ course.onSelect }}">
+              <div style="width: 100%; aspect-ratio: 16/9; border-radius: var(--radius-md); background: {{ course.thumbBg }}; display: flex; align-items: center; justify-content: center;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.9;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="card-title" style="font-size: 15px;">{{ course.title }}</div>
+              <div style="width: 100%; height: 7px; border-radius: 999px; background: var(--color-neutral-200); overflow: hidden;">
+                <div style="height: 100%; border-radius: 999px; background: var(--color-accent); width: {{ course.progress }}%; transition: width .6s ease;"></div>
+              </div>
+              <div class="card-meta" style="justify-content: space-between;">
+                <span>{{ course.progress }}% hoàn thành</span>
+                <span style="color: var(--color-accent); font-weight: 700;">Tiếp tục →</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <section style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <h3 style="margin: 0; font-size: 22px;">Tất cả khóa học</h3>
+        <span class="text-muted" style="font-size: 13px;">{{ resultCountLabel }}</span>
+      </div>
+
+      <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;">
+          <sc-for list="{{ filteredCourses }}" as="course" hint-placeholder-count="6">
+            <div class="card elev-sm" style="cursor: pointer; animation: fadeInUp .5s ease; animation-delay: {{ course.delay }}s; animation-fill-mode: both;" style-hover="{{ cardHoverStyle }}" onClick="{{ course.onSelect }}">
+              <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: var(--radius-md); background: {{ course.thumbBg }}; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.92;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span style="position: absolute; top: 8px; left: 8px; background: rgba(255,255,255,0.9); color: var(--color-text); font-size: 10px; padding: 3px 8px; border-radius: 999px; font-weight: 700;">{{ course.subject }}</span>
+                <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.35); color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 999px;">{{ course.duration }}</span>
+              </div>
+              <div class="card-title">{{ course.title }}</div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                <div style="width: 22px; height: 22px; border-radius: 999px; background: var(--color-neutral-300); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex: none;">{{ course.initials }}</div>
+                <span class="text-muted">{{ course.teacher }}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; font-size: 12px;" class="text-muted">
+                <span style="display: flex; align-items: center; gap: 4px; color: var(--color-accent-700); font-weight: 700;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  {{ course.rating }}
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  {{ course.lessons }} bài
+                </span>
+              </div>
+              <sc-if value="{{ course.purchased }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div style="width: 100%; height: 6px; border-radius: 999px; background: var(--color-neutral-200); overflow: hidden;">
+                    <div style="height: 100%; border-radius: 999px; background: var(--color-accent); width: {{ course.progress }}%; transition: width .6s ease;"></div>
+                  </div>
+                  <span class="tag tag-accent-2" style="width: fit-content;">{{ course.progressLabel }}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ course.notPurchased }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-family: var(--font-heading); font-size: 15px; color: var(--color-accent-700);">{{ course.priceLabel }}</span>
+                  <span class="btn btn-ghost" style="font-size: 13px; padding: 4px 6px;">Xem chi tiết</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasNoResults }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align: center; padding: 60px 20px; opacity: 0.6; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Không tìm thấy khóa học phù hợp.</span>
+        </div>
+      </sc-if>
+    </section>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ isDetailView }}" hint-placeholder-val="{{ false }}">
+  <main style="padding: 24px 32px 64px; max-width: 1100px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 24px; animation: fadeInUp .4s ease;">
+
+    <button class="btn btn-ghost" style="width: fit-content; padding-left: 2px;" onClick="{{ goHome }}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Quay lại danh sách
+    </button>
+
+    <div style="display: grid; grid-template-columns: minmax(300px, 1.4fr) minmax(280px, 1fr); gap: 24px;">
+      <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: calc(var(--radius-lg) * 1.15); background: {{ selectedCourse.thumbBg }}; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: var(--shadow-md);">
+        <span style="position: absolute; top: 14px; left: 14px; background: rgba(255,255,255,0.92); color: var(--color-text); font-size: 11px; padding: 4px 11px; border-radius: 999px; font-weight: 700;">{{ selectedCourse.subject }}</span>
+        <span style="position: absolute; bottom: 14px; right: 14px; background: rgba(0,0,0,0.4); color: #fff; font-size: 11px; padding: 4px 11px; border-radius: 999px;">{{ selectedCourse.duration }}</span>
+        <button style="width: 76px; height: 76px; border-radius: 999px; background: rgba(255,255,255,0.95); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-lg); transition: transform .2s ease;" style-hover="{{ playHoverStyle }}">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="none" style="margin-left: 4px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <span style="position: absolute; bottom: 14px; left: 14px; font-family: monospace; font-size: 10px; color: rgba(255,255,255,0.8);">video giới thiệu khóa học</span>
+      </div>
+
+      <div class="card elev-md" style="justify-content: flex-start; gap: 14px;">
+        <h1 style="font-size: 23px; margin: 0;">{{ selectedCourse.title }}</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 34px; height: 34px; border-radius: 999px; background: var(--color-accent-2); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex: none;">{{ selectedCourse.initials }}</div>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 13px; font-weight: 700;">{{ selectedCourse.teacher }}</span>
+            <span class="text-muted" style="font-size: 11px;">Giảng viên</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; font-size: 13px;">
+          <span style="display: flex; align-items: center; gap: 4px; color: var(--color-accent-700); font-weight: 700;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            {{ selectedCourse.rating }} ({{ selectedCourse.ratingCount }})
+          </span>
+          <span style="display: flex; align-items: center; gap: 4px;" class="text-muted">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            {{ selectedCourse.studentsLabel }}
+          </span>
+        </div>
+        <div class="hr" style="margin: 0;"></div>
+        <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;" class="text-muted">
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            {{ selectedCourse.chapterCount }} chương
+          </span>
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{ selectedCourse.duration }}
+          </span>
+        </div>
+        <sc-if value="{{ selectedCourse.purchased }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Tiến độ học</span><span style="font-weight: 700;">{{ selectedCourse.progress }}%</span></div>
+            <div style="width: 100%; height: 7px; border-radius: 999px; background: var(--color-neutral-200); overflow: hidden;">
+              <div style="height: 100%; border-radius: 999px; background: var(--color-accent); width: {{ selectedCourse.progress }}%; transition: width .6s ease;"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block">{{ selectedCourse.ctaLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ selectedCourse.notPurchased }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family: var(--font-heading); font-size: 22px; color: var(--color-accent-700);">{{ selectedCourse.priceLabel }}</div>
+          <button class="btn btn-primary btn-block">Đăng ký khóa học</button>
+        </sc-if>
+      </div>
+    </div>
+
+    <div class="seg" style="width: fit-content;">
+      <label class="seg-opt" style="{{ tabContentSegStyle }}" onClick="{{ setTabContent }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        Nội dung
+      </label>
+      <label class="seg-opt" style="{{ tabMaterialsSegStyle }}" onClick="{{ setTabMaterials }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Tài liệu
+      </label>
+      <label class="seg-opt" style="{{ tabReviewsSegStyle }}" onClick="{{ setTabReviews }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Đánh giá
+      </label>
+    </div>
+
+    <sc-if value="{{ isTabContent }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <sc-for list="{{ selectedCourse.chapters }}" as="chapter" hint-placeholder-count="4">
+          <div class="card elev-sm" style="gap: 0; padding: 0; overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-3); cursor: pointer;" onClick="{{ chapter.onToggle }}">
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span class="card-title" style="font-size: 15px;">{{ chapter.title }}</span>
+                <span class="text-muted" style="font-size: 11px;">{{ chapter.metaLabel }}</span>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate({{ chapter.chevronDeg }}deg); transition: transform .3s ease; flex: none;"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <sc-if value="{{ chapter.expanded }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; animation: fadeInUp .3s ease;">
+                <sc-for list="{{ chapter.lessons }}" as="lesson" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 10px var(--space-3); border-top: 1px solid var(--color-divider); background: {{ lesson.bg }};">
+                    <div style="width: 26px; height: 26px; border-radius: 999px; background: {{ lesson.iconBg }}; display: flex; align-items: center; justify-content: center; flex: none; color: {{ lesson.iconColor }};">
+                      <sc-if value="{{ lesson.done }}" hint-placeholder-val="{{ false }}">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </sc-if>
+                      <sc-if value="{{ lesson.locked }}" hint-placeholder-val="{{ false }}">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      </sc-if>
+                      <sc-if value="{{ lesson.playable }}" hint-placeholder-val="{{ false }}">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left: 1px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </sc-if>
+                    </div>
+                    <span style="flex: 1; font-size: 13px; opacity: {{ lesson.textOpacity }};">{{ lesson.title }}</span>
+                    <span class="text-muted" style="font-size: 11px;">{{ lesson.duration }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTabMaterials }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <sc-for list="{{ selectedCourse.materials }}" as="mat" hint-placeholder-count="3">
+          <div class="card elev-sm" style="flex-direction: row; align-items: center; gap: 12px;">
+            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--color-accent-100); color: var(--color-accent-700); display: flex; align-items: center; justify-content: center; flex: none;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column;">
+              <span style="font-size: 13px; font-weight: 700;">{{ mat.name }}</span>
+              <span class="text-muted" style="font-size: 11px;">{{ mat.size }}</span>
+            </div>
+            <button class="btn btn-ghost">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTabReviews }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="card elev-sm" style="flex-direction: row; align-items: center; gap: 28px; flex-wrap: wrap;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <span style="font-family: var(--font-heading); font-size: 36px; color: var(--color-accent-700);">{{ selectedCourse.rating }}</span>
+            <span class="text-muted" style="font-size: 12px;">{{ selectedCourse.ratingCount }} đánh giá</span>
+          </div>
+          <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px;">
+            <sc-for list="{{ ratingBreakdown }}" as="row" hint-placeholder-count="5">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 11px;">
+                <span style="width: 34px;" class="text-muted">{{ row.stars }} sao</span>
+                <div style="flex: 1; height: 6px; border-radius: 999px; background: var(--color-neutral-200); overflow: hidden;">
+                  <div style="height: 100%; border-radius: 999px; background: var(--color-accent); width: {{ row.pct }}%;"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ selectedCourse.reviews }}" as="rev" hint-placeholder-count="3">
+          <div class="card elev-sm" style="gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 30px; height: 30px; border-radius: 999px; background: var(--color-accent-2); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex: none;">{{ rev.initials }}</div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 13px; font-weight: 700;">{{ rev.name }}</span>
+                <span class="text-muted" style="font-size: 10px;">{{ rev.date }}</span>
+              </div>
+              <span style="margin-left: auto; display: flex; align-items: center; gap: 3px; color: var(--color-accent-700); font-size: 12px; font-weight: 700;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                {{ rev.rating }}
+              </span>
+            </div>
+            <p style="margin: 0; font-size: 13px; opacity: 0.85;">{{ rev.comment }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CATEGORY_LIST = ['Tất cả', 'Toán', 'Vật Lý', 'Hóa Học', 'Ngữ Văn', 'Sinh Học', 'Tiếng Anh', 'Lịch Sử'];
+
+const RAW_COURSES = [
+  { id: 1, subject: 'Toán', title: 'Toán học lớp 10 - Đại số & Hình học', teacher: 'Thầy Nguyễn Văn An', initials: 'NA', rating: 4.8, ratingCount: 342, students: 1240, lessons: 32, durationH: 18, durationM: 20, price: 299000, purchased: true, progress: 64, featured: true, desc: 'Nắm vững kiến thức đại số và hình học lớp 10 qua các bài giảng trực quan, dễ hiểu.' },
+  { id: 2, subject: 'Vật Lý', title: 'Vật Lý 11 - Điện học & Từ trường', teacher: 'Cô Trần Thị Bích', initials: 'TB', rating: 4.6, ratingCount: 198, students: 860, lessons: 28, durationH: 15, durationM: 40, price: 279000, purchased: false, progress: 0, featured: true, desc: 'Chinh phục điện học và từ trường với phương pháp giải nhanh, dễ nhớ.' },
+  { id: 3, subject: 'Hóa Học', title: 'Hóa Học Vô Cơ 12 - Ôn thi THPT', teacher: 'Thầy Lê Minh Khoa', initials: 'LK', rating: 4.9, ratingCount: 512, students: 2100, lessons: 40, durationH: 22, durationM: 10, price: 349000, purchased: true, progress: 88, featured: true, desc: 'Tổng ôn hóa vô cơ trọng tâm, bám sát đề thi THPT Quốc gia.' },
+  { id: 4, subject: 'Ngữ Văn', title: 'Ngữ Văn 9 - Luyện viết nghị luận xã hội', teacher: 'Cô Phạm Thu Hà', initials: 'PH', rating: 4.7, ratingCount: 266, students: 980, lessons: 24, durationH: 12, durationM: 30, price: 249000, purchased: false, progress: 0, featured: false, desc: 'Rèn kỹ năng viết văn nghị luận xã hội mạch lạc, giàu ý tưởng.' },
+  { id: 5, subject: 'Sinh Học', title: 'Sinh Học 10 - Tế bào & Di truyền', teacher: 'Thầy Đỗ Quang Huy', initials: 'DH', rating: 4.5, ratingCount: 150, students: 610, lessons: 20, durationH: 10, durationM: 15, price: 0, purchased: true, progress: 40, featured: false, desc: 'Khám phá thế giới tế bào và các quy luật di truyền cơ bản.' },
+  { id: 6, subject: 'Tiếng Anh', title: 'Tiếng Anh Giao Tiếp Cho Học Sinh THCS', teacher: 'Cô Vũ Ngọc Lan', initials: 'VL', rating: 4.9, ratingCount: 730, students: 3400, lessons: 36, durationH: 19, durationM: 0, price: 329000, purchased: false, progress: 0, featured: false, desc: 'Tự tin giao tiếp tiếng Anh mỗi ngày với các tình huống thực tế.' },
+  { id: 7, subject: 'Lịch Sử', title: 'Lịch Sử Việt Nam Cận Đại', teacher: 'Thầy Hoàng Anh Tuấn', initials: 'HT', rating: 4.4, ratingCount: 98, students: 410, lessons: 18, durationH: 9, durationM: 45, price: 199000, purchased: false, progress: 0, featured: false, desc: 'Hành trình lịch sử Việt Nam từ thế kỷ 19 đến đầu thế kỷ 20.' },
+  { id: 8, subject: 'Toán', title: 'Luyện Thi Học Sinh Giỏi Toán 9', teacher: 'Thầy Nguyễn Văn An', initials: 'NA', rating: 5.0, ratingCount: 87, students: 320, lessons: 45, durationH: 26, durationM: 0, price: 399000, purchased: false, progress: 0, featured: false, desc: 'Bộ đề chuyên sâu luyện thi học sinh giỏi Toán lớp 9.' },
+  { id: 9, subject: 'Hóa Học', title: 'Hóa Học Hữu Cơ Cơ Bản', teacher: 'Thầy Lê Minh Khoa', initials: 'LK', rating: 4.6, ratingCount: 210, students: 740, lessons: 22, durationH: 11, durationM: 50, price: 0, purchased: true, progress: 100, featured: false, desc: 'Làm chủ kiến thức hóa hữu cơ nền tảng, dễ tiếp cận.' }
+];
+
+const LESSON_TITLES = ['Giới thiệu tổng quan', 'Khái niệm cơ bản', 'Ví dụ minh họa', 'Bài tập vận dụng', 'Phân tích chuyên sâu', 'Mẹo giải nhanh', 'Ôn tập & tổng kết', 'Luyện đề thực chiến'];
+const MATERIAL_TEMPLATES = [{ name: 'Tài liệu tổng hợp lý thuyết.pdf', size: '2.4 MB' }, { name: 'Bộ đề bài tập tự luyện.pdf', size: '1.1 MB' }, { name: 'Slide bài giảng.pptx', size: '3.8 MB' }];
+const REVIEW_TEMPLATES = [
+  { name: 'Minh Anh', initials: 'MA', rating: 5, date: '2 tuần trước', comment: 'Bài giảng rất dễ hiểu, thầy cô giảng chậm và rõ ràng, em theo kịp ngay từ buổi đầu.' },
+  { name: 'Gia Bảo', initials: 'GB', rating: 5, date: '1 tháng trước', comment: 'Khóa học có nhiều bài tập thực hành, giúp em nắm chắc kiến thức hơn hẳn.' },
+  { name: 'Thảo Vy', initials: 'TV', rating: 4, date: '1 tháng trước', comment: 'Nội dung hay, chỉ mong có thêm phần tóm tắt cuối mỗi chương.' }
+];
+const RATING_BREAKDOWN = [{ stars: 5, pct: 68 }, { stars: 4, pct: 22 }, { stars: 3, pct: 7 }, { stars: 2, pct: 2 }, { stars: 1, pct: 1 }];
+
+function fmtDuration(h, m) { return h + 'h ' + (m < 10 ? '0' + m : m) + 'p'; }
+function fmtPrice(p) { return p === 0 ? 'Miễn phí' : p.toLocaleString('vi-VN') + 'đ'; }
+function fmtStudents(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + 'k học viên' : n + ' học viên'; }
+
+class Component extends DCLogic {
+  state = {
+    view: 'list', selectedId: null, activeCategory: 'Tất cả', searchQuery: '',
+    carouselIndex: 0, activeTab: 'content', expanded: { 0: true }
+  };
+
+  componentDidMount() {
+    this._timer = setInterval(() => {
+      this.setState(s => ({ carouselIndex: (s.carouselIndex + 1) % 3 }));
+    }, 5000);
+  }
+  componentWillUnmount() { clearInterval(this._timer); }
+
+  selectCourse(id) {
+    this.setState({ view: 'detail', selectedId: id, activeTab: 'content', expanded: { 0: true } });
+    window.scrollTo(0, 0);
+  }
+  goHome() { this.setState({ view: 'list' }); window.scrollTo(0, 0); }
+
+  buildChapters(course) {
+    const chapterCount = Math.max(3, Math.round(course.lessons / 8));
+    const perChapter = Math.ceil(course.lessons / chapterCount);
+    const doneCount = Math.round(course.lessons * course.progress / 100);
+    let counter = 0;
+    const chapters = [];
+    for (let c = 0; c < chapterCount; c++) {
+      const lessons = [];
+      for (let l = 0; l < perChapter && counter < course.lessons; l++) {
+        counter++;
+        const done = counter <= doneCount;
+        const locked = !course.purchased && counter > 3;
+        const current = !done && !locked && counter === doneCount + 1;
+        lessons.push({
+          id: counter,
+          title: 'Bài ' + counter + ': ' + LESSON_TITLES[(counter - 1) % LESSON_TITLES.length],
+          duration: (8 + (counter % 5) * 3) + 'p',
+          done, locked, playable: !done && !locked,
+          bg: current ? 'var(--color-accent-100)' : 'transparent',
+          iconBg: done ? 'var(--color-accent)' : locked ? 'var(--color-neutral-200)' : 'var(--color-accent-2-200)',
+          iconColor: done ? 'var(--color-bg)' : locked ? 'var(--color-text)' : 'var(--color-accent-2-800)',
+          textOpacity: locked ? 0.45 : 1
+        });
+      }
+      const expanded = !!this.state.expanded[c];
+      chapters.push({
+        id: c, title: 'Chương ' + (c + 1), lessons,
+        metaLabel: lessons.length + ' bài · ' + Math.round(lessons.length * 11) + ' phút',
+        expanded, chevronDeg: expanded ? 180 : 0,
+        onToggle: () => this.setState(s => ({ expanded: { ...s.expanded, [c]: !s.expanded[c] } }))
+      });
+    }
+    return chapters;
+  }
+
+  renderVals() {
+    const idx = this.state.carouselIndex;
+    const courses = RAW_COURSES.map((c, i) => {
+      const duration = fmtDuration(c.durationH, c.durationM);
+      const thumbBg = i % 2 === 0
+        ? 'linear-gradient(135deg, var(--color-accent-400), var(--color-accent-700))'
+        : 'linear-gradient(135deg, var(--color-accent-2-400), var(--color-accent-2-700))';
+      return {
+        ...c, duration, thumbBg,
+        priceLabel: fmtPrice(c.price),
+        progressLabel: c.progress + '% hoàn thành',
+        studentsLabel: fmtStudents(c.students),
+        notPurchased: !c.purchased,
+        delay: (i % 6) * 0.06,
+        onSelect: () => this.selectCourse(c.id)
+      };
+    });
+
+    const featuredCourses = courses.filter(c => c.featured);
+    const featured = featuredCourses[idx] || featuredCourses[0];
+    const featuredCourse = {
+      ...featured,
+      bannerBg: featured.id % 2 === 0
+        ? 'linear-gradient(135deg, var(--color-accent-2-500), var(--color-accent-2-700))'
+        : 'linear-gradient(135deg, var(--color-accent-500), var(--color-accent-700))'
+    };
+
+    const dots = [0, 1, 2].map(i => ({
+      opacity: i === idx ? 0.95 : 0.4, size: i === idx ? 22 : 8,
+      onClick: () => this.setState({ carouselIndex: i })
+    }));
+
+    const q = this.state.searchQuery.toLowerCase();
+    const filteredCourses = courses.filter(c =>
+      (this.state.activeCategory === 'Tất cả' || c.subject === this.state.activeCategory) &&
+      c.title.toLowerCase().includes(q)
+    );
+
+    const categories = CATEGORY_LIST.map(name => {
+      const active = name === this.state.activeCategory;
+      return {
+        name, isActive: active,
+        bg: active ? 'var(--color-accent)' : 'var(--color-surface)',
+        color: active ? 'var(--color-bg)' : 'var(--color-text)',
+        borderColor: active ? 'var(--color-accent)' : 'var(--color-divider)',
+        onClick: () => this.setState({ activeCategory: name })
+      };
+    });
+
+    const inProgressCourses = courses.filter(c => c.purchased && c.progress > 0 && c.progress < 100);
+
+    const selected = courses.find(c => c.id === this.state.selectedId) || courses[0];
+    const chapters = this.buildChapters(selected);
+    const allLessons = chapters.flatMap(ch => ch.lessons);
+    const nextLesson = allLessons.find(l => !l.done && !l.locked);
+    const selectedCourse = {
+      ...selected, chapters,
+      chapterCount: chapters.length,
+      ctaLabel: selected.progress >= 100 ? 'Xem lại khóa học' : nextLesson ? 'Tiếp tục: ' + nextLesson.title : 'Bắt đầu học',
+      materials: MATERIAL_TEMPLATES,
+      reviews: REVIEW_TEMPLATES
+    };
+
+    const tab = this.state.activeTab;
+    const segBase = { fontWeight: 700 };
+    const activeSeg = 'background: var(--color-accent); color: var(--color-bg);';
+    const inactiveSeg = '';
+
+    return {
+      isListView: this.state.view === 'list', isDetailView: this.state.view === 'detail',
+      goHome: () => this.goHome(), openFeatured: () => this.selectCourse(featured.id),
+      searchQuery: this.state.searchQuery, onSearchChange: e => this.setState({ searchQuery: e.target.value }),
+      featuredCourse, dots, categories, filteredCourses,
+      hasInProgress: inProgressCourses.length > 0, inProgressCourses,
+      hasResults: filteredCourses.length > 0, hasNoResults: filteredCourses.length === 0,
+      resultCountLabel: filteredCourses.length + ' khóa học',
+      cardHoverStyle: { transform: 'translateY(-4px)', boxShadow: 'var(--shadow-md)' },
+      playHoverStyle: { transform: 'scale(1.08)' },
+      selectedCourse,
+      isTabContent: tab === 'content', isTabMaterials: tab === 'materials', isTabReviews: tab === 'reviews',
+      setTabContent: () => this.setState({ activeTab: 'content' }),
+      setTabMaterials: () => this.setState({ activeTab: 'materials' }),
+      setTabReviews: () => this.setState({ activeTab: 'reviews' }),
+      tabContentSegStyle: tab === 'content' ? activeSeg : inactiveSeg,
+      tabMaterialsSegStyle: tab === 'materials' ? activeSeg : inactiveSeg,
+      tabReviewsSegStyle: tab === 'reviews' ? activeSeg : inactiveSeg,
+      ratingBreakdown: RATING_BREAKDOWN
+    };
+  }
+}
+
+</script>
+</body>
+</html>

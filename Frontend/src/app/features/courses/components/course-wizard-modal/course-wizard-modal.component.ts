@@ -94,7 +94,7 @@ export class CourseWizardModalComponent implements AfterViewInit {
       thumbnail: ['', Validators.maxLength(500)],
       price: [0, [Validators.min(0)]],
       status: ['Draft'],
-      khoiHocId: [null, Validators.required],
+      khoiHocId: [null],
       sections: this.fb.array([])
     });
   }
@@ -365,14 +365,12 @@ export class CourseWizardModalComponent implements AfterViewInit {
 
   isStep1Valid(): boolean {
     const t = this.form.get('title');
-    const k = this.form.get('khoiHocId');
-    return !!(t && t.valid && t.value?.trim()) && !!(k && k.valid && k.value);
+    return !!(t && t.valid && t.value?.trim());
   }
 
   goNext(): void {
     if (this.currentStep === 1) {
       this.form.get('title')?.markAsTouched();
-      this.form.get('khoiHocId')?.markAsTouched();
       if (!this.isStep1Valid()) return;
     }
     if (this.currentStep < 3) this.currentStep++;
@@ -389,7 +387,7 @@ export class CourseWizardModalComponent implements AfterViewInit {
   }
 
   private firstInvalidStep(): number {
-    if (this.form.get('title')?.invalid || this.form.get('khoiHocId')?.invalid) return 1;
+    if (this.form.get('title')?.invalid) return 1;
     for (let i = 0; i < this.sections.length; i++) {
       if (this.sections.at(i).get('title')?.invalid) return 2;
       const lessons = this.getSectionLessons(i);
@@ -421,7 +419,7 @@ export class CourseWizardModalComponent implements AfterViewInit {
         emoji: v.emoji || undefined,
         price: v.price,
         status: v.status,
-        khoiHocId: v.khoiHocId
+        khoiHocId: v.khoiHocId ?? undefined
       };
 
       let courseId: number;

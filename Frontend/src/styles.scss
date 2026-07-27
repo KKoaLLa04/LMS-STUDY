@@ -4,6 +4,16 @@ app-root {
   display: contents;
 }
 
+/* Light, translucent modal backdrop — content behind the modal stays visible.
+   Set opacity directly (not just via --bs-backdrop-opacity) so it wins
+   regardless of how the browser resolves the custom property here. */
+.modal-backdrop {
+  background-color: #64748B !important;
+}
+.modal-backdrop.show {
+  opacity: 0.5 !important;
+}
+
 /* Student dashboard design tokens — prefixed --sd- so nothing collides with
    Bootstrap/AdminLTE's own --bs-* variables used by the admin pages. */
 :root {
