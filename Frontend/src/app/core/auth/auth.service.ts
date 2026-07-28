@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse } from './models/auth.model';
+import { CurrentUser, LoginRequest, LoginResponse } from './models/auth.model';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -31,6 +31,13 @@ export class AuthService {
       tap((res) => {
         if (res.data) this.persistSession(res.data);
       })
+    );
+  }
+
+  getCurrentUser(): Observable<CurrentUser | null> {
+    return this.http.get<ApiResponse<CurrentUser>>(`${this.baseUrl}/me`).pipe(
+      map((res) => res.data ?? null),
+      catchError(() => of(null))
     );
   }
 

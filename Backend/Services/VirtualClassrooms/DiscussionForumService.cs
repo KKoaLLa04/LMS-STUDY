@@ -2,6 +2,7 @@ using Backend.Common;
 using Backend.Data;
 using Backend.DTOs;
 using Backend.Models;
+using Backend.Services.Interfaces;
 using Backend.Services.VirtualClassrooms.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,13 +10,42 @@ namespace Backend.Services.VirtualClassrooms;
 
 public class DiscussionForumService : IDiscussionForumService
 {
+    // Điểm tương tác cho mỗi bài viết/trả lời, và giới hạn số lượt được tính điểm mỗi ngày
+    // để tránh học sinh spam bài viết rỗng nhằm farm điểm.
+    private const int CreatePostPoints = 5;
+    private const int ReplyPoints = 2;
+    private const int MaxDailyInteractionAwards = 3;
+
     private readonly AppDbContext _context;
+    private readonly IPointService _pointService;
     private readonly ILogger<DiscussionForumService> _logger;
 
-    public DiscussionForumService(AppDbContext context, ILogger<DiscussionForumService> logger)
+    public DiscussionForumService(AppDbContext context, IPointService pointService, ILogger<DiscussionForumService> logger)
     {
         _context = context;
+        _pointService = pointService;
         _logger = logger;
+    }
+
+    // Chỉ cộng điểm tương tác cho học sinh (không cộng khi Admin/Teacher là người tạo bài viết),
+    // và giới hạn số lượt/ngày để chống spam farm điểm.
+    private async Task AwardInteractionPointsAsync(int? currentUserId, int points, int postId, int courseId)
+    {
+        if (currentUserId is null) return;
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
+        if (user is null || user.Role != UserRole.Student) return;
+
+        var todayUtc = DateTime.UtcNow.Date;
+        var awardsToday = await _context.PointTransactions.CountAsync(t =>
+            t.UserId == currentUserId &&
+            t.SourceType == PointSourceType.DiscussionPost &&
+            t.CreatedAt >= todayUtc);
+
+        if (awardsToday >= MaxDailyInteractionAwards) return;
+
+        await _pointService.AwardAsync(currentUserId.Value, points, PointSourceType.DiscussionPost, postId, courseId);
+        await _pointService.RecordHomeworkStreakAsync(currentUserId.Value);
     }
 
     public async Task<ApiResponse<PagedResultDto<DiscussionPostListItemDto>>> GetPostsByCourseAsync(int courseId, int page, int pageSize, string? keyword)
@@ -87,7 +117,7 @@ public class DiscussionForumService : IDiscussionForumService
         }
     }
 
-    public async Task<ApiResponse<DiscussionPostResponseDto>> CreatePostAsync(CreateDiscussionPostDto dto)
+    public async Task<ApiResponse<DiscussionPostResponseDto>> CreatePostAsync(CreateDiscussionPostDto dto, int? currentUserId)
     {
         try
         {
@@ -100,6 +130,7 @@ public class DiscussionForumService : IDiscussionForumService
                 Title = dto.Title,
                 Content = dto.Content,
                 AuthorName = dto.AuthorName,
+                UserId = currentUserId,
                 CourseId = dto.CourseId,
                 ParentPostId = null
             };
@@ -108,6 +139,7 @@ public class DiscussionForumService : IDiscussionForumService
             await _context.SaveChangesAsync();
 
             await _context.Entry(post).Reference(p => p.Course).LoadAsync();
+            await AwardInteractionPointsAsync(currentUserId, CreatePostPoints, post.Id, post.CourseId);
 
             return ApiResponse<DiscussionPostResponseDto>.Ok(MapToResponseDto(post), "Tạo bài viết thành công");
         }
@@ -185,7 +217,7 @@ public class DiscussionForumService : IDiscussionForumService
                 .SetProperty(x => x.DeletedAt, deletedAt));
     }
 
-    public async Task<ApiResponse<DiscussionPostResponseDto>> ReplyToPostAsync(int parentPostId, CreateDiscussionPostDto dto)
+    public async Task<ApiResponse<DiscussionPostResponseDto>> ReplyToPostAsync(int parentPostId, CreateDiscussionPostDto dto, int? currentUserId)
     {
         try
         {
@@ -198,6 +230,7 @@ public class DiscussionForumService : IDiscussionForumService
                 Title = dto.Title,
                 Content = dto.Content,
                 AuthorName = dto.AuthorName,
+                UserId = currentUserId,
                 CourseId = parentPost.CourseId,
                 ParentPostId = parentPostId
             };
@@ -206,6 +239,7 @@ public class DiscussionForumService : IDiscussionForumService
             await _context.SaveChangesAsync();
 
             await _context.Entry(reply).Reference(p => p.Course).LoadAsync();
+            await AwardInteractionPointsAsync(currentUserId, ReplyPoints, reply.Id, reply.CourseId);
 
             return ApiResponse<DiscussionPostResponseDto>.Ok(MapToResponseDto(reply), "Trả lời bài viết thành công");
         }

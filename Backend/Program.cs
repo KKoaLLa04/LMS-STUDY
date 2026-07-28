@@ -90,6 +90,13 @@ builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Điểm & xếp hạng học sinh
+builder.Services.AddScoped<IPointService, PointService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<ILessonProgressService, LessonProgressService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IRankingService, RankingService>();
+
 // Cho phép upload video kích thước lớn (tối đa 500MB) qua multipart/form-data
 builder.Services.Configure<FormOptions>(options =>
 {

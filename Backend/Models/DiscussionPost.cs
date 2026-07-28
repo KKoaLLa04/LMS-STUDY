@@ -18,6 +18,11 @@ public class DiscussionPost : ISoftDelete
     [MaxLength(100)]
     public string AuthorName { get; set; } = string.Empty;
 
+    // Nullable vì các bài viết cũ (hoặc tạo bởi luồng chưa đăng nhập) không có user thật gắn kèm.
+    // Dùng để quy điểm tương tác đúng cho học sinh — AuthorName chỉ là tên hiển thị.
+    public int? UserId { get; set; }
+    public User? User { get; set; }
+
     public int CourseId { get; set; }
     public Course Course { get; set; } = null!;
 

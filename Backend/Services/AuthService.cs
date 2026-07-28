@@ -1,6 +1,7 @@
 using Backend.Common;
 using Backend.Data;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,12 +11,14 @@ public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
     private readonly ITokenService _tokenService;
+    private readonly IPointService _pointService;
     private readonly ILogger<AuthService> _logger;
 
-    public AuthService(AppDbContext context, ITokenService tokenService, ILogger<AuthService> logger)
+    public AuthService(AppDbContext context, ITokenService tokenService, IPointService pointService, ILogger<AuthService> logger)
     {
         _context = context;
         _tokenService = tokenService;
+        _pointService = pointService;
         _logger = logger;
     }
 
@@ -28,6 +31,9 @@ public class AuthService : IAuthService
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return ApiResponse<LoginResponseDto>.Unauthorized("Tên đăng nhập hoặc mật khẩu không đúng");
+
+            if (user.Role == UserRole.Student)
+                await _pointService.RecordLoginStreakAsync(user.Id);
 
             var (token, expiresAt) = _tokenService.GenerateToken(user);
 
@@ -60,6 +66,8 @@ public class AuthService : IAuthService
             {
                 Id = user.Id,
                 Username = user.Username,
+                FullName = user.FullName,
+                AvatarUrl = user.AvatarUrl,
                 Role = user.Role.ToString(),
                 CreatedAt = user.CreatedAt
             };

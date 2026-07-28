@@ -1,8 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { Badge } from '../../models/badge.model';
 import { AchievementService } from '../../services/achievement.service';
+import { RankingService } from '../../services/ranking.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { MOCK_BADGES } from '../achievements/achievements.data';
 
 interface InProgressCourse {
@@ -11,15 +13,38 @@ interface InProgressCourse {
   lessonsLeft: number;
 }
 
-/** Mock data for now — this mirrors the current session's fictional student
- * (same identity used as "Bạn" on the leaderboard and achievements pages). */
-const STUDENT = {
-  name: 'Bảo Anh',
-  level: 12,
-  rankTitle: 'Học sinh chăm chỉ',
-  totalPoints: 4280,
-  currentRank: 14,
+interface StudentSummary {
+  name: string;
+  level: number;
+  rankTitle: string;
+  totalPoints: number;
+  currentRank: number;
+}
+
+const DEFAULT_STUDENT: StudentSummary = {
+  name: '',
+  level: 1,
+  rankTitle: '',
+  totalPoints: 0,
+  currentRank: 0,
 };
+
+// Backend chưa có khái niệm "Level"/"rankTitle" — đây là các bậc cảm quan (cosmetic)
+// suy ra từ tổng điểm thật (GET /api/ranking), không phải dữ liệu backend trả về.
+const RANK_TITLES: Array<{ minPoints: number; title: string }> = [
+  { minPoints: 4000, title: 'Học sinh xuất sắc' },
+  { minPoints: 2000, title: 'Học sinh chăm chỉ' },
+  { minPoints: 500, title: 'Học sinh tích cực' },
+  { minPoints: 0, title: 'Người mới bắt đầu' },
+];
+
+function levelFromPoints(points: number): number {
+  return Math.floor(points / 500) + 1;
+}
+
+function rankTitleFromPoints(points: number): string {
+  return RANK_TITLES.find((t) => points >= t.minPoints)?.title ?? RANK_TITLES[RANK_TITLES.length - 1].title;
+}
 
 const COURSES: InProgressCourse[] = [
   { title: 'Toán học lớp 10 - Đại số & Hình học', progress: 64, lessonsLeft: Math.round(48 * 0.36) },
@@ -37,10 +62,12 @@ const HIGHLIGHT_LOCKED_COUNT = 3;
   templateUrl: './student-profile.component.html',
   styleUrl: './student-profile.component.scss',
 })
-export class StudentProfileComponent implements OnInit, AfterViewInit, OnDestroy {
+export class StudentProfileComponent implements OnInit, OnDestroy {
   private readonly achievementService = inject(AchievementService);
+  private readonly rankingService = inject(RankingService);
+  private readonly authService = inject(AuthService);
 
-  readonly student = STUDENT;
+  readonly student = signal<StudentSummary>(DEFAULT_STUDENT);
   readonly inProgressCourses = COURSES;
 
   // Seeded with the mock list so the page paints immediately; ngOnInit()
@@ -62,11 +89,29 @@ export class StudentProfileComponent implements OnInit, AfterViewInit, OnDestroy
   private raf?: number;
 
   ngOnInit(): void {
-    this.achievementService.getAchievements().subscribe((badges) => this.badges.set(badges));
+    this.achievementService.getMyAchievements().subscribe((badges) => this.badges.set(badges));
+
+    this.authService.getCurrentUser().subscribe((user) => {
+      if (user) this.student.update((s) => ({ ...s, name: user.fullName }));
+    });
+
+    // Hạng/điểm toàn thời gian, toàn hệ thống — cùng nguồn dữ liệu với trang bảng xếp hạng.
+    this.rankingService.getLeaderboard('all').subscribe((res) => {
+      const me = res.me;
+      if (!me) return;
+      this.student.update((s) => ({
+        ...s,
+        totalPoints: me.totalPoints,
+        currentRank: me.rank,
+        level: levelFromPoints(me.totalPoints),
+        rankTitle: rankTitleFromPoints(me.totalPoints),
+      }));
+      this.animatePointsTo(me.totalPoints);
+    });
   }
 
-  ngAfterViewInit(): void {
-    const target = this.student.totalPoints;
+  private animatePointsTo(target: number): void {
+    if (this.raf) cancelAnimationFrame(this.raf);
     const duration = 1200;
     const start = performance.now();
     const step = (now: number) => {

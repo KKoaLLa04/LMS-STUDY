@@ -57,7 +57,9 @@
           <div class="oc-lb-rank-badge" [style.background]="rankMeta(entry.rank).ring">{{ entry.rank }}</div>
         </div>
         <span class="oc-lb-podium-name">{{ entry.name }}</span>
-        <span class="oc-text-muted oc-lb-podium-subtitle">{{ entry.subtitle }}</span>
+        @if (entry.subtitle) {
+          <span class="oc-text-muted oc-lb-podium-subtitle">{{ entry.subtitle }}</span>
+        }
         <span class="oc-lb-podium-points">{{ formatPoints(entry.points) }}</span>
         <div
           class="oc-lb-podium-bar"
@@ -85,26 +87,30 @@
         </div>
         <div class="oc-lb-row-info">
           <span class="oc-lb-row-name">{{ entry.name }} @if (entry.isMe) { <span class="oc-lb-row-me-tag">(Bạn)</span> }</span>
-          <span class="oc-text-muted oc-lb-row-subtitle">{{ entry.subtitle }}</span>
+          @if (entry.subtitle) {
+            <span class="oc-text-muted oc-lb-row-subtitle">{{ entry.subtitle }}</span>
+          }
         </div>
         <span class="oc-lb-row-points">{{ formatPoints(entry.points) }}</span>
       </div>
     }
   </div>
 
-  @if (me) {
+  @if (me(); as myEntry) {
     <div class="oc-lb-sticky">
       <div class="oc-lb-sticky-card">
-        <span class="oc-lb-sticky-rank">{{ me.rank }}</span>
-        <div class="oc-lb-avatar oc-lb-avatar--sm oc-lb-avatar--sticky" [style.background]="avatarGradient(me.rank)">
-          {{ initials(me.name) }}
+        <span class="oc-lb-sticky-rank">{{ myEntry.rank }}</span>
+        <div class="oc-lb-avatar oc-lb-avatar--sm oc-lb-avatar--sticky" [style.background]="avatarGradient(myEntry.rank)">
+          {{ initials(myEntry.name) }}
         </div>
         <div class="oc-lb-row-info">
-          <span class="oc-lb-sticky-name">{{ me.name }} (Bạn)</span>
-          <span class="oc-lb-sticky-subtitle">{{ me.subtitle }}</span>
+          <span class="oc-lb-sticky-name">{{ myEntry.name }} (Bạn)</span>
+          @if (myEntry.subtitle) {
+            <span class="oc-lb-sticky-subtitle">{{ myEntry.subtitle }}</span>
+          }
         </div>
-        <span class="oc-lb-sticky-points">{{ formatPoints(me.points) }}</span>
-        @if (me.change === 'up') {
+        <span class="oc-lb-sticky-points">{{ formatPoints(myEntry.points) }}</span>
+        @if (myEntry.change === 'up') {
           <app-oc-icon name="arrow-up" [size]="16" color="#4ADE80" [strokeWidth]="3"></app-oc-icon>
         }
       </div>

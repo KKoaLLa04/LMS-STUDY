@@ -40,6 +40,10 @@ public class Achievement : ISoftDelete
     [Range(0, 100)]
     public int ProgressPercent { get; set; }
 
+    // Điểm thưởng cộng vào PointTransaction khi một học sinh mở khóa huy hiệu này
+    // (xem UserAchievement — trạng thái mở khóa thật theo từng học sinh).
+    public int Points { get; set; } = 50;
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
 }

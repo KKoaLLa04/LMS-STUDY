@@ -47,7 +47,7 @@ export class AchievementsComponent implements OnInit, AfterViewInit, OnDestroy {
   private counterRaf?: number;
 
   ngOnInit(): void {
-    this.achievementService.getAchievements().subscribe((badges) => this.badges.set(badges));
+    this.achievementService.getMyAchievements().subscribe((badges) => this.badges.set(badges));
   }
 
   ngAfterViewInit(): void {

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Backend.DTOs;
 using Backend.Services.VirtualClassrooms.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,11 @@ public class DiscussionForumsController : ControllerBase
     {
         _service = service;
     }
+
+    // Người gọi hiện chỉ có thể là Admin (class-level [Authorize(Roles = "Admin")]) — vẫn lấy Id
+    // để gắn UserId lên bài viết, sẵn sàng cho khi luồng học sinh tự đăng bài được mở ra sau này.
+    private int? CurrentUserId =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
     /// <summary>Lấy danh sách bài viết thảo luận theo khóa học</summary>
     [HttpGet("by-course/{courseId}")]
@@ -41,7 +47,7 @@ public class DiscussionForumsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDiscussionPostDto dto)
     {
-        var result = await _service.CreatePostAsync(dto);
+        var result = await _service.CreatePostAsync(dto, CurrentUserId);
         return StatusCode(result.HttpStatusCode, result);
     }
 
@@ -57,7 +63,7 @@ public class DiscussionForumsController : ControllerBase
     [HttpPost("{parentPostId}/reply")]
     public async Task<IActionResult> Reply(int parentPostId, [FromBody] CreateDiscussionPostDto dto)
     {
-        var result = await _service.ReplyToPostAsync(parentPostId, dto);
+        var result = await _service.ReplyToPostAsync(parentPostId, dto, CurrentUserId);
         return StatusCode(result.HttpStatusCode, result);
     }
 

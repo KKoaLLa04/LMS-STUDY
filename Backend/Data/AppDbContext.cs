@@ -22,6 +22,11 @@ public class AppDbContext : DbContext
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Achievement> Achievements => Set<Achievement>();
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+    public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
+    public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
+    public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
+    public DbSet<PointTransaction> PointTransactions => Set<PointTransaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -110,6 +115,10 @@ public class AppDbContext : DbContext
                   .WithMany(p => p.Replies)
                   .HasForeignKey(p => p.ParentPostId)
                   .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(p => p.User)
+                  .WithMany()
+                  .HasForeignKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<ChatChannel>(entity =>
@@ -159,6 +168,93 @@ public class AppDbContext : DbContext
             entity.Property(a => a.Category)
                   .HasConversion<string>()
                   .HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<Enrollment>(entity =>
+        {
+            entity.ToTable("Enrollments");
+            entity.Property(e => e.EnrolledAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Course)
+                  .WithMany()
+                  .HasForeignKey(e => e.CourseId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            // Một học sinh chỉ ghi danh một lần vào một khóa học (trong số bản ghi chưa xóa mềm).
+            entity.HasIndex(e => new { e.UserId, e.CourseId }).IsUnique().HasFilter("[IsDeleted] = 0");
+        });
+
+        modelBuilder.Entity<UserAchievement>(entity =>
+        {
+            entity.ToTable("UserAchievements");
+            entity.Property(ua => ua.UnlockedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(ua => ua.User)
+                  .WithMany()
+                  .HasForeignKey(ua => ua.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(ua => ua.Achievement)
+                  .WithMany()
+                  .HasForeignKey(ua => ua.AchievementId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(ua => new { ua.UserId, ua.AchievementId }).IsUnique();
+        });
+
+        modelBuilder.Entity<LessonProgress>(entity =>
+        {
+            entity.ToTable("LessonProgresses");
+            entity.Property(lp => lp.UpdatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(lp => lp.User)
+                  .WithMany()
+                  .HasForeignKey(lp => lp.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(lp => lp.Lesson)
+                  .WithMany()
+                  .HasForeignKey(lp => lp.LessonId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(lp => new { lp.UserId, lp.LessonId }).IsUnique();
+        });
+
+        modelBuilder.Entity<QuizAttempt>(entity =>
+        {
+            entity.ToTable("QuizAttempts");
+            entity.Property(qa => qa.AttemptedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(qa => qa.User)
+                  .WithMany()
+                  .HasForeignKey(qa => qa.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(qa => qa.Lesson)
+                  .WithMany()
+                  .HasForeignKey(qa => qa.LessonId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PointTransaction>(entity =>
+        {
+            entity.ToTable("PointTransactions");
+            entity.Property(pt => pt.SourceType)
+                  .HasConversion<string>()
+                  .HasMaxLength(30);
+            entity.Property(pt => pt.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(pt => pt.User)
+                  .WithMany()
+                  .HasForeignKey(pt => pt.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            // Không khai báo FK tới Course — cùng lý do như Course.KhoiHocId: điểm lịch sử
+            // không nên bị chặn xóa hay bị xóa cascade nếu khóa học bị gỡ sau này.
+            entity.HasIndex(pt => pt.CourseId);
+            entity.HasIndex(pt => new { pt.UserId, pt.CreatedAt });
         });
 
         // Xóa mềm: tự động loại bỏ các bản ghi có IsDeleted = true khỏi mọi truy vấn LINQ,

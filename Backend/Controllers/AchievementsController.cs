@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Backend.DTOs;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,8 @@ public class AchievementsController : ControllerBase
     {
         _achievementService = achievementService;
     }
+
+    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     /// <summary>
     /// [Admin/User] Lấy danh sách huy hiệu thành tích
@@ -67,6 +70,27 @@ public class AchievementsController : ControllerBase
     public async Task<IActionResult> DeleteAchievement(int id)
     {
         var result = await _achievementService.DeleteAsync(id);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>
+    /// [User] Danh sách huy hiệu kèm trạng thái mở khóa thật của bản thân
+    /// </summary>
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyAchievements()
+    {
+        var result = await _achievementService.GetMyAchievementsAsync(CurrentUserId);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>
+    /// [Admin] Mở khóa một huy hiệu cho một học sinh cụ thể (cộng điểm thưởng tương ứng)
+    /// </summary>
+    [HttpPost("{id:int}/unlock/{userId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UnlockForUser(int id, int userId)
+    {
+        var result = await _achievementService.UnlockForUserAsync(userId, id);
         return StatusCode(result.HttpStatusCode, result);
     }
 }

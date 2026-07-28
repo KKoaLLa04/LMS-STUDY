@@ -2,12 +2,12 @@
 
   <section class="oc-sp-hero">
     <div class="oc-sp-hero__avatar-wrap">
-      <div class="oc-sp-hero__avatar">{{ student.name.charAt(0) }}</div>
-      <div class="oc-sp-hero__level">{{ student.level }}</div>
+      <div class="oc-sp-hero__avatar">{{ student().name.charAt(0) }}</div>
+      <div class="oc-sp-hero__level">{{ student().level }}</div>
     </div>
     <div class="oc-sp-hero__info">
-      <h1>{{ student.name }}</h1>
-      <span class="oc-tag oc-sp-hero__rank-tag">✦ {{ student.rankTitle }}</span>
+      <h1>{{ student().name }}</h1>
+      <span class="oc-tag oc-sp-hero__rank-tag">✦ {{ student().rankTitle }}</span>
     </div>
     <div class="oc-sp-hero__points">
       <span class="oc-sp-hero__points-value">{{ pointsDisplay() }}</span>
@@ -62,7 +62,7 @@
       </div>
       <div class="oc-sp-rank-card__text">
         <span class="oc-text-muted oc-sp-rank-card__label">Thứ hạng hiện tại</span>
-        <span class="oc-sp-rank-card__value">#{{ student.currentRank }} toàn hệ thống</span>
+        <span class="oc-sp-rank-card__value">#{{ student().currentRank }} toàn hệ thống</span>
       </div>
       <a class="oc-btn oc-btn-primary oc-sp-rank-card__cta" routerLink="/client/bang-xep-hang">Xem bảng xếp hạng →</a>
     </div>

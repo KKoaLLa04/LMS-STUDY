@@ -13,6 +13,8 @@ export interface LoginResponse {
 export interface CurrentUser {
   id: number;
   username: string;
+  fullName: string;
+  avatarUrl?: string;
   role: string;
   createdAt: string;
 }

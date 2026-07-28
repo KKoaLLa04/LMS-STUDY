@@ -10,11 +10,13 @@ namespace Backend.Services;
 public class AchievementService : IAchievementService
 {
     private readonly AppDbContext _context;
+    private readonly IPointService _pointService;
     private readonly ILogger<AchievementService> _logger;
 
-    public AchievementService(AppDbContext context, ILogger<AchievementService> logger)
+    public AchievementService(AppDbContext context, IPointService pointService, ILogger<AchievementService> logger)
     {
         _context = context;
+        _pointService = pointService;
         _logger = logger;
     }
 
@@ -65,7 +67,8 @@ public class AchievementService : IAchievementService
                 IconKey = dto.IconKey.Trim(),
                 OrderNumber = dto.OrderNumber,
                 IsUnlocked = dto.IsUnlocked,
-                ProgressPercent = dto.IsUnlocked ? 0 : dto.ProgressPercent
+                ProgressPercent = dto.IsUnlocked ? 0 : dto.ProgressPercent,
+                Points = dto.Points
             };
 
             _context.Achievements.Add(achievement);
@@ -95,6 +98,7 @@ public class AchievementService : IAchievementService
             achievement.OrderNumber = dto.OrderNumber;
             achievement.IsUnlocked = dto.IsUnlocked;
             achievement.ProgressPercent = dto.IsUnlocked ? 0 : dto.ProgressPercent;
+            achievement.Points = dto.Points;
 
             await _context.SaveChangesAsync();
 
@@ -128,6 +132,75 @@ public class AchievementService : IAchievementService
         }
     }
 
+    public async Task<ApiResponse<List<MyAchievementDto>>> GetMyAchievementsAsync(int userId)
+    {
+        try
+        {
+            var unlockedMap = await _context.UserAchievements
+                .Where(ua => ua.UserId == userId)
+                .ToDictionaryAsync(ua => ua.AchievementId, ua => ua.UnlockedAt);
+
+            var items = await _context.Achievements
+                .OrderBy(a => a.OrderNumber)
+                .Select(a => new MyAchievementDto
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Description = a.Description,
+                    Category = a.Category.ToString(),
+                    IconKey = a.IconKey,
+                    OrderNumber = a.OrderNumber,
+                    Points = a.Points
+                })
+                .ToListAsync();
+
+            foreach (var item in items)
+            {
+                if (!unlockedMap.TryGetValue(item.Id, out var unlockedAt)) continue;
+                item.UnlockedByMe = true;
+                item.UnlockedAt = unlockedAt;
+            }
+
+            return ApiResponse<List<MyAchievementDto>>.Ok(items);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lấy danh sách huy hiệu của user {UserId}", userId);
+            return ApiResponse<List<MyAchievementDto>>.Error("Đã xảy ra lỗi khi lấy danh sách huy hiệu");
+        }
+    }
+
+    public async Task<ApiResponse<object?>> UnlockForUserAsync(int userId, int achievementId)
+    {
+        try
+        {
+            var achievement = await _context.Achievements.FirstOrDefaultAsync(a => a.Id == achievementId);
+            if (achievement == null)
+                return ApiResponse<object?>.NotFound("Huy hiệu thành tích không tồn tại");
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            if (!userExists)
+                return ApiResponse<object?>.NotFound("Không tìm thấy học sinh");
+
+            var alreadyUnlocked = await _context.UserAchievements
+                .AnyAsync(ua => ua.UserId == userId && ua.AchievementId == achievementId);
+            if (alreadyUnlocked)
+                return ApiResponse<object?>.Ok(null, "Học sinh đã mở khóa huy hiệu này trước đó");
+
+            _context.UserAchievements.Add(new UserAchievement { UserId = userId, AchievementId = achievementId });
+            await _context.SaveChangesAsync();
+
+            await _pointService.AwardAsync(userId, achievement.Points, PointSourceType.AchievementUnlocked, achievementId);
+
+            return ApiResponse<object?>.Ok(null, "Mở khóa huy hiệu cho học sinh thành công");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi mở khóa huy hiệu {AchievementId} cho user {UserId}", achievementId, userId);
+            return ApiResponse<object?>.Error("Đã xảy ra lỗi khi mở khóa huy hiệu");
+        }
+    }
+
     private static AchievementDto MapToDto(Achievement achievement) => new()
     {
         Id = achievement.Id,
@@ -137,6 +210,7 @@ public class AchievementService : IAchievementService
         IconKey = achievement.IconKey,
         OrderNumber = achievement.OrderNumber,
         IsUnlocked = achievement.IsUnlocked,
-        ProgressPercent = achievement.ProgressPercent
+        ProgressPercent = achievement.ProgressPercent,
+        Points = achievement.Points
     };
 }

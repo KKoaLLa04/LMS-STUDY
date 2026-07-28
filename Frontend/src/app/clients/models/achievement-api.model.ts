@@ -9,4 +9,20 @@ export interface AchievementApi {
   orderNumber: number;
   isUnlocked: boolean;
   progressPercent: number;
+  points: number;
+}
+
+/** Per-student unlock status (Backend/DTOs/AchievementDto.cs — MyAchievementDto),
+ * returned by GET /api/achievements/me. Unlike AchievementApi.isUnlocked (a global
+ * catalogue flag), unlockedByMe reflects this specific student's UserAchievement row. */
+export interface MyAchievementApi {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  iconKey: string;
+  orderNumber: number;
+  points: number;
+  unlockedByMe: boolean;
+  unlockedAt?: string;
 }

@@ -64,4 +64,13 @@ public class User : ISoftDelete
 
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
+
+    // Chuỗi ngày đăng nhập liên tiếp — cập nhật mỗi khi đăng nhập, dùng để tính điểm streak.
+    public DateOnly? LastLoginDate { get; set; }
+    public int LoginStreakCount { get; set; }
+
+    // Chuỗi ngày có hoạt động học tập (xem bài học/làm quiz) liên tiếp — riêng biệt với
+    // chuỗi đăng nhập vì đăng nhập không đồng nghĩa với việc học.
+    public DateOnly? LastActivityDate { get; set; }
+    public int HomeworkStreakCount { get; set; }
 }
