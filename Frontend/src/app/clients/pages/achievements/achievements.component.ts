@@ -1,6 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, computed, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { OcIconComponent } from '../../components/icon/icon.component';
-import { BADGES, Badge, BadgeCategory } from './achievements.data';
+import { Badge, BadgeCategory } from '../../models/badge.model';
+import { AchievementService } from '../../services/achievement.service';
+import { MOCK_BADGES } from './achievements.data';
 
 type TabKey = 'all' | BadgeCategory;
 
@@ -18,25 +20,35 @@ const TABS: Array<{ key: TabKey; label: string }> = [
   templateUrl: './achievements.component.html',
   styleUrl: './achievements.component.scss',
 })
-export class AchievementsComponent implements AfterViewInit, OnDestroy {
+export class AchievementsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('summarySection') summarySectionRef?: ElementRef<HTMLElement>;
+
+  private readonly achievementService = inject(AchievementService);
 
   readonly tabs = TABS;
   readonly activeTab = signal<TabKey>('all');
 
-  readonly totalBadges = BADGES.length;
-  readonly unlockedCount = BADGES.filter((b) => b.unlocked).length;
-  readonly latestBadge = BADGES.filter((b) => b.unlocked).slice(-1)[0] ?? BADGES[0];
+  // Seeded with the mock list so the page paints immediately; ngOnInit()
+  // reconciles it with the real API response right after.
+  readonly badges = signal<Badge[]>(MOCK_BADGES);
+
+  readonly totalBadges = computed(() => this.badges().length);
+  readonly unlockedCount = computed(() => this.badges().filter((b) => b.unlocked).length);
+  readonly latestBadge = computed(() => this.badges().filter((b) => b.unlocked).slice(-1)[0] ?? this.badges()[0]);
 
   readonly counterDisplay = signal(0);
 
   readonly filteredBadges = computed(() => {
     const tab = this.activeTab();
-    return BADGES.filter((b) => tab === 'all' || b.category === tab);
+    return this.badges().filter((b) => tab === 'all' || b.category === tab);
   });
 
   private observer?: IntersectionObserver;
   private counterRaf?: number;
+
+  ngOnInit(): void {
+    this.achievementService.getAchievements().subscribe((badges) => this.badges.set(badges));
+  }
 
   ngAfterViewInit(): void {
     const el = this.summarySectionRef?.nativeElement;
@@ -73,7 +85,7 @@ export class AchievementsComponent implements AfterViewInit, OnDestroy {
   }
 
   private startCounter(): void {
-    const target = this.unlockedCount;
+    const target = this.unlockedCount();
     const duration = 1000;
     const start = performance.now();
     const step = (now: number) => {

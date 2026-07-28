@@ -6,7 +6,22 @@ namespace Backend.Models;
 public enum UserRole
 {
     Admin,
-    User
+    Teacher,
+    Student
+}
+
+public enum UserStatus
+{
+    Active,
+    Inactive,
+    Banned
+}
+
+public enum UserGender
+{
+    Male,
+    Female,
+    Other
 }
 
 public class User : ISoftDelete
@@ -21,7 +36,29 @@ public class User : ISoftDelete
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
 
-    public UserRole Role { get; set; } = UserRole.User;
+    public UserRole Role { get; set; } = UserRole.Student;
+
+    [Required]
+    [MaxLength(255)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(255)]
+    public string FullName { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(20)]
+    public string Phone { get; set; } = string.Empty;
+
+    public string? AvatarUrl { get; set; }
+
+    public UserStatus Status { get; set; } = UserStatus.Active;
+
+    public UserGender? Gender { get; set; }
+
+    public DateOnly? DateOfBirth { get; set; }
+
+    public string? Address { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

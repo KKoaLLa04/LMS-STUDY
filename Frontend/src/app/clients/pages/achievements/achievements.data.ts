@@ -1,21 +1,11 @@
-import { OcIconName } from '../../models/icon-name.type';
+import { Badge } from '../../models/badge.model';
 
-export type BadgeCategory = 'hoctap' | 'chuyencan' | 'tuongtac';
+export type { Badge, BadgeCategory } from '../../models/badge.model';
 
-export interface Badge {
-  id: string;
-  category: BadgeCategory;
-  name: string;
-  desc: string;
-  icon: OcIconName;
-  unlocked: boolean;
-  progress?: number;
-}
-
-/** Mock data for now — will be swapped for a real achievements endpoint once
- * the backend tracks badge unlocks per student. Shared between the
- * achievements page and the student profile's "Thành tích đã đạt" summary. */
-export const BADGES: Badge[] = [
+/** Fallback shown while the API is unreachable — kept in sync with the seed
+ * data in Backend/Migrations (see AchievementService). Also used by the
+ * student profile's "Thành tích đã đạt" summary as its own fallback. */
+export const MOCK_BADGES: Badge[] = [
   { id: 'b1', category: 'hoctap', name: 'Mọt sách nhỏ', desc: 'Hoàn thành 10 bài học', icon: 'book-open', unlocked: true },
   { id: 'b2', category: 'hoctap', name: 'Siêu trí tuệ', desc: 'Đạt điểm tuyệt đối 5 bài kiểm tra', icon: 'target', unlocked: true },
   { id: 'b3', category: 'hoctap', name: 'Bậc thầy kiến thức', desc: 'Hoàn thành 5 khoá học', icon: 'trophy', unlocked: false, progress: 60 },

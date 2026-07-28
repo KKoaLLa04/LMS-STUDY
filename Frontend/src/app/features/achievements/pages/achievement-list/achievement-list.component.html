@@ -1,0 +1,293 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Huy hiệu thành tích</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item active">Huy hiệu thành tích</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    @if (errorMessage) {
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    <div class="card ach-card">
+      <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+          <i class="bi bi-plus-circle me-1"></i>Thêm huy hiệu
+        </button>
+      </div>
+
+      <div class="card-body p-0">
+        @if (loading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+          </div>
+        } @else if (achievements.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            Chưa có huy hiệu nào.
+            <a href="javascript:void(0)" (click)="openCreateModal()">Thêm huy hiệu đầu tiên</a>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center" style="width: 5%">#</th>
+                  <th style="width: 22%">Tên huy hiệu</th>
+                  <th style="width: 15%">Nhóm</th>
+                  <th style="width: 10%">Icon</th>
+                  <th style="width: 8%">Thứ tự</th>
+                  <th style="width: 20%">Trạng thái</th>
+                  <th class="text-center" style="width: 20%">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of achievements; track item.id; let i = $index) {
+                  <tr>
+                    <td class="text-center align-middle text-muted">{{ i + 1 }}</td>
+                    <td class="align-middle">
+                      <div class="fw-semibold">{{ item.name }}</div>
+                      <div class="text-muted small">{{ item.description }}</div>
+                    </td>
+                    <td class="align-middle">
+                      <span class="badge ach-category-badge">{{ categoryLabel(item.category) }}</span>
+                    </td>
+                    <td class="align-middle">
+                      <i class="bi bi-award"></i>
+                      <span class="ms-1 text-muted small">{{ item.iconKey }}</span>
+                    </td>
+                    <td class="align-middle">{{ item.orderNumber }}</td>
+                    <td class="align-middle">
+                      @if (item.isUnlocked) {
+                        <span class="badge ach-status-unlocked"><i class="bi bi-unlock-fill me-1"></i>Đã mở khoá</span>
+                      } @else {
+                        <div class="ach-progress-cell">
+                          <div class="progress" style="height: 6px; width: 90px;">
+                            <div class="progress-bar" [style.width.%]="item.progressPercent"></div>
+                          </div>
+                          <span class="text-muted small">{{ item.progressPercent }}%</span>
+                        </div>
+                      }
+                    </td>
+                    <td class="text-center align-middle">
+                      <div class="d-flex gap-1 justify-content-center">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Chỉnh sửa"
+                          (click)="openEditModal(item)"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          title="Xóa"
+                          (click)="openDeleteModal(item)"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Thêm / Chỉnh sửa huy hiệu ═══════════════ -->
+<div #formModal class="modal fade ach-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="ach-modal-title">
+          <span class="ach-modal-icon">
+            <i class="bi" [class.bi-plus-lg]="modalMode === 'create'" [class.bi-pencil]="modalMode === 'edit'"></i>
+          </span>
+          <h5 class="modal-title mb-0">{{ modalTitle }}</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeFormModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tên huy hiệu <span class="text-danger">*</span></label>
+            <input
+              #nameInput
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Ví dụ: Mọt sách nhỏ"
+              [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+            />
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+              <div class="invalid-feedback">Tên huy hiệu không được để trống (tối đa 255 ký tự).</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Mô tả <span class="text-danger">*</span></label>
+            <textarea
+              class="form-control"
+              rows="2"
+              formControlName="description"
+              placeholder="Ví dụ: Hoàn thành 10 bài học"
+              [class.is-invalid]="form.get('description')?.invalid && form.get('description')?.touched"
+            ></textarea>
+            @if (form.get('description')?.invalid && form.get('description')?.touched) {
+              <div class="invalid-feedback">Mô tả không được để trống (tối đa 500 ký tự).</div>
+            }
+          </div>
+
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Nhóm <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="category">
+                @for (opt of categoryOptions; track opt[0]) {
+                  <option [value]="opt[0]">{{ opt[1] }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-6 mb-3">
+              <label class="form-label">Icon <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="iconKey">
+                @for (icon of iconOptions; track icon) {
+                  <option [value]="icon">{{ icon }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-4 mb-3">
+              <label class="form-label">Thứ tự <span class="text-danger">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="orderNumber"
+                min="0"
+                [class.is-invalid]="form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched"
+              />
+              @if (form.get('orderNumber')?.invalid && form.get('orderNumber')?.touched) {
+                <div class="invalid-feedback">Thứ tự không được âm.</div>
+              }
+            </div>
+
+            <div class="col-4 mb-3">
+              <label class="form-label">Tiến độ (%)</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="progressPercent"
+                min="0"
+                max="100"
+                [class.is-invalid]="form.get('progressPercent')?.invalid && form.get('progressPercent')?.touched"
+              />
+              @if (form.get('progressPercent')?.invalid && form.get('progressPercent')?.touched) {
+                <div class="invalid-feedback">Tiến độ phải trong khoảng 0-100.</div>
+              }
+            </div>
+
+            <div class="col-4 mb-3">
+              <label class="form-label d-block">Trạng thái</label>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" role="switch" formControlName="isUnlocked" id="isUnlockedSwitch" />
+                <label class="form-check-label" for="isUnlockedSwitch">Đã mở khoá</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeFormModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting">
+            @if (submitting) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Lưu huy hiệu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Xác nhận xóa ═══════════════ -->
+<div #deleteModal class="modal fade ach-modal ach-modal-danger" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="ach-modal-title">
+          <span class="ach-modal-icon ach-modal-icon-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </span>
+          <h5 class="modal-title mb-0">Xóa huy hiệu</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        @if (deleteTarget) {
+          <p class="mb-2">
+            Bạn sắp xóa huy hiệu
+            <strong>{{ deleteTarget.name }}</strong>. Hành động này không thể hoàn tác.
+          </p>
+          <label class="form-label small text-muted">
+            Để xác nhận, vui lòng nhập lại tên huy hiệu:
+            <strong class="text-body">{{ deleteTarget.name }}</strong>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="deleteConfirmInput"
+            [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="isDeleteConfirmValid && confirmDelete()"
+            placeholder="Nhập tên huy hiệu..."
+            autocomplete="off"
+          />
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteModal()">Hủy</button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          [disabled]="!isDeleteConfirmValid || deleting"
+          (click)="confirmDelete()"
+        >
+          @if (deleting) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          Xóa vĩnh viễn
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

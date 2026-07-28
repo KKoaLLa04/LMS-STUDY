@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Backend.Common;
 using Backend.Configuration;
 using Backend.Data;
@@ -34,6 +35,12 @@ builder.Services.AddControllers()
             var response = ApiResponse<object?>.BadRequest(string.Join("; ", errors));
             return new BadRequestObjectResult(response);
         };
+    })
+    .AddJsonOptions(options =>
+    {
+        // Cho phép nhận/trả enum dạng chuỗi (vd "Teacher", "HocTap") thay vì số nguyên,
+        // khớp với cách EF Core lưu enum dạng string trong DB (HasConversion<string>()).
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -77,6 +84,8 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IKhoiHocService, KhoiHocService>();
 builder.Services.AddScoped<ICourseCategoryService, CourseCategoryService>();
+builder.Services.AddScoped<IAchievementService, AchievementService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

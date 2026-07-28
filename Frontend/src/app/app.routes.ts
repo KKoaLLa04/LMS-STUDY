@@ -68,6 +68,23 @@ export const routes: Routes = [
             (m) => m.courseCategoriesRoutes
           ),
       },
+      {
+        path: 'achievements',
+        loadChildren: () =>
+          import('./features/achievements/achievements.routes').then(
+            (m) => m.achievementsRoutes
+          ),
+      },
+      {
+        path: 'teachers',
+        loadChildren: () =>
+          import('./features/users/teachers.routes').then((m) => m.teachersRoutes),
+      },
+      {
+        path: 'students',
+        loadChildren: () =>
+          import('./features/users/students.routes').then((m) => m.studentsRoutes),
+      },
     ],
   },
 ];

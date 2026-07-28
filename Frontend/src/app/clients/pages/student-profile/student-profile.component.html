@@ -41,7 +41,7 @@
       <a class="oc-sp-see-all" routerLink="/client/thanh-tich">Xem tất cả →</a>
     </div>
     <div class="oc-sp-badge-grid">
-      @for (badge of highlightBadges; track badge.id) {
+      @for (badge of highlightBadges(); track badge.id) {
         <div class="oc-sp-badge" [class.oc-sp-badge--locked]="!badge.unlocked">
           @if (badge.unlocked) {
             <div class="oc-sp-badge__shine"></div>

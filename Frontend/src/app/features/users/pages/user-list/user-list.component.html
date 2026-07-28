@@ -1,0 +1,341 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">{{ pageTitle }}</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item active">{{ pageTitle }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    @if (errorMessage) {
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    <div class="card usr-card">
+      <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+          <i class="bi bi-plus-circle me-1"></i>{{ createLabel }}
+        </button>
+      </div>
+
+      <div class="card-body p-0">
+        @if (loading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+          </div>
+        } @else if (users.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            Chưa có {{ entityLabel }} nào.
+            <a href="javascript:void(0)" (click)="openCreateModal()">{{ createLabel }}</a>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center" style="width: 4%">#</th>
+                  <th style="width: 24%">Họ tên</th>
+                  <th style="width: 20%">Email</th>
+                  <th style="width: 12%">Số điện thoại</th>
+                  <th style="width: 12%">Trạng thái</th>
+                  <th style="width: 12%">Ngày tạo</th>
+                  <th class="text-center" style="width: 16%">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of users; track item.id; let i = $index) {
+                  <tr>
+                    <td class="text-center align-middle text-muted">{{ i + 1 }}</td>
+                    <td class="align-middle">
+                      <div class="d-flex align-items-center gap-2">
+                        @if (item.avatarUrl) {
+                          <img [src]="item.avatarUrl" class="usr-avatar-img" alt="" />
+                        } @else {
+                          <div class="usr-avatar">{{ initialsOf(item) }}</div>
+                        }
+                        <div>
+                          <div class="fw-semibold">{{ item.fullName }}</div>
+                          <div class="text-muted small">&#64;{{ item.username }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="align-middle text-muted">{{ item.email }}</td>
+                    <td class="align-middle text-muted">{{ item.phone }}</td>
+                    <td class="align-middle">
+                      <span class="badge" [ngClass]="statusBadgeClass(item.status)">{{ statusLabel(item.status) }}</span>
+                    </td>
+                    <td class="align-middle text-muted">{{ item.createdAt | date: 'dd/MM/yyyy' }}</td>
+                    <td class="text-center align-middle">
+                      <div class="d-flex gap-1 justify-content-center">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Chỉnh sửa"
+                          (click)="openEditModal(item)"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          title="Xóa"
+                          (click)="openDeleteModal(item)"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Thêm / Chỉnh sửa ═══════════════ -->
+<div #formModal class="modal fade usr-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="usr-modal-title">
+          <span class="usr-modal-icon">
+            <i class="bi" [class.bi-plus-lg]="modalMode === 'create'" [class.bi-pencil]="modalMode === 'edit'"></i>
+          </span>
+          <h5 class="modal-title mb-0">{{ modalTitle }}</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeFormModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+              <input
+                #fullNameInput
+                type="text"
+                class="form-control"
+                formControlName="fullName"
+                placeholder="Ví dụ: Nguyễn Văn A"
+                [class.is-invalid]="form.get('fullName')?.invalid && form.get('fullName')?.touched"
+              />
+              @if (form.get('fullName')?.invalid && form.get('fullName')?.touched) {
+                <div class="invalid-feedback">Họ tên không được để trống (tối đa 255 ký tự).</div>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="username"
+                placeholder="Ví dụ: gv.nguyenvana"
+                [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched"
+              />
+              @if (form.get('username')?.invalid && form.get('username')?.touched) {
+                <div class="invalid-feedback">Tên đăng nhập không được để trống (tối đa 100 ký tự).</div>
+              }
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                class="form-control"
+                formControlName="email"
+                placeholder="Ví dụ: nguyenvana@example.com"
+                [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+              />
+              @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                <div class="invalid-feedback">Email không hợp lệ.</div>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="phone"
+                placeholder="Ví dụ: 0912345678"
+                [class.is-invalid]="form.get('phone')?.invalid && form.get('phone')?.touched"
+              />
+              @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+                <div class="invalid-feedback">Số điện thoại không được để trống (tối đa 20 ký tự).</div>
+              }
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">
+                Mật khẩu
+                @if (modalMode === 'create') { <span class="text-danger">*</span> }
+              </label>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="password"
+                [placeholder]="modalMode === 'create' ? 'Tối thiểu 6 ký tự' : 'Bỏ trống nếu không đổi mật khẩu'"
+                [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
+              />
+              @if (form.get('password')?.invalid && form.get('password')?.touched) {
+                <div class="invalid-feedback">Mật khẩu phải có ít nhất 6 ký tự.</div>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="status">
+                @for (opt of statusOptions; track opt[0]) {
+                  <option [value]="opt[0]">{{ opt[1] }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Giới tính</label>
+              <select class="form-select" formControlName="gender">
+                <option value="">— Không chọn —</option>
+                @for (opt of genderOptions; track opt[0]) {
+                  <option [value]="opt[0]">{{ opt[1] }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Ngày sinh</label>
+              <input type="date" class="form-control" formControlName="dateOfBirth" />
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Ảnh đại diện</label>
+              <div class="d-flex align-items-start gap-2">
+                <label class="usr-avatar-dropzone" [class.has-image]="avatarPreviewUrl && !avatarError">
+                  @if (avatarPreviewUrl) {
+                    <img [src]="avatarPreviewUrl" alt="" (error)="avatarError = true" (load)="avatarError = false" />
+                  } @else {
+                    <span class="usr-avatar-dropzone__initials">{{ formInitials }}</span>
+                  }
+                  <div class="usr-avatar-dropzone__overlay">
+                    @if (avatarUploadState.uploading) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <i class="bi bi-camera-fill"></i>
+                    }
+                  </div>
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    [disabled]="avatarUploadState.uploading"
+                    (change)="onAvatarFileSelected($event)"
+                  />
+                </label>
+                @if (avatarPreviewUrl) {
+                  <button type="button" class="btn btn-sm btn-link text-danger p-0" (click)="removeAvatar()">Xóa ảnh</button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-1">
+            <label class="form-label">Địa chỉ</label>
+            <textarea class="form-control" rows="2" formControlName="address" placeholder="Địa chỉ liên hệ"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeFormModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting">
+            @if (submitting) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Lưu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Xác nhận xóa ═══════════════ -->
+<div #deleteModal class="modal fade usr-modal usr-modal-danger" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="usr-modal-title">
+          <span class="usr-modal-icon usr-modal-icon-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </span>
+          <h5 class="modal-title mb-0">Xóa tài khoản</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        @if (deleteTarget) {
+          <p class="mb-2">
+            Bạn sắp xóa tài khoản
+            <strong>{{ deleteTarget.fullName }}</strong> ({{ deleteTarget.username }}). Hành động này không thể hoàn tác.
+          </p>
+          <label class="form-label small text-muted">
+            Để xác nhận, vui lòng nhập lại tên đăng nhập:
+            <strong class="text-body">{{ deleteTarget.username }}</strong>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="deleteConfirmInput"
+            [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="isDeleteConfirmValid && confirmDelete()"
+            placeholder="Nhập tên đăng nhập..."
+            autocomplete="off"
+          />
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteModal()">Hủy</button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          [disabled]="!isDeleteConfirmValid || deleting"
+          (click)="confirmDelete()"
+        >
+          @if (deleting) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          Xóa vĩnh viễn
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

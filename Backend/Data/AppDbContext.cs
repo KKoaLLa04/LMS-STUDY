@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<ChatChannel> ChatChannels => Set<ChatChannel>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Achievement> Achievements => Set<Achievement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,12 +140,25 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Users");
             entity.HasIndex(u => u.Username).IsUnique();
+            entity.HasIndex(u => u.Email).IsUnique();
             entity.Property(u => u.Role)
                   .HasConversion<string>()
                   .HasMaxLength(20);
+            entity.Property(u => u.Status)
+                  .HasConversion<short>();
+            entity.Property(u => u.Gender)
+                  .HasConversion<short?>();
             entity.Property(u => u.CreatedAt)
                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
                   .ValueGeneratedOnAdd();
+        });
+
+        modelBuilder.Entity<Achievement>(entity =>
+        {
+            entity.ToTable("Achievements");
+            entity.Property(a => a.Category)
+                  .HasConversion<string>()
+                  .HasMaxLength(20);
         });
 
         // Xóa mềm: tự động loại bỏ các bản ghi có IsDeleted = true khỏi mọi truy vấn LINQ,

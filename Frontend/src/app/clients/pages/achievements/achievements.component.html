@@ -6,7 +6,7 @@
     <div class="oc-ach-summary__count">
       <span class="oc-ach-summary__label">✦ Tổng huy hiệu đạt được</span>
       <span class="oc-ach-summary__number">{{ counterDisplay() }}</span>
-      <span class="oc-ach-summary__total">trên tổng số {{ totalBadges }} huy hiệu</span>
+      <span class="oc-ach-summary__total">trên tổng số {{ totalBadges() }} huy hiệu</span>
     </div>
 
     <div class="oc-ach-summary__latest">
@@ -15,7 +15,7 @@
       </div>
       <div class="oc-ach-summary__latest-text">
         <span class="oc-ach-summary__latest-label">Huy hiệu mới nhất</span>
-        <span class="oc-ach-summary__latest-name">{{ latestBadge.name }}</span>
+        <span class="oc-ach-summary__latest-name">{{ latestBadge().name }}</span>
       </div>
     </div>
   </section>

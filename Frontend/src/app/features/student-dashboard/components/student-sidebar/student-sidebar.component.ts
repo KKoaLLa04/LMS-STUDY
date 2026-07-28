@@ -41,12 +41,14 @@ export class StudentSidebarComponent {
     { icon: 'home', label: 'Tổng quan', link: true, route: '/dashboard' },
     { icon: 'book', label: 'Khóa học của tôi', link: false },
     { icon: 'check-square', label: 'Bài tập', link: false },
-    { icon: 'award', label: 'Thành tích', link: false },
+    { icon: 'award', label: 'Thành tích', link: true, route: '/achievements' },
     { icon: 'calendar', label: 'Lịch học', link: false },
     { icon: 'settings', label: 'Cài đặt', link: false },
     { icon: 'layers', label: 'Khối học', link: true, route: '/khoi-hoc' },
     { icon: 'tag', label: 'Danh mục khóa học', link: true, route: '/course-categories' },
-    { icon: 'book', label: 'Khóa học', link: true, route: '/courses' }
+    { icon: 'book', label: 'Khóa học', link: true, route: '/courses' },
+    { icon: 'graduation-cap', label: 'Danh sách giảng viên', link: true, route: '/teachers' },
+    { icon: 'users', label: 'Danh sách học sinh', link: true, route: '/students' }
   ];
 
   get showLabels(): boolean {
