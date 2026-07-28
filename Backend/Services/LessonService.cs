@@ -37,7 +37,8 @@ public class LessonService : ILessonService
                 Content = dto.Content?.Trim(),
                 VideoUrl = dto.VideoUrl?.Trim(),
                 LessonType = lessonType,
-                Position = dto.Position
+                Position = dto.Position,
+                DurationMinutes = dto.DurationMinutes
             };
 
             _context.Lessons.Add(lesson);
@@ -69,6 +70,7 @@ public class LessonService : ILessonService
             lesson.VideoUrl = dto.VideoUrl?.Trim();
             lesson.LessonType = lessonType;
             lesson.Position = dto.Position;
+            lesson.DurationMinutes = dto.DurationMinutes;
 
             await _context.SaveChangesAsync();
 
@@ -110,6 +112,7 @@ public class LessonService : ILessonService
         Content = lesson.Content,
         VideoUrl = lesson.VideoUrl,
         LessonType = lesson.LessonType.ToString(),
-        Position = lesson.Position
+        Position = lesson.Position,
+        DurationMinutes = lesson.DurationMinutes
     };
 }

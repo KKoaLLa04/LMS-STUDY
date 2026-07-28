@@ -14,7 +14,8 @@ export type IconName =
   | 'graduation-cap'
   | 'clock'
   | 'layers'
-  | 'log-out';
+  | 'log-out'
+  | 'tag';
 
 export interface Student {
   name: string;

@@ -25,6 +25,13 @@ public class CreateCourseDto
     public string Status { get; set; } = "Draft";
 
     public int? KhoiHocId { get; set; }
+
+    public int? CategoryId { get; set; }
+
+    public bool IsFeatured { get; set; }
+
+    [MaxLength(500, ErrorMessage = "Video giới thiệu không vượt quá 500 ký tự")]
+    public string? PreviewVideoUrl { get; set; }
 }
 
 public class UpdateCourseDto
@@ -50,6 +57,13 @@ public class UpdateCourseDto
     public string Status { get; set; } = "Draft";
 
     public int? KhoiHocId { get; set; }
+
+    public int? CategoryId { get; set; }
+
+    public bool IsFeatured { get; set; }
+
+    [MaxLength(500, ErrorMessage = "Video giới thiệu không vượt quá 500 ký tự")]
+    public string? PreviewVideoUrl { get; set; }
 }
 
 public class CourseListItemDto
@@ -64,6 +78,11 @@ public class CourseListItemDto
     public DateTime CreatedAt { get; set; }
     public int? KhoiHocId { get; set; }
     public string? KhoiHocName { get; set; }
+    public int? CategoryId { get; set; }
+    public string? CategoryName { get; set; }
+    public bool IsFeatured { get; set; }
+    public int LessonsCount { get; set; }
+    public int DurationMinutes { get; set; }
 }
 
 public class CourseDetailDto
@@ -79,5 +98,11 @@ public class CourseDetailDto
     public DateTime CreatedAt { get; set; }
     public int? KhoiHocId { get; set; }
     public string? KhoiHocName { get; set; }
+    public int? CategoryId { get; set; }
+    public string? CategoryName { get; set; }
+    public bool IsFeatured { get; set; }
+    public string? PreviewVideoUrl { get; set; }
+    public int LessonsCount { get; set; }
+    public int DurationMinutes { get; set; }
     public List<SectionDetailDto> Sections { get; set; } = new();
 }

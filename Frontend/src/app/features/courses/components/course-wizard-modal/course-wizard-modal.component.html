@@ -107,6 +107,27 @@
                 </div>
               </div>
 
+              <!-- Category + Featured -->
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>Danh mục</label>
+                  <select class="form-select" formControlName="categoryId">
+                    <option [ngValue]="null">-- Chọn danh mục --</option>
+                    @for (c of categories; track c.id) {
+                      <option [ngValue]="c.id">{{ c.name }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>&nbsp;</label>
+                  <label class="featured-toggle">
+                    <input type="checkbox" formControlName="isFeatured" />
+                    <span>Khóa học nổi bật (hiển thị ở banner trang chủ)</span>
+                  </label>
+                </div>
+              </div>
+
               <!-- Teacher -->
               <div class="form-group">
                 <label>Giáo viên</label>
@@ -219,6 +240,44 @@
                     (change)="onImageFileSelected($event)"
                   />
                 </label>
+              </div>
+
+              <!-- Preview video -->
+              <div class="form-group">
+                <label>Video giới thiệu khóa học</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  formControlName="previewVideoUrl"
+                  placeholder="URL video giới thiệu (tuỳ chọn)..."
+                />
+                <div class="lesson-video-upload" style="margin-top: 8px">
+                  <label class="btn-upload-video" [class.disabled]="previewVideoUploadState.uploading">
+                    @if (previewVideoUploadState.uploading) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                      Đang tải lên...
+                    } @else {
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      Tải video lên
+                    }
+                    <input
+                      type="file"
+                      hidden
+                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
+                      [disabled]="previewVideoUploadState.uploading"
+                      (change)="onPreviewVideoFileSelected($event)"
+                    />
+                  </label>
+                  @if (previewVideoUploadState.fileName) {
+                    <span class="uploaded-file-badge">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      {{ previewVideoUploadState.fileName }}
+                      <button type="button" (click)="clearPreviewVideo()" title="Xóa video">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </span>
+                  }
+                </div>
               </div>
 
             </form>
@@ -362,6 +421,14 @@
                                     type="text"
                                     formControlName="videoUrl"
                                     placeholder="URL Video (tuỳ chọn)..."
+                                  />
+                                  <input
+                                    class="lesson-input lesson-duration-input"
+                                    type="number"
+                                    min="0"
+                                    formControlName="durationMinutes"
+                                    placeholder="Phút"
+                                    title="Thời lượng (phút)"
                                   />
                                 </div>
 

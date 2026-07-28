@@ -13,9 +13,13 @@
 
       <div class="oc-accordion__body" [@expandCollapse]="isExpanded(chapter.id) ? 'expanded' : 'collapsed'">
         @for (lesson of chapter.lessons; track lesson.id) {
-          <div
+          <button
+            type="button"
             class="oc-accordion__lesson"
             [class.is-highlighted]="lesson.id === nextLessonId"
+            [class.is-playable]="isLessonPlayable(lesson)"
+            [disabled]="!isLessonPlayable(lesson)"
+            (click)="toggleLessonVideo(lesson)"
           >
             <span class="oc-accordion__lesson-icon" [class]="'is-' + lesson.status">
               @switch (lesson.status) {
@@ -32,7 +36,15 @@
             </span>
             <span class="oc-accordion__lesson-title" [class.is-locked]="lesson.status === 'locked'">{{ lesson.title }}</span>
             <span class="oc-text-muted oc-accordion__lesson-duration">{{ lesson.durationMinutes }}p</span>
-          </div>
+          </button>
+          @if (playingLessonId() === lesson.id) {
+            <video
+              class="oc-accordion__lesson-video"
+              [src]="lesson.videoUrl"
+              controls
+              autoplay
+            ></video>
+          }
         }
       </div>
     </div>

@@ -7,7 +7,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class CoursesController : ControllerBase
 {
     private readonly ICourseService _courseService;
@@ -18,7 +18,8 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin/User] Lấy danh sách khóa học có phân trang và tìm kiếm
+    /// [Admin/User] Lấy danh sách khóa học có phân trang và tìm kiếm.
+    /// User chỉ thấy khóa học đã Published.
     /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetCourses(
@@ -29,17 +30,18 @@ public class CoursesController : ControllerBase
         if (page < 1) page = 1;
         if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-        var result = await _courseService.GetCoursesAsync(page, pageSize, keyword);
+        var result = await _courseService.GetCoursesAsync(page, pageSize, keyword, User.IsInRole("Admin"));
         return StatusCode(result.HttpStatusCode, result);
     }
 
     /// <summary>
-    /// [User] Lấy chi tiết khóa học kèm danh sách Sections và Lessons
+    /// [Admin/User] Lấy chi tiết khóa học kèm danh sách Sections và Lessons.
+    /// User chỉ xem được khóa học đã Published.
     /// </summary>
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetCourse(int id)
     {
-        var result = await _courseService.GetCourseByIdAsync(id);
+        var result = await _courseService.GetCourseByIdAsync(id, User.IsInRole("Admin"));
         return StatusCode(result.HttpStatusCode, result);
     }
 
@@ -47,6 +49,7 @@ public class CoursesController : ControllerBase
     /// [Admin] Tạo mới khóa học
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto dto)
     {
         var result = await _courseService.CreateCourseAsync(dto);
@@ -57,6 +60,7 @@ public class CoursesController : ControllerBase
     /// [Admin] Cập nhật khóa học
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCourse(int id, [FromBody] UpdateCourseDto dto)
     {
         var result = await _courseService.UpdateCourseAsync(id, dto);
@@ -67,6 +71,7 @@ public class CoursesController : ControllerBase
     /// [Admin] Xóa khóa học (cascade xóa cả Sections và Lessons)
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCourse(int id)
     {
         var result = await _courseService.DeleteCourseAsync(id);

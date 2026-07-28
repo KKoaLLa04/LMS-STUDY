@@ -35,6 +35,11 @@
   &.oc-thumb--accent-2 {
     background: linear-gradient(135deg, var(--oc-accent-2-400), var(--oc-accent-2-700));
   }
+
+  &.oc-detail__video--player {
+    background: #000;
+    object-fit: contain;
+  }
 }
 
 .oc-detail__video-tag {
@@ -74,6 +79,11 @@
 
   &:hover {
     transform: scale(1.08);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 
   app-oc-icon {

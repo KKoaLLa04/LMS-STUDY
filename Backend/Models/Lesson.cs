@@ -30,6 +30,8 @@ public class Lesson : ISoftDelete
 
     public int Position { get; set; }
 
+    public int DurationMinutes { get; set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
 

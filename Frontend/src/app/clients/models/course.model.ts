@@ -5,6 +5,7 @@ export interface Lesson {
   title: string;
   durationMinutes: number;
   status: LessonStatus;
+  videoUrl?: string;
 }
 
 export interface Chapter {
@@ -55,6 +56,7 @@ export interface Course {
   progressPercent: number;
   featured: boolean;
   thumbnailVariant: ThumbnailVariant;
+  previewVideoUrl?: string;
   chapters: Chapter[];
   materials: CourseMaterial[];
   reviews: Review[];

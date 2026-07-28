@@ -61,6 +61,13 @@ export const routes: Routes = [
             (m) => m.khoiHocRoutes
           ),
       },
+      {
+        path: 'course-categories',
+        loadChildren: () =>
+          import('./features/course-categories/course-categories.routes').then(
+            (m) => m.courseCategoriesRoutes
+          ),
+      },
     ],
   },
 ];

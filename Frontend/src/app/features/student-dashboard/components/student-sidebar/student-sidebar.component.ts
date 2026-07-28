@@ -45,6 +45,7 @@ export class StudentSidebarComponent {
     { icon: 'calendar', label: 'Lịch học', link: false },
     { icon: 'settings', label: 'Cài đặt', link: false },
     { icon: 'layers', label: 'Khối học', link: true, route: '/khoi-hoc' },
+    { icon: 'tag', label: 'Danh mục khóa học', link: true, route: '/course-categories' },
     { icon: 'book', label: 'Khóa học', link: true, route: '/courses' }
   ];
 

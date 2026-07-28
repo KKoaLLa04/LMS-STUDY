@@ -35,6 +35,7 @@ export class CourseDetailComponent implements OnInit {
   readonly course = signal<Course | undefined>(undefined);
   readonly notFound = signal(false);
   readonly activeTab = signal<DetailTab>('content');
+  readonly isPlayingPreview = signal(false);
 
   readonly ctaLabel = computed(() => {
     const course = this.course();
@@ -51,6 +52,10 @@ export class CourseDetailComponent implements OnInit {
 
   setTab(tab: DetailTab): void {
     this.activeTab.set(tab);
+  }
+
+  playPreview(): void {
+    if (this.course()?.previewVideoUrl) this.isPlayingPreview.set(true);
   }
 
   goBack(): void {

@@ -1,6 +1,6 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, Input, signal } from '@angular/core';
-import { Chapter } from '../../models/course.model';
+import { Component, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Chapter, Lesson } from '../../models/course.model';
 import { formatChapterMeta } from '../../utils/format.util';
 import { findNextLesson } from '../../utils/chapters.util';
 import { OcIconComponent } from '../icon/icon.component';
@@ -19,11 +19,23 @@ import { OcIconComponent } from '../icon/icon.component';
     ]),
   ],
 })
-export class ChapterAccordionComponent {
+export class ChapterAccordionComponent implements OnChanges {
   @Input({ required: true }) chapters: Chapter[] = [];
 
   /** First chapter open by default, matching the reference design. */
-  readonly expandedIds = signal<Set<number>>(new Set([0]));
+  readonly expandedIds = signal<Set<number>>(new Set());
+
+  /** Which lesson's inline video player is currently open, if any. */
+  readonly playingLessonId = signal<number | null>(null);
+
+  private hasInitializedDefault = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.hasInitializedDefault && changes['chapters'] && this.chapters.length > 0) {
+      this.hasInitializedDefault = true;
+      this.expandedIds.set(new Set([this.chapters[0].id]));
+    }
+  }
 
   isExpanded(chapterId: number): boolean {
     return this.expandedIds().has(chapterId);
@@ -40,6 +52,15 @@ export class ChapterAccordionComponent {
 
   chapterMeta(chapter: Chapter): string {
     return formatChapterMeta(chapter.lessons.length);
+  }
+
+  isLessonPlayable(lesson: Lesson): boolean {
+    return lesson.status !== 'locked' && !!lesson.videoUrl;
+  }
+
+  toggleLessonVideo(lesson: Lesson): void {
+    if (!this.isLessonPlayable(lesson)) return;
+    this.playingLessonId.update((current) => (current === lesson.id ? null : lesson.id));
   }
 
   get nextLessonId(): number | undefined {

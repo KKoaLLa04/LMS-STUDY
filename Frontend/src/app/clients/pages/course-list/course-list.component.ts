@@ -26,8 +26,7 @@ const CATEGORY_ALL = 'Tất cả';
 export class CourseListComponent implements OnInit {
   private readonly courseService = inject(ClientCourseService);
 
-  readonly categories = this.courseService.getCategories();
-
+  readonly categories = signal<string[]>([CATEGORY_ALL]);
   readonly courses = signal<Course[]>([]);
   readonly searchQuery = signal('');
   readonly activeCategory = signal(CATEGORY_ALL);
@@ -47,6 +46,7 @@ export class CourseListComponent implements OnInit {
 
   ngOnInit(): void {
     this.courseService.getCourses().subscribe((courses) => this.courses.set(courses));
+    this.courseService.getCategories().subscribe((categories) => this.categories.set(categories));
   }
 
   animationDelayFor(index: number): number {

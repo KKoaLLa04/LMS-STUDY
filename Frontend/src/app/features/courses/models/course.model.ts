@@ -9,6 +9,9 @@ export interface CreateCourseRequest {
   price: number;
   status: string;
   khoiHocId?: number;
+  categoryId?: number;
+  isFeatured?: boolean;
+  previewVideoUrl?: string;
 }
 
 export interface CreateSectionRequest {
@@ -24,6 +27,7 @@ export interface CreateLessonRequest {
   videoUrl?: string;
   lessonType: string;
   position: number;
+  durationMinutes: number;
 }
 
 export interface CourseListItem {
@@ -37,6 +41,9 @@ export interface CourseListItem {
   createdAt: string;
   khoiHocId?: number;
   khoiHocName?: string;
+  categoryId?: number;
+  categoryName?: string;
+  isFeatured: boolean;
 }
 
 export interface LessonResponse {
@@ -47,6 +54,7 @@ export interface LessonResponse {
   videoUrl?: string;
   lessonType: string;
   position: number;
+  durationMinutes: number;
 }
 
 export interface SectionDetail {
@@ -69,6 +77,10 @@ export interface CourseDetail {
   createdAt: string;
   khoiHocId?: number;
   khoiHocName?: string;
+  categoryId?: number;
+  categoryName?: string;
+  isFeatured: boolean;
+  previewVideoUrl?: string;
   sections: SectionDetail[];
 }
 

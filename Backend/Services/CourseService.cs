@@ -19,20 +19,27 @@ public class CourseService : ICourseService
     }
 
     public async Task<ApiResponse<PagedResultDto<CourseListItemDto>>> GetCoursesAsync(
-        int page, int pageSize, string? keyword)
+        int page, int pageSize, string? keyword, bool isAdmin)
     {
         try
         {
-            // Không có navigation property/FK giữa Course và KhoiHoc, nên join thủ công
-            // bằng LINQ (join theo Id) thay vì Include — KhoiHocId chỉ là 1 giá trị thường.
+            // Không có navigation property/FK giữa Course và KhoiHoc/CourseCategory, nên join
+            // thủ công bằng LINQ (join theo Id) thay vì Include — các Id này chỉ là giá trị thường.
             var query =
                 from c in _context.Courses
                 join k in _context.KhoiHocs on c.KhoiHocId equals k.Id into khoiJoin
                 from k in khoiJoin.DefaultIfEmpty()
-                select new { Course = c, KhoiHoc = k };
+                join cat in _context.CourseCategories on c.CategoryId equals cat.Id into catJoin
+                from cat in catJoin.DefaultIfEmpty()
+                select new { Course = c, KhoiHoc = k, Category = cat };
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(x => x.Course.Title.Contains(keyword));
+
+            // Học sinh (không phải Admin) chỉ được thấy khóa học đã Published —
+            // tránh lộ khóa học Draft/Upcoming ra khu vực client.
+            if (!isAdmin)
+                query = query.Where(x => x.Course.Status == CourseStatus.Published);
 
             var totalCount = await query.CountAsync();
 
@@ -51,7 +58,12 @@ public class CourseService : ICourseService
                     Status = x.Course.Status.ToString(),
                     CreatedAt = x.Course.CreatedAt,
                     KhoiHocId = x.Course.KhoiHocId,
-                    KhoiHocName = x.KhoiHoc != null ? x.KhoiHoc.Name : null
+                    KhoiHocName = x.KhoiHoc != null ? x.KhoiHoc.Name : null,
+                    CategoryId = x.Course.CategoryId,
+                    CategoryName = x.Category != null ? x.Category.Name : null,
+                    IsFeatured = x.Course.IsFeatured,
+                    LessonsCount = _context.Lessons.Count(l => l.Section.CourseId == x.Course.Id),
+                    DurationMinutes = _context.Lessons.Where(l => l.Section.CourseId == x.Course.Id).Sum(l => (int?)l.DurationMinutes) ?? 0
                 })
                 .ToListAsync();
 
@@ -73,7 +85,7 @@ public class CourseService : ICourseService
         }
     }
 
-    public async Task<ApiResponse<CourseDetailDto>> GetCourseByIdAsync(int id)
+    public async Task<ApiResponse<CourseDetailDto>> GetCourseByIdAsync(int id, bool isAdmin)
     {
         try
         {
@@ -85,6 +97,10 @@ public class CourseService : ICourseService
             if (course == null)
                 return ApiResponse<CourseDetailDto>.NotFound("Khóa học không tồn tại");
 
+            // Học sinh không được xem khóa học chưa Published — coi như không tồn tại.
+            if (!isAdmin && course.Status != CourseStatus.Published)
+                return ApiResponse<CourseDetailDto>.NotFound("Khóa học không tồn tại");
+
             string? khoiHocName = course.KhoiHocId.HasValue
                 ? await _context.KhoiHocs
                     .Where(k => k.Id == course.KhoiHocId.Value)
@@ -92,7 +108,14 @@ public class CourseService : ICourseService
                     .FirstOrDefaultAsync()
                 : null;
 
-            var dto = MapToCourseDetailDto(course, khoiHocName);
+            string? categoryName = course.CategoryId.HasValue
+                ? await _context.CourseCategories
+                    .Where(c => c.Id == course.CategoryId.Value)
+                    .Select(c => c.Name)
+                    .FirstOrDefaultAsync()
+                : null;
+
+            var dto = MapToCourseDetailDto(course, khoiHocName, categoryName);
             return ApiResponse<CourseDetailDto>.Ok(dto);
         }
         catch (Exception ex)
@@ -119,7 +142,10 @@ public class CourseService : ICourseService
                 Emoji = dto.Emoji?.Trim(),
                 Price = dto.Price,
                 Status = status,
-                KhoiHocId = dto.KhoiHocId
+                KhoiHocId = dto.KhoiHocId,
+                CategoryId = dto.CategoryId,
+                IsFeatured = dto.IsFeatured,
+                PreviewVideoUrl = dto.PreviewVideoUrl?.Trim()
             };
 
             _context.Courses.Add(course);
@@ -154,6 +180,9 @@ public class CourseService : ICourseService
             course.Price = dto.Price;
             course.Status = status;
             course.KhoiHocId = dto.KhoiHocId;
+            course.CategoryId = dto.CategoryId;
+            course.IsFeatured = dto.IsFeatured;
+            course.PreviewVideoUrl = dto.PreviewVideoUrl?.Trim();
 
             await _context.SaveChangesAsync();
 
@@ -243,7 +272,7 @@ public class CourseService : ICourseService
         }
     }
 
-    private static CourseListItemDto MapToCourseListItemDto(Course course, string? khoiHocName = null) => new()
+    private static CourseListItemDto MapToCourseListItemDto(Course course, string? khoiHocName = null, string? categoryName = null) => new()
     {
         Id = course.Id,
         Title = course.Title,
@@ -254,10 +283,15 @@ public class CourseService : ICourseService
         Status = course.Status.ToString(),
         CreatedAt = course.CreatedAt,
         KhoiHocId = course.KhoiHocId,
-        KhoiHocName = khoiHocName
+        KhoiHocName = khoiHocName,
+        CategoryId = course.CategoryId,
+        CategoryName = categoryName,
+        IsFeatured = course.IsFeatured,
+        LessonsCount = 0,
+        DurationMinutes = 0
     };
 
-    private static CourseDetailDto MapToCourseDetailDto(Course course, string? khoiHocName = null) => new()
+    private static CourseDetailDto MapToCourseDetailDto(Course course, string? khoiHocName = null, string? categoryName = null) => new()
     {
         Id = course.Id,
         Title = course.Title,
@@ -270,6 +304,12 @@ public class CourseService : ICourseService
         CreatedAt = course.CreatedAt,
         KhoiHocId = course.KhoiHocId,
         KhoiHocName = khoiHocName,
+        CategoryId = course.CategoryId,
+        CategoryName = categoryName,
+        IsFeatured = course.IsFeatured,
+        PreviewVideoUrl = course.PreviewVideoUrl,
+        LessonsCount = course.Sections.Sum(s => s.Lessons.Count),
+        DurationMinutes = course.Sections.Sum(s => s.Lessons.Sum(l => l.DurationMinutes)),
         Sections = course.Sections.Select(s => new SectionDetailDto
         {
             Id = s.Id,
@@ -284,7 +324,8 @@ public class CourseService : ICourseService
                 Content = l.Content,
                 VideoUrl = l.VideoUrl,
                 LessonType = l.LessonType.ToString(),
-                Position = l.Position
+                Position = l.Position,
+                DurationMinutes = l.DurationMinutes
             }).ToList()
         }).ToList()
     };

@@ -7,7 +7,7 @@
     }
 
     <app-oc-category-chips
-      [categories]="categories"
+      [categories]="categories()"
       [activeCategory]="activeCategory()"
       (activeCategoryChange)="activeCategory.set($event)"
     ></app-oc-category-chips>

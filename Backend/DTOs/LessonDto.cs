@@ -20,6 +20,9 @@ public class CreateLessonDto
 
     [Range(0, int.MaxValue, ErrorMessage = "Position không được âm")]
     public int Position { get; set; }
+
+    [Range(0, int.MaxValue, ErrorMessage = "Thời lượng không được âm")]
+    public int DurationMinutes { get; set; }
 }
 
 public class UpdateLessonDto
@@ -37,6 +40,9 @@ public class UpdateLessonDto
 
     [Range(0, int.MaxValue, ErrorMessage = "Position không được âm")]
     public int Position { get; set; }
+
+    [Range(0, int.MaxValue, ErrorMessage = "Thời lượng không được âm")]
+    public int DurationMinutes { get; set; }
 }
 
 public class LessonResponseDto
@@ -48,4 +54,5 @@ public class LessonResponseDto
     public string? VideoUrl { get; set; }
     public string LessonType { get; set; } = string.Empty;
     public int Position { get; set; }
+    public int DurationMinutes { get; set; }
 }

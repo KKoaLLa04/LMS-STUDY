@@ -11,6 +11,8 @@ import { ToastService } from '../../../../shared/services/toast.service';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
 import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
+import { CourseCategoryService } from '../../../course-categories/services/course-category.service';
+import { CourseCategory } from '../../../course-categories/models/course-category.model';
 
 declare const bootstrap: any;
 
@@ -69,8 +71,10 @@ export class CourseWizardModalComponent implements AfterViewInit {
   thumbnailError = false;
   priceDisplay = '0';
   khoiHocs: KhoiHoc[] = [];
+  categories: CourseCategory[] = [];
   uploadState = new Map<AbstractControl, UploadState>();
   imageUploadState: UploadState = { uploading: false };
+  previewVideoUploadState: UploadState = { uploading: false };
 
   deletedSectionIds: number[] = [];
   deletedLessonIds: number[] = [];
@@ -83,6 +87,7 @@ export class CourseWizardModalComponent implements AfterViewInit {
     private sectionService: SectionService,
     private lessonService: LessonService,
     private khoiHocService: KhoiHocService,
+    private courseCategoryService: CourseCategoryService,
     private uploadService: UploadService,
     private toast: ToastService
   ) {
@@ -95,6 +100,9 @@ export class CourseWizardModalComponent implements AfterViewInit {
       price: [0, [Validators.min(0)]],
       status: ['Draft'],
       khoiHocId: [null],
+      categoryId: [null],
+      isFeatured: [false],
+      previewVideoUrl: ['', Validators.maxLength(500)],
       sections: this.fb.array([])
     });
   }
@@ -122,16 +130,21 @@ export class CourseWizardModalComponent implements AfterViewInit {
       thumbnail: '',
       price: 0,
       status: 'Draft',
-      khoiHocId: null
+      khoiHocId: null,
+      categoryId: null,
+      isFeatured: false,
+      previewVideoUrl: ''
     });
     this.currentStep = 1;
     this.priceDisplay = '0';
     this.thumbnailError = false;
     this.uploadState.clear();
     this.imageUploadState = { uploading: false };
+    this.previewVideoUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
     this.loadKhoiHocs();
+    this.loadCategories();
     this.modal.show();
   }
 
@@ -143,9 +156,11 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.thumbnailError = false;
     this.uploadState.clear();
     this.imageUploadState = { uploading: false };
+    this.previewVideoUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
     this.loadKhoiHocs();
+    this.loadCategories();
     this.loadCourse(id);
     this.modal.show();
   }
@@ -158,6 +173,13 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.khoiHocService.getKhoiHocs().subscribe({
       next: (res) => (this.khoiHocs = res.data ?? []),
       error: () => this.toast.error('Không thể tải danh sách khối học.')
+    });
+  }
+
+  private loadCategories(): void {
+    this.courseCategoryService.getCategories().subscribe({
+      next: (res) => (this.categories = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách danh mục khóa học.')
     });
   }
 
@@ -182,7 +204,10 @@ export class CourseWizardModalComponent implements AfterViewInit {
         thumbnail: course.thumbnail ?? '',
         price,
         status: course.status,
-        khoiHocId: course.khoiHocId ?? null
+        khoiHocId: course.khoiHocId ?? null,
+        categoryId: course.categoryId ?? null,
+        isFeatured: course.isFeatured ?? false,
+        previewVideoUrl: course.previewVideoUrl ?? ''
       });
 
       const sectionsArray = this.form.get('sections') as FormArray;
@@ -197,7 +222,8 @@ export class CourseWizardModalComponent implements AfterViewInit {
               content: [lesson.content ?? ''],
               videoUrl: [lesson.videoUrl ?? '', Validators.maxLength(500)],
               lessonType: [lesson.lessonType],
-              position: [lesson.position, Validators.min(0)]
+              position: [lesson.position, Validators.min(0)],
+              durationMinutes: [lesson.durationMinutes ?? 0, Validators.min(0)]
             })
           )
         );
@@ -281,6 +307,44 @@ export class CourseWizardModalComponent implements AfterViewInit {
     });
   }
 
+  onPreviewVideoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      this.toast.error('Vui lòng chọn một file video hợp lệ.');
+      return;
+    }
+    if (file.size > MAX_VIDEO_SIZE) {
+      this.toast.error('File video không được vượt quá 500MB.');
+      return;
+    }
+
+    this.previewVideoUploadState = { uploading: true };
+    this.uploadService.uploadVideo(file).subscribe({
+      next: (res) => {
+        if (!res.success || !res.data) {
+          this.previewVideoUploadState = { uploading: false };
+          this.toast.error(res.message || 'Tải video lên thất bại');
+          return;
+        }
+        this.form.get('previewVideoUrl')?.setValue(res.data.url);
+        this.previewVideoUploadState = { uploading: false, fileName: file.name };
+      },
+      error: (err) => {
+        this.previewVideoUploadState = { uploading: false };
+        this.toast.error(err?.error?.message || 'Tải video lên thất bại');
+      }
+    });
+  }
+
+  clearPreviewVideo(): void {
+    this.form.get('previewVideoUrl')?.setValue('');
+    this.previewVideoUploadState = { uploading: false };
+  }
+
   addSection(): void {
     this.sections.push(
       this.fb.group({
@@ -307,7 +371,8 @@ export class CourseWizardModalComponent implements AfterViewInit {
         content: [''],
         videoUrl: ['', Validators.maxLength(500)],
         lessonType: ['Video'],
-        position: [lessons.length + 1, Validators.min(0)]
+        position: [lessons.length + 1, Validators.min(0)],
+        durationMinutes: [0, Validators.min(0)]
       })
     );
   }
@@ -419,7 +484,10 @@ export class CourseWizardModalComponent implements AfterViewInit {
         emoji: v.emoji || undefined,
         price: v.price,
         status: v.status,
-        khoiHocId: v.khoiHocId ?? undefined
+        khoiHocId: v.khoiHocId ?? undefined,
+        categoryId: v.categoryId ?? undefined,
+        isFeatured: v.isFeatured ?? false,
+        previewVideoUrl: v.previewVideoUrl || undefined
       };
 
       let courseId: number;
@@ -476,7 +544,8 @@ export class CourseWizardModalComponent implements AfterViewInit {
             content: lesson.content || undefined,
             videoUrl: lesson.videoUrl || undefined,
             lessonType: lesson.lessonType,
-            position: lesson.position
+            position: lesson.position,
+            durationMinutes: lesson.durationMinutes ?? 0
           };
 
           if (lesson.id) {

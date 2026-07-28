@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Section> Sections => Set<Section>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<KhoiHoc> KhoiHocs => Set<KhoiHoc>();
+    public DbSet<CourseCategory> CourseCategories => Set<CourseCategory>();
     public DbSet<VirtualClassroom> VirtualClassrooms => Set<VirtualClassroom>();
     public DbSet<DiscussionPost> DiscussionPosts => Set<DiscussionPost>();
     public DbSet<ChatChannel> ChatChannels => Set<ChatChannel>();
@@ -37,6 +38,14 @@ public class AppDbContext : DbContext
             // Chỉ số thường trên KhoiHocId để truy vấn nhanh — không khai báo quan hệ
             // khóa ngoại (HasOne/WithMany), nên xóa KhoiHoc không bao giờ bị chặn.
             entity.HasIndex(c => c.KhoiHocId);
+            // Cùng lý do như trên, áp dụng cho CategoryId.
+            entity.HasIndex(c => c.CategoryId);
+        });
+
+        modelBuilder.Entity<CourseCategory>(entity =>
+        {
+            entity.ToTable("CourseCategories");
+            entity.HasIndex(c => c.Code).IsUnique().HasFilter("[IsDeleted] = 0");
         });
 
         modelBuilder.Entity<Section>(entity =>

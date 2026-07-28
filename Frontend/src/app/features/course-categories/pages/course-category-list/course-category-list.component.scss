@@ -1,0 +1,89 @@
+:host {
+  --primary: #7c3aed;
+  --primary-light: #ede9fe;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+.kh-card {
+  border-radius: var(--radius);
+  border: 1px solid #eceef2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.kh-code-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 999px;
+}
+
+/* ── Modal polish ── */
+.kh-modal {
+  .modal-content {
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #f0f0f3;
+    padding: 1.1rem 1.5rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #f0f0f3;
+    padding: 1rem 1.5rem;
+  }
+
+  .form-control {
+    border-radius: var(--radius-sm);
+  }
+
+  .btn {
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+  }
+}
+
+.kh-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kh-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+
+  &.kh-modal-icon-danger {
+    background: var(--red-light);
+    color: var(--red);
+  }
+}
+
+.kh-modal-danger {
+  .btn-danger:disabled {
+    opacity: 0.5;
+  }
+
+  .btn-danger:not(:disabled) {
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+  }
+}

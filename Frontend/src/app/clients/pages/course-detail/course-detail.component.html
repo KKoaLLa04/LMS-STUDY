@@ -7,17 +7,29 @@
 
     @if (course(); as course) {
       <div class="oc-detail__hero">
-        <div
-          class="oc-detail__video"
-          [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'"
-        >
-          <span class="oc-detail__video-tag oc-detail__video-tag--subject">{{ course.subject }}</span>
-          <span class="oc-detail__video-tag oc-detail__video-tag--duration">{{ course.durationMinutes | ocDuration }}</span>
-          <button type="button" class="oc-detail__play" aria-label="Xem video giới thiệu">
-            <app-oc-icon name="play" [size]="30" color="var(--oc-accent)"></app-oc-icon>
-          </button>
-          <span class="oc-detail__video-caption">video giới thiệu khóa học</span>
-        </div>
+        @if (isPlayingPreview() && course.previewVideoUrl) {
+          <video class="oc-detail__video oc-detail__video--player" [src]="course.previewVideoUrl" controls autoplay></video>
+        } @else {
+          <div
+            class="oc-detail__video"
+            [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'"
+          >
+            <span class="oc-detail__video-tag oc-detail__video-tag--subject">{{ course.subject }}</span>
+            <span class="oc-detail__video-tag oc-detail__video-tag--duration">{{ course.durationMinutes | ocDuration }}</span>
+            <button
+              type="button"
+              class="oc-detail__play"
+              [attr.aria-label]="course.previewVideoUrl ? 'Xem video giới thiệu' : 'Chưa có video giới thiệu'"
+              [disabled]="!course.previewVideoUrl"
+              (click)="playPreview()"
+            >
+              <app-oc-icon name="play" [size]="30" color="var(--oc-accent)"></app-oc-icon>
+            </button>
+            <span class="oc-detail__video-caption">
+              {{ course.previewVideoUrl ? 'video giới thiệu khóa học' : 'chưa có video giới thiệu' }}
+            </span>
+          </div>
+        }
 
         <div class="oc-card oc-elev-md oc-detail__info">
           <h1 class="oc-detail__title">{{ course.title }}</h1>

@@ -43,3 +43,15 @@ export function formatChapterMeta(lessonCount: number): string {
   const estimatedMinutes = Math.round(lessonCount * 11);
   return `${lessonCount} bài · ${estimatedMinutes} phút`;
 }
+
+/** "Thầy Nguyễn Văn An" -> "NA" — strips the honorific, then takes the first
+ * letter of the first and last remaining words. */
+export function formatTeacherInitials(name?: string): string {
+  if (!name) return '?';
+  const stripped = name.replace(/^(Thầy|Cô)\s+/i, '').trim();
+  const parts = stripped.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  const first = parts[0][0] ?? '';
+  const last = parts[parts.length - 1][0] ?? '';
+  return (first + last).toUpperCase();
+}

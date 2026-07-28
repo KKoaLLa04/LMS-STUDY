@@ -45,5 +45,14 @@ public class Course : ISoftDelete
     // để việc xóa KhoiHoc không bao giờ bị chặn bởi các Course đang tham chiếu tới nó.
     public int? KhoiHocId { get; set; }
 
+    // Cùng cách xử lý như KhoiHocId: giá trị thường, không FK, để xóa CourseCategory
+    // không bao giờ bị chặn bởi các Course đang tham chiếu tới nó.
+    public int? CategoryId { get; set; }
+
+    public bool IsFeatured { get; set; }
+
+    [MaxLength(500)]
+    public string? PreviewVideoUrl { get; set; }
+
     public ICollection<Section> Sections { get; set; } = new List<Section>();
 }
