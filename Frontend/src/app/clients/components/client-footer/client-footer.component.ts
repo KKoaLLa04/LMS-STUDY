@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { OcIconComponent } from '../icon/icon.component';
 
 interface FooterSocial {
@@ -11,12 +12,13 @@ interface FooterSocial {
 interface FooterLink {
   label: string;
   href: string;
+  route?: string;
 }
 
 @Component({
   selector: 'app-oc-footer',
   standalone: true,
-  imports: [OcIconComponent],
+  imports: [RouterLink, OcIconComponent],
   templateUrl: './client-footer.component.html',
   styleUrl: './client-footer.component.scss',
 })
@@ -28,10 +30,12 @@ export class ClientFooterComponent {
     { key: 'tt', label: 'TikTok', href: '#', bg: 'var(--oc-accent-2-600)' },
   ];
 
-  readonly categoryLinks: FooterLink[] = ['Khoá học', 'Giáo viên', 'Bảng xếp hạng', 'Thành tích'].map((label) => ({
-    label,
-    href: '#',
-  }));
+  readonly categoryLinks: FooterLink[] = [
+    { label: 'Khoá học', href: '#', route: '/client/khoa-hoc' },
+    { label: 'Giáo viên', href: '#', route: '/client/giao-vien' },
+    { label: 'Bảng xếp hạng', href: '#', route: '/client/bang-xep-hang' },
+    { label: 'Thành tích', href: '#', route: '/client/thanh-tich' },
+  ];
 
   readonly supportLinks: FooterLink[] = ['FAQ', 'Liên hệ', 'Chính sách', 'Điều khoản sử dụng'].map((label) => ({
     label,

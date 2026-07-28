@@ -1,0 +1,71 @@
+<main class="oc-sp">
+
+  <section class="oc-sp-hero">
+    <div class="oc-sp-hero__avatar-wrap">
+      <div class="oc-sp-hero__avatar">{{ student.name.charAt(0) }}</div>
+      <div class="oc-sp-hero__level">{{ student.level }}</div>
+    </div>
+    <div class="oc-sp-hero__info">
+      <h1>{{ student.name }}</h1>
+      <span class="oc-tag oc-sp-hero__rank-tag">✦ {{ student.rankTitle }}</span>
+    </div>
+    <div class="oc-sp-hero__points">
+      <span class="oc-sp-hero__points-value">{{ pointsDisplay() }}</span>
+      <span class="oc-sp-hero__points-label">tổng điểm</span>
+    </div>
+  </section>
+
+  <section class="oc-sp-section">
+    <h2>Khoá học đang học</h2>
+    <div class="oc-sp-course-list">
+      @for (course of inProgressCourses; track course.title) {
+        <div class="oc-card oc-elev-sm oc-sp-course-row">
+          <div class="oc-sp-course-row__thumb">
+            <app-oc-icon name="book-open" [size]="26" color="rgba(255,255,255,0.9)"></app-oc-icon>
+          </div>
+          <div class="oc-sp-course-row__body">
+            <span class="oc-sp-course-row__title">{{ course.title }}</span>
+            <div class="oc-sp-course-row__track">
+              <div class="oc-sp-course-row__fill" [style.width.%]="course.progress"></div>
+            </div>
+            <span class="oc-text-muted oc-sp-course-row__meta">{{ course.progress }}% hoàn thành · {{ course.lessonsLeft }} bài còn lại</span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="oc-sp-section">
+    <div class="oc-sp-section__header">
+      <h2>Thành tích đã đạt</h2>
+      <a class="oc-sp-see-all" routerLink="/client/thanh-tich">Xem tất cả →</a>
+    </div>
+    <div class="oc-sp-badge-grid">
+      @for (badge of highlightBadges; track badge.id) {
+        <div class="oc-sp-badge" [class.oc-sp-badge--locked]="!badge.unlocked">
+          @if (badge.unlocked) {
+            <div class="oc-sp-badge__shine"></div>
+          }
+          <div class="oc-sp-badge__icon" [style.background]="medalGradient(badge.unlocked)">
+            <app-oc-icon [name]="badge.icon" [size]="20" color="#fff" [strokeWidth]="2.5"></app-oc-icon>
+          </div>
+          <span class="oc-sp-badge__name">{{ badge.name }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="oc-card oc-elev-sm oc-sp-rank-card">
+      <div class="oc-sp-rank-card__icon">
+        <app-oc-icon name="trophy" [size]="24" color="#fff"></app-oc-icon>
+      </div>
+      <div class="oc-sp-rank-card__text">
+        <span class="oc-text-muted oc-sp-rank-card__label">Thứ hạng hiện tại</span>
+        <span class="oc-sp-rank-card__value">#{{ student.currentRank }} toàn hệ thống</span>
+      </div>
+      <a class="oc-btn oc-btn-primary oc-sp-rank-card__cta" routerLink="/client/bang-xep-hang">Xem bảng xếp hạng →</a>
+    </div>
+  </section>
+
+</main>

@@ -1,0 +1,114 @@
+<main class="oc-leaderboard">
+
+  <div class="oc-lb-header">
+    <div class="oc-lb-header-icon">
+      <app-oc-icon name="trophy" [size]="22" color="#fff" [strokeWidth]="2.2"></app-oc-icon>
+    </div>
+    <div>
+      <h1>Bảng xếp hạng học tập</h1>
+      <p class="oc-text-muted">Thi đua cùng bạn bè, chinh phục thêm nhiều điểm thưởng mỗi tuần!</p>
+    </div>
+  </div>
+
+  <div class="oc-lb-grade-tabs">
+    @for (grade of grades; track grade) {
+      <button
+        type="button"
+        class="oc-lb-grade-chip"
+        [class.is-active]="grade === activeGrade()"
+        (click)="setGrade(grade)"
+      >
+        {{ grade }}
+      </button>
+    }
+  </div>
+
+  <div class="oc-lb-period-tabs">
+    <div class="oc-lb-period-indicator" [style.transform]="'translateX(' + periodIndex(activePeriod()) * 100 + '%)'"></div>
+    @for (period of periods; track period.key) {
+      <button
+        type="button"
+        class="oc-lb-period-tab"
+        [class.is-active]="period.key === activePeriod()"
+        (click)="setPeriod(period.key)"
+      >
+        {{ period.label }}
+      </button>
+    }
+  </div>
+
+  <div class="oc-lb-podium">
+    @for (entry of podium(); track entry.rank) {
+      <div class="oc-lb-podium-col">
+        @if (entry.rank === 1) {
+          <app-oc-icon name="crown" [size]="26" color="#FFD700"></app-oc-icon>
+        }
+        <div class="oc-lb-podium-avatar-wrap">
+          <div
+            class="oc-lb-avatar"
+            [style.width.px]="rankMeta(entry.rank).avatarSize"
+            [style.height.px]="rankMeta(entry.rank).avatarSize"
+            [style.border-color]="rankMeta(entry.rank).ring"
+            [style.background]="avatarGradient(entry.rank)"
+            [class.oc-lb-avatar--glow]="entry.rank === 1"
+          >
+            {{ initials(entry.name) }}
+          </div>
+          <div class="oc-lb-rank-badge" [style.background]="rankMeta(entry.rank).ring">{{ entry.rank }}</div>
+        </div>
+        <span class="oc-lb-podium-name">{{ entry.name }}</span>
+        <span class="oc-text-muted oc-lb-podium-subtitle">{{ entry.subtitle }}</span>
+        <span class="oc-lb-podium-points">{{ formatPoints(entry.points) }}</span>
+        <div
+          class="oc-lb-podium-bar"
+          [style.height.px]="rankMeta(entry.rank).height"
+          [style.background]="rankMeta(entry.rank).podiumGradient"
+        >
+          <span>#{{ entry.rank }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="oc-lb-rows" [@listStagger]="restList().length">
+    @for (entry of restList(); track entry.rank) {
+      <div class="oc-card oc-elev-sm oc-lb-row" [class.oc-lb-row--me]="entry.isMe">
+        <div class="oc-lb-row-rank">
+          <span>{{ entry.rank }}</span>
+          <span class="oc-lb-row-change" [style.color]="changeColor(entry)">
+            <app-oc-icon [name]="changeIcon(entry)" [size]="11" [color]="changeColor(entry)" [strokeWidth]="3.5"></app-oc-icon>
+            {{ changeLabel(entry) }}
+          </span>
+        </div>
+        <div class="oc-lb-avatar oc-lb-avatar--sm" [style.background]="avatarGradient(entry.rank)">
+          {{ initials(entry.name) }}
+        </div>
+        <div class="oc-lb-row-info">
+          <span class="oc-lb-row-name">{{ entry.name }} @if (entry.isMe) { <span class="oc-lb-row-me-tag">(Bạn)</span> }</span>
+          <span class="oc-text-muted oc-lb-row-subtitle">{{ entry.subtitle }}</span>
+        </div>
+        <span class="oc-lb-row-points">{{ formatPoints(entry.points) }}</span>
+      </div>
+    }
+  </div>
+
+  @if (me) {
+    <div class="oc-lb-sticky">
+      <div class="oc-lb-sticky-card">
+        <span class="oc-lb-sticky-rank">{{ me.rank }}</span>
+        <div class="oc-lb-avatar oc-lb-avatar--sm oc-lb-avatar--sticky" [style.background]="avatarGradient(me.rank)">
+          {{ initials(me.name) }}
+        </div>
+        <div class="oc-lb-row-info">
+          <span class="oc-lb-sticky-name">{{ me.name }} (Bạn)</span>
+          <span class="oc-lb-sticky-subtitle">{{ me.subtitle }}</span>
+        </div>
+        <span class="oc-lb-sticky-points">{{ formatPoints(me.points) }}</span>
+        @if (me.change === 'up') {
+          <app-oc-icon name="arrow-up" [size]="16" color="#4ADE80" [strokeWidth]="3"></app-oc-icon>
+        }
+      </div>
+    </div>
+  }
+
+</main>

@@ -42,7 +42,11 @@
     <div class="oc-footer__col">
       <span class="oc-footer__col-title">Danh mục</span>
       @for (link of categoryLinks; track link.label) {
-        <a class="oc-footer__link" [href]="link.href">{{ link.label }}</a>
+        @if (link.route) {
+          <a class="oc-footer__link" [routerLink]="link.route">{{ link.label }}</a>
+        } @else {
+          <a class="oc-footer__link" [href]="link.href">{{ link.label }}</a>
+        }
       }
     </div>
 

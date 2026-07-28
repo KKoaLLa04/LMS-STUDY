@@ -1,0 +1,239 @@
+.oc-teachers {
+  padding: 28px 32px 80px;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// — subject filter sidebar —
+.oc-teachers-filter {
+  position: sticky;
+  top: 78px;
+  gap: 18px;
+}
+
+.oc-teachers-filter__title {
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.oc-teachers-filter__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oc-teachers-filter__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--oc-divider);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-family: var(--oc-font-body);
+  color: var(--oc-text);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--oc-text) 35%, transparent);
+  }
+
+  &.is-active {
+    border-color: var(--oc-accent-400);
+    background: var(--oc-accent-100);
+    color: var(--oc-accent-800);
+  }
+}
+
+.oc-teachers-filter__icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.oc-teachers-filter__name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+// — content column —
+.oc-teachers-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.oc-teachers-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.oc-teachers-search {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  app-oc-icon {
+    position: absolute;
+    left: 12px;
+    display: flex;
+  }
+
+  input {
+    padding-left: 36px;
+  }
+}
+
+.oc-teachers-sort {
+  position: relative;
+}
+
+.oc-teachers-sort__toggle {
+  font-weight: 800;
+
+  app-oc-icon {
+    display: inline-flex;
+    transition: transform 0.25s ease;
+  }
+}
+
+app-oc-icon.oc-teachers-sort__chevron--open {
+  transform: rotate(180deg);
+}
+
+.oc-teachers-sort__menu {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  z-index: 10;
+  background: var(--oc-surface);
+  border: 1px solid var(--oc-divider);
+  border-radius: var(--oc-radius-md);
+  box-shadow: var(--oc-shadow-md);
+  overflow: hidden;
+  width: 190px;
+  display: flex;
+  flex-direction: column;
+  animation: ocFadeInUp 0.2s ease both;
+}
+
+.oc-teachers-sort__option {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: var(--oc-text);
+  font-family: var(--oc-font-body);
+
+  &:hover {
+    background: color-mix(in srgb, var(--oc-text) 6%, transparent);
+  }
+
+  &.is-active {
+    background: var(--oc-accent-100);
+  }
+}
+
+.oc-teachers-count {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+// — teacher grid —
+.oc-teachers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.oc-teacher-card {
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  animation: ocFadeInUp 0.5s ease both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--oc-shadow-md);
+  }
+}
+
+.oc-teacher-card__avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 24px;
+}
+
+.oc-teacher-card__name {
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.oc-teacher-card__subject {
+  color: #fff;
+  font-weight: 800;
+}
+
+.oc-teacher-card__rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--oc-accent-700);
+  font-weight: 800;
+}
+
+.oc-teacher-card__courses {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+// — load more —
+.oc-teachers-load-more {
+  align-self: center;
+  font-weight: 800;
+  padding: 12px 28px;
+}
+
+.oc-teachers-spinner {
+  display: inline-flex;
+  animation: ocSpin 0.8s linear infinite;
+}
+
+@keyframes ocSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

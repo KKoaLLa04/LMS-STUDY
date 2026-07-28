@@ -1,0 +1,87 @@
+<main class="oc-teachers">
+
+  <aside class="oc-card oc-elev-sm oc-teachers-filter">
+    <span class="oc-teachers-filter__title">Lọc theo môn học</span>
+    <div class="oc-teachers-filter__list">
+      @for (subject of subjects; track subject.key) {
+        <button
+          type="button"
+          class="oc-teachers-filter__item"
+          [class.is-active]="subject.key === activeSubject()"
+          (click)="setSubject(subject.key)"
+        >
+          <span class="oc-teachers-filter__icon" [style.background]="subject.iconBg">
+            <app-oc-icon [name]="subject.icon" [size]="13" color="#fff" [strokeWidth]="3"></app-oc-icon>
+          </span>
+          <span class="oc-teachers-filter__name">{{ subject.name }}</span>
+        </button>
+      }
+    </div>
+  </aside>
+
+  <div class="oc-teachers-content">
+    <div class="oc-teachers-toolbar">
+      <div class="oc-teachers-search">
+        <app-oc-icon name="search" [size]="16" color="color-mix(in srgb, var(--oc-text) 50%, transparent)"></app-oc-icon>
+        <input
+          class="oc-input"
+          type="text"
+          placeholder="Tìm giáo viên theo tên..."
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+
+      <div class="oc-teachers-sort">
+        <button type="button" class="oc-btn oc-btn-secondary oc-teachers-sort__toggle" (click)="toggleSort()">
+          {{ sortLabel() }}
+          <app-oc-icon name="chevron-down" [size]="14" [strokeWidth]="2.75" [class.oc-teachers-sort__chevron--open]="sortOpen()"></app-oc-icon>
+        </button>
+        @if (sortOpen()) {
+          <div class="oc-teachers-sort__menu">
+            @for (opt of sorts; track opt.key) {
+              <button
+                type="button"
+                class="oc-teachers-sort__option"
+                [class.is-active]="opt.key === sortKey()"
+                (click)="selectSort(opt.key)"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <span class="oc-text-muted oc-teachers-count">{{ filteredTeachers().length }} giáo viên</span>
+
+    <div class="oc-teachers-grid">
+      @for (teacher of visibleTeachers(); track teacher.id; let i = $index) {
+        <a class="oc-card oc-elev-sm oc-teacher-card" [routerLink]="['/client/giao-vien', teacher.id]" [style.animation-delay.s]="animationDelayFor(i)">
+          <div class="oc-teacher-card__avatar" [style.background]="avatarGradient(i)">
+            {{ initials(teacher.name) }}
+          </div>
+          <span class="oc-teacher-card__name">{{ teacher.name }}</span>
+          <span class="oc-tag oc-teacher-card__subject" [style.background]="subjectColor(teacher.subjectKey)">{{ subjectName(teacher) }}</span>
+          <div class="oc-teacher-card__rating">
+            <app-oc-icon name="star" [size]="13" color="var(--oc-accent-700)"></app-oc-icon>
+            {{ teacher.rating }}
+          </div>
+          <span class="oc-text-muted oc-teacher-card__courses">{{ teacher.coursesCount }} khoá học</span>
+        </a>
+      }
+    </div>
+
+    @if (hasMore()) {
+      <button type="button" class="oc-btn oc-btn-secondary oc-teachers-load-more" (click)="loadMore()">
+        @if (isLoading()) {
+          <app-oc-icon name="loader" [size]="15" [strokeWidth]="3" class="oc-teachers-spinner"></app-oc-icon>
+        } @else {
+          Xem thêm giáo viên
+        }
+      </button>
+    }
+  </div>
+
+</main>

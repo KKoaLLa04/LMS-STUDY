@@ -9,7 +9,37 @@ export const clientsRoutes: Routes = [
       {
         path: '',
         loadComponent: () =>
+          import('./pages/home/home.component').then((m) => m.HomeComponent),
+      },
+      {
+        path: 'khoa-hoc',
+        loadComponent: () =>
           import('./pages/course-list/course-list.component').then((m) => m.CourseListComponent),
+      },
+      {
+        path: 'bang-xep-hang',
+        loadComponent: () =>
+          import('./pages/leaderboard/leaderboard.component').then((m) => m.LeaderboardComponent),
+      },
+      {
+        path: 'thanh-tich',
+        loadComponent: () =>
+          import('./pages/achievements/achievements.component').then((m) => m.AchievementsComponent),
+      },
+      {
+        path: 'giao-vien',
+        loadComponent: () =>
+          import('./pages/teachers/teachers.component').then((m) => m.TeachersComponent),
+      },
+      {
+        path: 'giao-vien/:id',
+        loadComponent: () =>
+          import('./pages/teacher-detail/teacher-detail.component').then((m) => m.TeacherDetailComponent),
+      },
+      {
+        path: 'ho-so',
+        loadComponent: () =>
+          import('./pages/student-profile/student-profile.component').then((m) => m.StudentProfileComponent),
       },
       {
         path: ':id',

@@ -1,0 +1,125 @@
+<main class="oc-home">
+
+  <section class="oc-hero">
+    <app-oc-icon class="oc-hero__deco oc-hero__deco--book" name="book-open" [size]="34" color="var(--oc-accent-600)"></app-oc-icon>
+    <app-oc-icon class="oc-hero__deco oc-hero__deco--pencil" name="file" [size]="30" color="var(--oc-accent-2-600)"></app-oc-icon>
+    <app-oc-icon class="oc-hero__deco oc-hero__deco--star" name="star" [size]="26" color="var(--oc-accent-500)"></app-oc-icon>
+    <app-oc-icon class="oc-hero__deco oc-hero__deco--star2" name="star" [size]="22" color="var(--oc-accent-2-500)"></app-oc-icon>
+
+    <span class="oc-tag oc-tag-accent-2 oc-hero__kicker">✦ Nền tảng học trực tuyến thân thiện</span>
+    <h1 class="oc-hero__title">Học vui, học giỏi<br />cùng Học Vui!</h1>
+    <p class="oc-hero__subtitle">Hàng nghìn khóa học sinh động từ các thầy cô tận tâm — giúp việc học trở nên nhẹ nhàng và thú vị mỗi ngày.</p>
+
+    <a class="oc-btn oc-btn-primary oc-hero__cta" routerLink="/client/khoa-hoc">
+      Khám phá khoá học
+      <app-oc-icon name="arrow-right" [size]="17"></app-oc-icon>
+    </a>
+
+    <div class="oc-hero__illustration">
+      <app-oc-icon name="book-open" [size]="72" color="rgba(255,255,255,0.9)"></app-oc-icon>
+    </div>
+  </section>
+
+  <section class="oc-home-section">
+    <div class="oc-home-section__header">
+      <h2>Khám phá theo môn học</h2>
+      <p class="oc-text-muted">Chọn môn học yêu thích và bắt đầu ngay hôm nay</p>
+    </div>
+    <div class="oc-category-grid">
+      @for (cat of categories; track cat.name) {
+        <a class="oc-card oc-elev-sm oc-category-card" routerLink="/client/khoa-hoc">
+          <div class="oc-category-card__icon" [style.background]="cat.bg">
+            <app-oc-icon [name]="cat.icon" [size]="26" color="#fff"></app-oc-icon>
+          </div>
+          <span class="oc-category-card__name">{{ cat.name }}</span>
+          <span class="oc-text-muted oc-category-card__count">{{ cat.count }} khóa học</span>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="oc-home-section">
+    <div class="oc-home-section__header">
+      <span class="oc-tag oc-tag-accent oc-home-section__pretitle">Bán chạy nhất</span>
+      <h2>Khoá học nổi bật</h2>
+    </div>
+    <div class="oc-course-grid">
+      @for (course of courses; track course.id; let i = $index) {
+        <app-oc-course-card [course]="course" [animationDelay]="(i % 6) * 0.06"></app-oc-course-card>
+      }
+    </div>
+  </section>
+
+  <section class="oc-stats" #statsSection>
+    <div class="oc-stats__grid">
+      @for (stat of stats; track stat.label) {
+        <div class="oc-stats__item">
+          <div class="oc-stats__icon">
+            <app-oc-icon [name]="stat.icon" [size]="22" color="#fff"></app-oc-icon>
+          </div>
+          <span class="oc-stats__value">{{ stat.display }}</span>
+          <span class="oc-stats__label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="oc-home-section">
+    <div class="oc-home-section__header">
+      <h2>Giáo viên nổi bật</h2>
+      <p class="oc-text-muted">Đội ngũ giáo viên tận tâm, giàu kinh nghiệm</p>
+    </div>
+    <div class="oc-teacher-grid">
+      @for (teacher of teachers; track teacher.name) {
+        <div class="oc-card oc-elev-sm oc-teacher-card">
+          <span class="oc-teacher-card__avatar">{{ teacher.initials }}</span>
+          <span class="oc-teacher-card__name">{{ teacher.name }}</span>
+          <span class="oc-text-muted oc-teacher-card__subject">{{ teacher.subject }}</span>
+          <span class="oc-teacher-card__rating">
+            <app-oc-icon name="star" [size]="13" color="var(--oc-accent-700)"></app-oc-icon>
+            {{ teacher.rating }}
+          </span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="oc-home-section">
+    <div class="oc-home-section__header">
+      <h2>Học viên nói gì?</h2>
+    </div>
+    <div class="oc-testimonial-grid">
+      @for (t of testimonials; track t.name) {
+        <div class="oc-testimonial">
+          <div class="oc-testimonial__bubble" [style.background]="t.bg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" stroke="none">
+              <path d="M9 7H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h4v3l4-4V8a1 1 0 0 0-1-1zm12 0h-5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h4v3l4-4V8a1 1 0 0 0-1-1z"/>
+            </svg>
+            <p>{{ t.comment }}</p>
+          </div>
+          <div class="oc-testimonial__author">
+            <span class="oc-testimonial__avatar">{{ t.name.charAt(0) }}</span>
+            <div class="oc-testimonial__author-info">
+              <span class="oc-testimonial__name">{{ t.name }}</span>
+              <span class="oc-text-muted oc-testimonial__role">{{ t.role }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="oc-home-section">
+    <div class="oc-cta">
+      <div class="oc-cta__content">
+        <h2>Sẵn sàng bắt đầu chưa nào?</h2>
+        <p>Tham gia cùng hàng trăm nghìn bạn học đang học vui mỗi ngày trên Học Vui.</p>
+        <a class="oc-btn oc-cta__button" routerLink="/client/khoa-hoc">Khám phá khoá học</a>
+      </div>
+      <div class="oc-cta__illustration">
+        <app-oc-icon name="book-open" [size]="56" color="rgba(255,255,255,0.9)"></app-oc-icon>
+      </div>
+    </div>
+  </section>
+
+</main>

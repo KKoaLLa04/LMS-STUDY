@@ -1,0 +1,353 @@
+.oc-leaderboard {
+  padding: 28px 32px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// — page header —
+.oc-lb-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  p {
+    margin: 4px 0 0 0;
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+}
+
+.oc-lb-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  flex: none;
+  background: linear-gradient(135deg, var(--oc-accent-400), var(--oc-accent-700));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--oc-shadow-md);
+}
+
+// — grade filter pills —
+.oc-lb-grade-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.oc-lb-grade-chip {
+  flex: none;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--oc-divider);
+  background: var(--oc-surface);
+  color: var(--oc-text);
+  font-family: var(--oc-font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.is-active {
+    border-color: var(--oc-accent);
+    background: var(--oc-accent);
+    color: var(--oc-bg);
+  }
+
+  &:not(.is-active):hover {
+    border-color: color-mix(in srgb, var(--oc-text) 35%, transparent);
+  }
+}
+
+// — period segmented control —
+.oc-lb-period-tabs {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  background: var(--oc-surface);
+  border: 1px solid var(--oc-divider);
+  border-radius: 999px;
+  padding: 4px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.oc-lb-period-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(33.333% - 2.667px);
+  background: var(--oc-accent);
+  border-radius: 999px;
+  transition: transform 0.3s ease;
+  z-index: 0;
+}
+
+.oc-lb-period-tab {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--oc-text);
+  transition: color 0.25s ease;
+
+  &.is-active {
+    color: var(--oc-bg);
+  }
+}
+
+// — podium —
+.oc-lb-podium {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.oc-lb-podium-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: ocFadeInUp 0.5s ease both;
+}
+
+.oc-lb-podium-avatar-wrap {
+  position: relative;
+}
+
+.oc-lb-avatar {
+  border-radius: 999px;
+  border: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  flex: none;
+
+  &--glow {
+    animation: ocLbGlow 2.4s ease-in-out infinite;
+  }
+
+  &--sm {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--oc-divider);
+    font-size: 13px;
+  }
+
+  &--sticky {
+    border-color: #ffd700;
+  }
+}
+
+@keyframes ocLbGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.55), 0 0 18px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.75), 0 0 26px rgba(255, 215, 0, 0.7);
+  }
+}
+
+.oc-lb-rank-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  border: 2px solid var(--oc-bg);
+}
+
+.oc-lb-podium-name {
+  font-weight: 800;
+  font-size: 14px;
+  text-align: center;
+}
+
+.oc-lb-podium-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.oc-lb-podium-points {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--oc-accent-700);
+}
+
+.oc-lb-podium-bar {
+  position: relative;
+  width: 100%;
+  border-radius: 14px 14px 4px 4px;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35), 0 6px 14px rgba(15, 23, 42, 0.12);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10px;
+  overflow: hidden;
+
+  span {
+    position: relative;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+  }
+}
+
+// — rest of the ranking —
+.oc-lb-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.oc-lb-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: var(--oc-shadow-md);
+  }
+
+  &--me {
+    border: 1px solid var(--oc-accent);
+    background: var(--oc-accent-100);
+  }
+}
+
+.oc-lb-row-rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 34px;
+  flex: none;
+
+  span:first-child {
+    font-weight: 900;
+    font-size: 15px;
+  }
+}
+
+.oc-lb-row-change {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.oc-lb-row-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.oc-lb-row-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.oc-lb-row-me-tag {
+  color: var(--oc-accent-700);
+  font-weight: 700;
+}
+
+.oc-lb-row-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.oc-lb-row-points {
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--oc-accent-700);
+  flex: none;
+}
+
+// — sticky "your rank" bar —
+.oc-lb-sticky {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding: 14px 20px;
+}
+
+.oc-lb-sticky-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  width: 100%;
+  max-width: 720px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--oc-accent-600), var(--oc-accent-700));
+  box-shadow: var(--oc-shadow-lg);
+}
+
+.oc-lb-sticky-rank {
+  width: 26px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 15px;
+  color: #ffd700;
+  flex: none;
+}
+
+.oc-lb-sticky-name {
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+}
+
+.oc-lb-sticky-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.oc-lb-sticky-points {
+  font-weight: 900;
+  font-size: 15px;
+  color: #fff;
+  flex: none;
+}

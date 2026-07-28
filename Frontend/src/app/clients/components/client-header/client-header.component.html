@@ -7,8 +7,11 @@
   </a>
 
   <nav class="oc-header__nav">
-    <a routerLink="/client" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Khóa học</a>
-    <a class="is-muted">Của tôi</a>
+    <a routerLink="/client/khoa-hoc" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Khóa học</a>
+    <a routerLink="/client/giao-vien" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Giảng viên</a>
+    <a routerLink="/client/bang-xep-hang" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Bảng xếp hạng</a>
+    <a routerLink="/client/thanh-tich" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Thành tích</a>
+    <a routerLink="/client/ho-so" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Của tôi</a>
     <a class="is-muted">Yêu thích</a>
   </nav>
 
@@ -27,5 +30,5 @@
     <app-oc-icon name="bell" [size]="17"></app-oc-icon>
   </button>
 
-  <div class="oc-header__avatar cursor-pointer" aria-hidden="true" [routerLink]="'/login'">HS</div>
+  <div class="oc-header__avatar cursor-pointer" aria-hidden="true" [routerLink]="'/client/ho-so'">HS</div>
 </header>

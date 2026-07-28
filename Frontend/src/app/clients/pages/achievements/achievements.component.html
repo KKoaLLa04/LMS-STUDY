@@ -1,0 +1,63 @@
+<main class="oc-achievements">
+
+  <section class="oc-ach-summary" #summarySection>
+    <app-oc-icon class="oc-ach-summary__deco" name="star" [size]="60" color="rgba(255,255,255,0.14)"></app-oc-icon>
+
+    <div class="oc-ach-summary__count">
+      <span class="oc-ach-summary__label">✦ Tổng huy hiệu đạt được</span>
+      <span class="oc-ach-summary__number">{{ counterDisplay() }}</span>
+      <span class="oc-ach-summary__total">trên tổng số {{ totalBadges }} huy hiệu</span>
+    </div>
+
+    <div class="oc-ach-summary__latest">
+      <div class="oc-ach-summary__latest-icon">
+        <app-oc-icon name="trophy" [size]="26" color="#fff" [strokeWidth]="2.2"></app-oc-icon>
+      </div>
+      <div class="oc-ach-summary__latest-text">
+        <span class="oc-ach-summary__latest-label">Huy hiệu mới nhất</span>
+        <span class="oc-ach-summary__latest-name">{{ latestBadge.name }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="oc-seg">
+    @for (tab of tabs; track tab.key) {
+      <button type="button" class="oc-seg-opt" [class.is-active]="tab.key === activeTab()" (click)="setTab(tab.key)">
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <div class="oc-ach-grid">
+    @for (badge of filteredBadges(); track badge.id; let i = $index) {
+      <div class="oc-card oc-elev-sm oc-ach-card" [style.animation-delay.s]="animationDelayFor(i)">
+        @if (badge.unlocked) {
+          <div class="oc-ach-card__shine"></div>
+        }
+        <div class="oc-ach-card__medal" [style.background]="medalGradient(badge)" [class.oc-ach-card__medal--locked]="!badge.unlocked">
+          <app-oc-icon [name]="badge.icon" [size]="32" color="#fff" [strokeWidth]="2.5"></app-oc-icon>
+          @if (!badge.unlocked) {
+            <div class="oc-ach-card__lock">
+              <app-oc-icon name="lock" [size]="12" color="#fff" [strokeWidth]="3"></app-oc-icon>
+            </div>
+          }
+        </div>
+
+        <span class="oc-ach-card__name">{{ badge.name }}</span>
+        <span class="oc-text-muted oc-ach-card__desc">{{ badge.desc }}</span>
+
+        @if (!badge.unlocked) {
+          <div class="oc-ach-card__progress">
+            <div class="oc-ach-card__progress-track">
+              <div class="oc-ach-card__progress-fill" [style.width.%]="badge.progress"></div>
+            </div>
+            <span class="oc-text-muted oc-ach-card__progress-label">{{ badge.progress }}% hoàn thành</span>
+          </div>
+        } @else {
+          <span class="oc-tag oc-ach-card__badge-tag">Đã đạt được</span>
+        }
+      </div>
+    }
+  </div>
+
+</main>

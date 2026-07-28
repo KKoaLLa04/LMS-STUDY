@@ -59,6 +59,6 @@ export class CourseDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/client']);
+    this.router.navigate(['/client/khoa-hoc']);
   }
 }
