@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-5658213a-ea75-4a31-a784-41e8cd4e5e04/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="./image-slot.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; overflow-x: hidden; }
+    * { box-sizing: border-box; }
+    body, h1, h2, h3, h4, h5, h6, p, span, div, button, a, label { font-family: 'Nunito', sans-serif !important; }
+    a { color: var(--color-accent-700); }
+    a:hover { color: var(--color-accent-800); }
+    @keyframes glowBadge { 0%, 100% { box-shadow: 0 0 0 4px rgba(255,215,0,0.5), 0 0 16px rgba(255,215,0,0.45); } 50% { box-shadow: 0 0 0 6px rgba(255,215,0,0.7), 0 0 24px rgba(255,215,0,0.65); } }
+    @keyframes shine { 0% { transform: translateX(-120%) rotate(20deg); } 100% { transform: translateX(220%) rotate(20deg); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</helmet>
+<div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text);">
+
+  <header style="position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 20px; padding: 14px 32px; background: var(--color-bg); border-bottom: 1px solid var(--color-divider);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 38px; height: 38px; border-radius: 999px; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: #fff; flex: none;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <span style="font-size: 20px; font-weight: 900;">Học Vui</span>
+    </div>
+    <span style="margin-left: 16px; font-size: 14px; font-weight: 800; opacity: 0.8;">Hồ sơ của tôi</span>
+  </header>
+
+  <main style="max-width: 900px; margin: 0 auto; padding: 32px 32px 80px; display: flex; flex-direction: column; gap: 40px;">
+
+    <section style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--color-accent-600), var(--color-accent-2-600)); border-radius: var(--radius-lg); padding: 36px 40px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; box-shadow: var(--shadow-lg);">
+      <div style="position: relative;">
+        <image-slot id="student-avatar" shape="circle" placeholder="Ảnh của bạn" style="width: 100px; height: 100px; animation: glowBadge 2.4s ease-in-out infinite;"></image-slot>
+        <div style="position: absolute; bottom: -4px; right: -4px; width: 34px; height: 34px; border-radius: 999px; background: linear-gradient(135deg, #ffd76a, #ff9d4d); display: flex; align-items: center; justify-content: center; border: 3px solid var(--color-accent-600); font-size: 13px; font-weight: 900; color: #7a4a00;">{{ level }}</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; color: #fff; flex: 1; min-width: 200px;">
+        <h1 style="margin: 0; font-size: 26px; font-weight: 900;">{{ studentName }}</h1>
+        <span class="tag" style="background: rgba(255,255,255,0.25); color: #fff; font-weight: 800; width: fit-content;">✦ {{ rankTitle }}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: #fff; background: rgba(255,255,255,0.16); border-radius: var(--radius-md); padding: 14px 24px;">
+        <span style="font-size: 34px; font-weight: 900;">{{ pointsDisplay }}</span>
+        <span style="font-size: 12px; opacity: 0.85; font-weight: 700;">tổng điểm</span>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 18px;">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 900;">Khoá học đang học</h2>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <sc-for list="{{ inProgressCourses }}" as="course" hint-placeholder-count="3">
+          <div ref="{{ course.ref }}" class="card elev-sm" style="flex-direction: row; align-items: center; gap: 16px; opacity: {{ course.revealOpacity }}; transform: {{ course.revealTransform }}; transition: opacity .5s ease, transform .5s ease;">
+            <image-slot id="{{ course.slotId }}" shape="rounded" radius="14" placeholder="Ảnh" style="width: 76px; height: 76px; flex: none;"></image-slot>
+            <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0;">
+              <span style="font-weight: 800; font-size: 14px;">{{ course.title }}</span>
+              <div style="width: 100%; height: 8px; border-radius: 999px; background: var(--color-neutral-200); overflow: hidden;">
+                <div style="height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--color-accent-500), var(--color-accent-700)); width: {{ course.barWidth }}%; transition: width 1s ease .15s;"></div>
+              </div>
+              <span class="text-muted" style="font-size: 11px; font-weight: 700;">{{ course.progress }}% hoàn thành · {{ course.lessonsLeft }} bài còn lại</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 900;">Thành tích đã đạt</h2>
+        <a href="#" style="font-size: 13px; font-weight: 800; text-decoration: none;">Xem tất cả →</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 14px;">
+        <sc-for list="{{ badges }}" as="badge" hint-placeholder-count="6">
+          <div style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: var(--radius-md); background: var(--color-surface); border: 1px solid var(--color-divider);" style-hover="{{ badgeHover }}">
+            <sc-if value="{{ badge.unlocked }}" hint-placeholder-val="{{ true }}">
+              <div style="position: absolute; top: 0; left: 0; width: 60%; height: 100%; background: linear-gradient(115deg, transparent, rgba(255,255,255,0.6), transparent); pointer-events: none;" style-hover="{{ shineStyle }}"></div>
+            </sc-if>
+            <div style="width: 44px; height: 44px; border-radius: 999px; background: {{ badge.bg }}; display: flex; align-items: center; justify-content: center; filter: {{ badge.filter }};">
+              <sc-if value="{{ badge.isFlame }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></sc-if>
+            <sc-if value="{{ badge.isBook }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></sc-if>
+            <sc-if value="{{ badge.isTrophy }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg></sc-if>
+            <sc-if value="{{ badge.isTarget }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg></sc-if>
+            </div>
+            <span style="font-size: 11px; font-weight: 800; text-align: center;">{{ badge.name }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section>
+      <div class="card elev-sm" style="flex-direction: row; align-items: center; gap: 16px; background: linear-gradient(135deg, var(--color-accent-100), var(--color-accent-2-100));">
+        <div style="width: 50px; height: 50px; border-radius: 999px; background: linear-gradient(135deg, #ffd76a, #ff9d4d); display: flex; align-items: center; justify-content: center; flex: none;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; flex: 1;">
+          <span style="font-size: 13px; font-weight: 700; opacity: 0.7;">Thứ hạng hiện tại</span>
+          <span style="font-size: 20px; font-weight: 900; color: var(--color-accent-800);">#{{ currentRank }} toàn hệ thống</span>
+        </div>
+        <a href="#" style="text-decoration: none; font-size: 13px; font-weight: 800; background: var(--color-accent); color: #fff; padding: 10px 18px; border-radius: 999px;">Xem bảng xếp hạng →</a>
+      </div>
+    </section>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const COURSES = [
+  { title: 'Toán học lớp 10 - Đại số & Hình học', progress: 64, totalLessons: 32 },
+  { title: 'Hóa Học Vô Cơ 12 - Ôn thi THPT', progress: 88, totalLessons: 40 },
+  { title: 'Sinh Học 10 - Tế bào & Di truyền', progress: 40, totalLessons: 20 }
+];
+const BADGES = [
+  { name: 'Mọt sách nhỏ', icon: 'book', unlocked: true, bg: 'linear-gradient(135deg, #ffd76a, #ff9d4d)' },
+  { name: 'Lửa nhiệt huyết', icon: 'flame', unlocked: true, bg: 'linear-gradient(135deg, #ffd76a, #ff9d4d)' },
+  { name: 'Người bạn tốt', icon: 'target', unlocked: true, bg: 'linear-gradient(135deg, #ffd76a, #ff9d4d)' },
+  { name: 'Bậc thầy', icon: 'trophy', unlocked: false, bg: 'linear-gradient(135deg, var(--color-neutral-400), var(--color-neutral-500))' },
+  { name: 'Kiên trì', icon: 'flame', unlocked: false, bg: 'linear-gradient(135deg, var(--color-neutral-400), var(--color-neutral-500))' },
+  { name: 'Siêu trí tuệ', icon: 'target', unlocked: true, bg: 'linear-gradient(135deg, #ffd76a, #ff9d4d)' }
+];
+
+class Component extends DCLogic {
+  state = { pointsProgress: 0, revealed: {} };
+  courseRefs = {};
+
+  getCourseRef(i) {
+    if (!this.courseRefs[i]) this.courseRefs[i] = React.createRef();
+    return this.courseRefs[i];
+  }
+
+  componentDidMount() {
+    const start = performance.now();
+    const duration = 1200;
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      this.setState({ pointsProgress: 1 - Math.pow(1 - t, 3) });
+      if (t < 1) this._raf = requestAnimationFrame(step);
+    };
+    this._raf = requestAnimationFrame(step);
+
+    this._observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const i = Object.keys(this.courseRefs).find(k => this.courseRefs[k].current === entry.target);
+        if (i !== undefined) this.setState(s => ({ revealed: { ...s.revealed, [i]: true } }));
+      });
+    }, { threshold: 0.2 });
+    Object.values(this.courseRefs).forEach(r => { if (r.current) this._observer.observe(r.current); });
+  }
+  componentWillUnmount() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._observer) this._observer.disconnect();
+  }
+
+  renderVals() {
+    const totalPoints = 4280;
+    const displayPoints = Math.round(totalPoints * this.state.pointsProgress).toLocaleString('vi-VN');
+
+    const inProgressCourses = COURSES.map((c, i) => {
+      const ref = this.getCourseRef(i);
+      const revealed = !!this.state.revealed[i];
+      const lessonsLeft = Math.round(c.totalLessons * (100 - c.progress) / 100);
+      return {
+        ...c, ref, slotId: 'my-course-' + i, lessonsLeft,
+        barWidth: revealed ? c.progress : 0,
+        revealOpacity: revealed ? 1 : 0, revealTransform: revealed ? 'translateY(0)' : 'translateY(18px)'
+      };
+    });
+
+    const badges = BADGES.map(b => ({
+      ...b, isFlame: b.icon === 'flame', isBook: b.icon === 'book', isTrophy: b.icon === 'trophy', isTarget: b.icon === 'target',
+      filter: b.unlocked ? 'none' : 'grayscale(0.6)'
+    }));
+
+    return {
+      studentName: 'Nguyễn Minh Anh', level: 'Lv.12', rankTitle: 'Học sinh chăm chỉ',
+      pointsDisplay: displayPoints,
+      inProgressCourses, badges, currentRank: 14,
+      badgeHover: { transform: 'translateY(-3px)', boxShadow: 'var(--shadow-md)' },
+      shineStyle: { animation: 'shine .9s ease' }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

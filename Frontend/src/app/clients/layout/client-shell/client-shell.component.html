@@ -1,0 +1,10 @@
+<div class="oc-root">
+  <app-oc-header
+    [searchQuery]="courseService.searchQuery()"
+    (searchQueryChange)="courseService.searchQuery.set($event)"
+  ></app-oc-header>
+
+  <router-outlet></router-outlet>
+
+  <app-oc-footer></app-oc-footer>
+</div>

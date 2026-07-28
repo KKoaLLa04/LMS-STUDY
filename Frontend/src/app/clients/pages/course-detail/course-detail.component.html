@@ -1,168 +1,166 @@
-<div class="oc-root">
-  <main class="oc-detail">
-    <button type="button" class="oc-btn oc-btn-ghost oc-detail__back" (click)="goBack()">
-      <app-oc-icon name="arrow-left" [size]="16"></app-oc-icon>
-      Quay lại danh sách
-    </button>
+﻿<main class="oc-detail">
+  <button type="button" class="oc-btn oc-btn-ghost oc-detail__back" (click)="goBack()">
+    <app-oc-icon name="arrow-left" [size]="16"></app-oc-icon>
+    Quay lại danh sách
+  </button>
 
-    @if (course(); as course) {
-      <div class="oc-detail__hero">
-        @if (isPlayingPreview() && course.previewVideoUrl) {
-          <video class="oc-detail__video oc-detail__video--player" [src]="course.previewVideoUrl" controls autoplay></video>
-        } @else {
-          <div
-            class="oc-detail__video"
-            [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'"
+  @if (course(); as course) {
+    <div class="oc-detail__hero">
+      @if (isPlayingPreview() && course.previewVideoUrl) {
+        <video class="oc-detail__video oc-detail__video--player" [src]="course.previewVideoUrl" controls autoplay></video>
+      } @else {
+        <div
+          class="oc-detail__video"
+          [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'"
+        >
+          <span class="oc-detail__video-tag oc-detail__video-tag--subject">{{ course.subject }}</span>
+          <span class="oc-detail__video-tag oc-detail__video-tag--duration">{{ course.durationMinutes | ocDuration }}</span>
+          <button
+            type="button"
+            class="oc-detail__play"
+            [attr.aria-label]="course.previewVideoUrl ? 'Xem video giới thiệu' : 'Chưa có video giới thiệu'"
+            [disabled]="!course.previewVideoUrl"
+            (click)="playPreview()"
           >
-            <span class="oc-detail__video-tag oc-detail__video-tag--subject">{{ course.subject }}</span>
-            <span class="oc-detail__video-tag oc-detail__video-tag--duration">{{ course.durationMinutes | ocDuration }}</span>
-            <button
-              type="button"
-              class="oc-detail__play"
-              [attr.aria-label]="course.previewVideoUrl ? 'Xem video giới thiệu' : 'Chưa có video giới thiệu'"
-              [disabled]="!course.previewVideoUrl"
-              (click)="playPreview()"
-            >
-              <app-oc-icon name="play" [size]="30" color="var(--oc-accent)"></app-oc-icon>
-            </button>
-            <span class="oc-detail__video-caption">
-              {{ course.previewVideoUrl ? 'video giới thiệu khóa học' : 'chưa có video giới thiệu' }}
-            </span>
+            <app-oc-icon name="play" [size]="30" color="var(--oc-accent)"></app-oc-icon>
+          </button>
+          <span class="oc-detail__video-caption">
+            {{ course.previewVideoUrl ? 'video giới thiệu khóa học' : 'chưa có video giới thiệu' }}
+          </span>
+        </div>
+      }
+
+      <div class="oc-card oc-elev-md oc-detail__info">
+        <h1 class="oc-detail__title">{{ course.title }}</h1>
+
+        <div class="oc-detail__teacher">
+          <span class="oc-detail__teacher-avatar">{{ course.teacherInitials }}</span>
+          <div class="oc-detail__teacher-meta">
+            <span class="oc-detail__teacher-name">{{ course.teacher }}</span>
+            <span class="oc-text-muted oc-detail__teacher-role">Giảng viên</span>
           </div>
+        </div>
+
+        <div class="oc-detail__stats">
+          <span class="oc-detail__rating">
+            <app-oc-icon name="star" [size]="14" color="var(--oc-accent-700)"></app-oc-icon>
+            {{ course.rating }} ({{ course.ratingCount }})
+          </span>
+          <span class="oc-text-muted oc-detail__students">
+            <app-oc-icon name="users" [size]="14"></app-oc-icon>
+            {{ course.studentsCount | ocStudentsCount }}
+          </span>
+        </div>
+
+        <hr class="oc-hr" />
+
+        <div class="oc-text-muted oc-detail__submeta">
+          <span>
+            <app-oc-icon name="layers" [size]="14"></app-oc-icon>
+            {{ course.chapters.length }} chương
+          </span>
+          <span>
+            <app-oc-icon name="clock" [size]="14"></app-oc-icon>
+            {{ course.durationMinutes | ocDuration }}
+          </span>
+        </div>
+
+        @if (course.purchased) {
+          <div class="oc-detail__progress">
+            <div class="oc-detail__progress-row">
+              <span>Tiến độ học</span>
+              <span class="oc-detail__progress-value">{{ course.progressPercent }}%</span>
+            </div>
+            <div class="oc-detail__progress-track">
+              <div class="oc-detail__progress-fill" [style.width.%]="course.progressPercent"></div>
+            </div>
+          </div>
+          <button type="button" class="oc-btn oc-btn-primary oc-btn-block">{{ ctaLabel() }}</button>
+        } @else {
+          <div class="oc-detail__price">{{ course.price | ocPrice }}</div>
+          <button type="button" class="oc-btn oc-btn-primary oc-btn-block">Đăng ký khóa học</button>
         }
+      </div>
+    </div>
 
-        <div class="oc-card oc-elev-md oc-detail__info">
-          <h1 class="oc-detail__title">{{ course.title }}</h1>
+    <div class="oc-seg oc-detail__tabs">
+      <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'content'" (click)="setTab('content')">
+        <app-oc-icon name="layers" [size]="14"></app-oc-icon>
+        Nội dung
+      </button>
+      <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'materials'" (click)="setTab('materials')">
+        <app-oc-icon name="file" [size]="14"></app-oc-icon>
+        Tài liệu
+      </button>
+      <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'reviews'" (click)="setTab('reviews')">
+        <app-oc-icon name="message-circle" [size]="14"></app-oc-icon>
+        Đánh giá
+      </button>
+    </div>
 
-          <div class="oc-detail__teacher">
-            <span class="oc-detail__teacher-avatar">{{ course.teacherInitials }}</span>
-            <div class="oc-detail__teacher-meta">
-              <span class="oc-detail__teacher-name">{{ course.teacher }}</span>
-              <span class="oc-text-muted oc-detail__teacher-role">Giảng viên</span>
-            </div>
-          </div>
-
-          <div class="oc-detail__stats">
-            <span class="oc-detail__rating">
-              <app-oc-icon name="star" [size]="14" color="var(--oc-accent-700)"></app-oc-icon>
-              {{ course.rating }} ({{ course.ratingCount }})
-            </span>
-            <span class="oc-text-muted oc-detail__students">
-              <app-oc-icon name="users" [size]="14"></app-oc-icon>
-              {{ course.studentsCount | ocStudentsCount }}
-            </span>
-          </div>
-
-          <hr class="oc-hr" />
-
-          <div class="oc-text-muted oc-detail__submeta">
-            <span>
-              <app-oc-icon name="layers" [size]="14"></app-oc-icon>
-              {{ course.chapters.length }} chương
-            </span>
-            <span>
-              <app-oc-icon name="clock" [size]="14"></app-oc-icon>
-              {{ course.durationMinutes | ocDuration }}
-            </span>
-          </div>
-
-          @if (course.purchased) {
-            <div class="oc-detail__progress">
-              <div class="oc-detail__progress-row">
-                <span>Tiến độ học</span>
-                <span class="oc-detail__progress-value">{{ course.progressPercent }}%</span>
+    @switch (activeTab()) {
+      @case ('content') {
+        <app-oc-chapter-accordion [chapters]="course.chapters"></app-oc-chapter-accordion>
+      }
+      @case ('materials') {
+        <div class="oc-detail__materials">
+          @for (material of course.materials; track material.id) {
+            <div class="oc-card oc-elev-sm oc-detail__material">
+              <div class="oc-detail__material-icon">
+                <app-oc-icon name="file-text" [size]="17" color="var(--oc-accent-700)"></app-oc-icon>
               </div>
-              <div class="oc-detail__progress-track">
-                <div class="oc-detail__progress-fill" [style.width.%]="course.progressPercent"></div>
+              <div class="oc-detail__material-meta">
+                <span class="oc-detail__material-name">{{ material.name }}</span>
+                <span class="oc-text-muted oc-detail__material-size">{{ material.sizeLabel }}</span>
               </div>
+              <button type="button" class="oc-btn oc-btn-ghost" aria-label="Tải xuống">
+                <app-oc-icon name="download" [size]="15"></app-oc-icon>
+              </button>
             </div>
-            <button type="button" class="oc-btn oc-btn-primary oc-btn-block">{{ ctaLabel() }}</button>
-          } @else {
-            <div class="oc-detail__price">{{ course.price | ocPrice }}</div>
-            <button type="button" class="oc-btn oc-btn-primary oc-btn-block">Đăng ký khóa học</button>
           }
         </div>
-      </div>
-
-      <div class="oc-seg oc-detail__tabs">
-        <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'content'" (click)="setTab('content')">
-          <app-oc-icon name="layers" [size]="14"></app-oc-icon>
-          Nội dung
-        </button>
-        <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'materials'" (click)="setTab('materials')">
-          <app-oc-icon name="file" [size]="14"></app-oc-icon>
-          Tài liệu
-        </button>
-        <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'reviews'" (click)="setTab('reviews')">
-          <app-oc-icon name="message-circle" [size]="14"></app-oc-icon>
-          Đánh giá
-        </button>
-      </div>
-
-      @switch (activeTab()) {
-        @case ('content') {
-          <app-oc-chapter-accordion [chapters]="course.chapters"></app-oc-chapter-accordion>
-        }
-        @case ('materials') {
-          <div class="oc-detail__materials">
-            @for (material of course.materials; track material.id) {
-              <div class="oc-card oc-elev-sm oc-detail__material">
-                <div class="oc-detail__material-icon">
-                  <app-oc-icon name="file-text" [size]="17" color="var(--oc-accent-700)"></app-oc-icon>
-                </div>
-                <div class="oc-detail__material-meta">
-                  <span class="oc-detail__material-name">{{ material.name }}</span>
-                  <span class="oc-text-muted oc-detail__material-size">{{ material.sizeLabel }}</span>
-                </div>
-                <button type="button" class="oc-btn oc-btn-ghost" aria-label="Tải xuống">
-                  <app-oc-icon name="download" [size]="15"></app-oc-icon>
-                </button>
-              </div>
-            }
-          </div>
-        }
-        @case ('reviews') {
-          <div class="oc-detail__reviews">
-            <div class="oc-card oc-elev-sm oc-detail__rating-summary">
-              <div class="oc-detail__rating-score">
-                <span class="oc-detail__rating-number">{{ course.rating }}</span>
-                <span class="oc-text-muted">{{ course.ratingCount }} đánh giá</span>
-              </div>
-              <div class="oc-detail__rating-breakdown">
-                @for (row of course.ratingBreakdown; track row.stars) {
-                  <div class="oc-detail__rating-row">
-                    <span class="oc-text-muted oc-detail__rating-row-label">{{ row.stars }} sao</span>
-                    <div class="oc-detail__rating-row-track">
-                      <div class="oc-detail__rating-row-fill" [style.width.%]="row.percent"></div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-
-            @for (review of course.reviews; track review.id) {
-              <div class="oc-card oc-elev-sm oc-detail__review">
-                <div class="oc-detail__review-header">
-                  <span class="oc-detail__review-avatar">{{ review.initials }}</span>
-                  <div class="oc-detail__review-meta">
-                    <span class="oc-detail__review-name">{{ review.studentName }}</span>
-                    <span class="oc-text-muted oc-detail__review-date">{{ review.createdAt | ocRelativeDate }}</span>
-                  </div>
-                  <span class="oc-detail__review-rating">
-                    <app-oc-icon name="star" [size]="12" color="var(--oc-accent-700)"></app-oc-icon>
-                    {{ review.rating }}
-                  </span>
-                </div>
-                <p class="oc-detail__review-comment">{{ review.comment }}</p>
-              </div>
-            }
-          </div>
-        }
       }
-    } @else if (notFound()) {
-      <div class="oc-list__empty">
-        <span>Không tìm thấy khóa học này.</span>
-      </div>
+      @case ('reviews') {
+        <div class="oc-detail__reviews">
+          <div class="oc-card oc-elev-sm oc-detail__rating-summary">
+            <div class="oc-detail__rating-score">
+              <span class="oc-detail__rating-number">{{ course.rating }}</span>
+              <span class="oc-text-muted">{{ course.ratingCount }} đánh giá</span>
+            </div>
+            <div class="oc-detail__rating-breakdown">
+              @for (row of course.ratingBreakdown; track row.stars) {
+                <div class="oc-detail__rating-row">
+                  <span class="oc-text-muted oc-detail__rating-row-label">{{ row.stars }} sao</span>
+                  <div class="oc-detail__rating-row-track">
+                    <div class="oc-detail__rating-row-fill" [style.width.%]="row.percent"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          @for (review of course.reviews; track review.id) {
+            <div class="oc-card oc-elev-sm oc-detail__review">
+              <div class="oc-detail__review-header">
+                <span class="oc-detail__review-avatar">{{ review.initials }}</span>
+                <div class="oc-detail__review-meta">
+                  <span class="oc-detail__review-name">{{ review.studentName }}</span>
+                  <span class="oc-text-muted oc-detail__review-date">{{ review.createdAt | ocRelativeDate }}</span>
+                </div>
+                <span class="oc-detail__review-rating">
+                  <app-oc-icon name="star" [size]="12" color="var(--oc-accent-700)"></app-oc-icon>
+                  {{ review.rating }}
+                </span>
+              </div>
+              <p class="oc-detail__review-comment">{{ review.comment }}</p>
+            </div>
+          }
+        </div>
+      }
     }
-  </main>
-</div>
+  } @else if (notFound()) {
+    <div class="oc-list__empty">
+      <span>Không tìm thấy khóa học này.</span>
+    </div>
+  }
+</main>

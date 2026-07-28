@@ -1,0 +1,86 @@
+<footer class="oc-footer">
+  <svg class="oc-footer__deco oc-footer__deco--book" width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+  </svg>
+  <svg class="oc-footer__deco oc-footer__deco--pencil" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>
+  </svg>
+
+  <div class="oc-footer__grid">
+    <div class="oc-footer__brand">
+      <div class="oc-footer__brand-row">
+        <div class="oc-footer__logo">
+          <app-oc-icon name="book-open" [size]="19" color="#fff" [strokeWidth]="2.75"></app-oc-icon>
+        </div>
+        <span class="oc-footer__brand-name">Học Vui</span>
+      </div>
+      <p class="oc-footer__tagline">Nền tảng học trực tuyến thân thiện, giúp học sinh học vui &amp; học giỏi mỗi ngày.</p>
+
+      <div class="oc-footer__socials">
+        @for (s of socials; track s.key) {
+          <a class="oc-footer__social" [href]="s.href" [attr.aria-label]="s.label" [style.background]="s.bg">
+            @switch (s.key) {
+              @case ('fb') {
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              }
+              @case ('yt') {
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 8.5s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.2-1C16.1 5 12 5 12 5s-4.1 0-7.4.2c-.5.1-1.3.1-2.2 1-.7.7-.9 2.3-.9 2.3S1.3 10.4 1.3 12.2v1.6c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.2 7.6.2s4.1 0 7.4-.3c.5-.1 1.3-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.7v-1.6c0-1.9-.2-3.7-.2-3.7z"/><polygon points="9.8 15.3 15.5 12 9.8 8.7 9.8 15.3"/></svg>
+              }
+              @case ('ig') {
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg>
+              }
+              @case ('tt') {
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17a4 4 0 1 0 4-4V3h3a5 5 0 0 0 5 5"/></svg>
+              }
+            }
+          </a>
+        }
+      </div>
+    </div>
+
+    <div class="oc-footer__col">
+      <span class="oc-footer__col-title">Danh mục</span>
+      @for (link of categoryLinks; track link.label) {
+        <a class="oc-footer__link" [href]="link.href">{{ link.label }}</a>
+      }
+    </div>
+
+    <div class="oc-footer__col">
+      <span class="oc-footer__col-title">Hỗ trợ</span>
+      @for (link of supportLinks; track link.label) {
+        <a class="oc-footer__link" [href]="link.href">{{ link.label }}</a>
+      }
+    </div>
+
+    <div class="oc-footer__col">
+      <span class="oc-footer__col-title">Đăng ký nhận tin</span>
+      <p class="oc-footer__newsletter-text">Nhận thông báo khoá học mới &amp; ưu đãi hấp dẫn.</p>
+
+      <div class="oc-footer__newsletter-field">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/>
+        </svg>
+        <input class="oc-input oc-footer__newsletter-input" placeholder="Email của bạn" type="email" />
+      </div>
+
+      <button type="button" class="oc-btn oc-btn-primary oc-footer__subscribe">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Đăng ký
+      </button>
+    </div>
+  </div>
+
+  <div class="oc-hr oc-footer__hr"></div>
+
+  <div class="oc-footer__bottom">
+    <span class="oc-footer__copyright">© 2026 Học Vui. Đã đăng ký bản quyền.</span>
+    <div class="oc-footer__badges">
+      @for (badge of paymentBadges; track badge) {
+        <span class="oc-footer__badge">{{ badge }}</span>
+      }
+    </div>
+  </div>
+</footer>

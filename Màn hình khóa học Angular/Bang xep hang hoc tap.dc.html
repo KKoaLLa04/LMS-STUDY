@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="./image-slot.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; overflow-x: hidden; }
+    * { box-sizing: border-box; }
+    body, h1, h2, h3, h4, h5, h6, p, span, div, button, a, label { font-family: 'Be Vietnam Pro', sans-serif !important; }
+    a { color: #2563EB; }
+    a:hover { color: #1d4ed8; }
+    @keyframes riseUp { 0% { opacity: 0; transform: translateY(50px) scale(0.85); } 60% { transform: translateY(-6px) scale(1.03); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounceArrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes slideInBottom { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 0 4px rgba(255,215,0,0.55), 0 0 18px rgba(255,215,0,0.5); } 50% { box-shadow: 0 0 0 6px rgba(255,215,0,0.75), 0 0 26px rgba(255,215,0,0.7); } }
+  </style>
+</helmet>
+<div style="min-height: 100vh; background: #F8FAFC; color: #0f172a;">
+
+  <header style="position: sticky; top: 0; z-index: 40; background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; align-items: center; gap: 12px;">
+    <div style="width: 38px; height: 38px; border-radius: 12px; background: #2563EB; display: flex; align-items: center; justify-content: center; color: #FFD700; flex: none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 5H4a2 2 0 0 0 2 4M17 5h3a2 2 0 0 1-2 4"/></svg>
+    </div>
+    <span style="font-size: 19px; font-weight: 800; letter-spacing: 0.2px;">BẢNG XẾP HẠNG HỌC TẬP</span>
+  </header>
+
+  <main style="max-width: 900px; margin: 0 auto; padding: 24px 20px 120px; display: flex; flex-direction: column; gap: 24px;">
+
+    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;">
+      <sc-for list="{{ gradeTabs }}" as="g" hint-placeholder-count="6">
+        <button onClick="{{ g.onClick }}" style="flex: none; padding: 9px 18px; border-radius: 999px; border: 1.5px solid {{ g.borderColor }}; background: {{ g.bg }}; color: {{ g.color }}; font-weight: 700; font-size: 13px; cursor: pointer; transition: all .2s ease;">{{ g.label }}</button>
+      </sc-for>
+    </div>
+
+    <div style="position: relative; display: inline-flex; gap: 4px; background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; padding: 4px; margin: 0 auto; box-shadow: 0 1px 2px rgba(15,23,42,0.05);">
+      <sc-for list="{{ periodTabs }}" as="tab" hint-placeholder-count="3">
+        <button onClick="{{ tab.onClick }}" style="position: relative; z-index: 1; border: none; background: transparent; padding: 9px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; color: {{ tab.color }}; transition: color .25s ease;">{{ tab.label }}</button>
+      </sc-for>
+      <div style="position: absolute; top: 4px; bottom: 4px; left: {{ indicatorLeft }}px; width: {{ indicatorWidth }}px; background: #2563EB; border-radius: 999px; transition: left .3s ease, width .3s ease; z-index: 0;"></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.15fr 1fr; align-items: end; gap: 10px; padding: 8px 4px 0;">
+      <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; animation: riseUp .7s cubic-bezier(.34,1.56,.64,1) {{ p.delay }}s both;">
+          <sc-if value="{{ p.isFirst }}" hint-placeholder-val="{{ false }}">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#FFD700" stroke="none"><path d="M2 6l5 4 5-7 5 7 5-4-2 12H4z"/></svg>
+          </sc-if>
+          <div style="position: relative;">
+            <image-slot id="{{ p.slotId }}" shape="circle" placeholder="Ảnh" style="width: {{ p.avatarSize }}px; height: {{ p.avatarSize }}px; border: 3px solid {{ p.ringColor }}; animation: {{ p.glowAnim }};"></image-slot>
+            <div style="position: absolute; top: -6px; right: -6px; width: 26px; height: 26px; border-radius: 999px; background: {{ p.rankBadgeBg }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; border: 2px solid #fff;">{{ p.rank }}</div>
+          </div>
+          <span style="font-weight: 800; font-size: 14px; text-align: center;">{{ p.name }}</span>
+          <span style="font-size: 12px; font-weight: 600; opacity: 0.6; text-align: center;">{{ p.subtitle }}</span>
+          <span style="font-size: 14px; font-weight: 900; color: #2563EB;">{{ p.points }} XP</span>
+          <div style="position: relative; width: 100%; border-radius: 14px 14px 4px 4px; height: {{ p.podiumHeight }}px; background: {{ p.podiumBg }}; box-shadow: inset 0 3px 0 rgba(255,255,255,0.35), 0 6px 14px rgba(15,23,42,0.12); display: flex; align-items: flex-start; justify-content: center; padding-top: 10px; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,0.25), transparent 55%);"></div>
+            <span style="position: relative; font-size: 22px; font-weight: 900; color: #fff;">#{{ p.rank }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{ restList }}" as="row" hint-placeholder-count="8">
+        <div ref="{{ row.ref }}" style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 16px; background: #fff; border: 1px solid #e2e8f0; cursor: pointer; opacity: {{ row.revealOpacity }}; transform: {{ row.revealTransform }}; transition: opacity .5s ease, transform .25s ease, box-shadow .25s ease;" style-hover="{{ rowHoverStyle }}">
+          <div style="display: flex; flex-direction: column; align-items: center; width: 34px; flex: none;">
+            <span style="font-weight: 900; font-size: 15px;">{{ row.rank }}</span>
+            <sc-if value="{{ row.isUp }}" hint-placeholder-val="{{ false }}">
+              <span style="display: flex; align-items: center; gap: 1px; color: #16a34a; font-size: 10px; font-weight: 800;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="animation: bounceArrow 1.2s ease-in-out infinite;"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                {{ row.changeLabel }}
+              </span>
+            </sc-if>
+            <sc-if value="{{ row.isDown }}" hint-placeholder-val="{{ false }}">
+              <span style="display: flex; align-items: center; gap: 1px; color: #dc2626; font-size: 10px; font-weight: 800;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="animation: bounceArrow 1.2s ease-in-out infinite;"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                {{ row.changeLabel }}
+              </span>
+            </sc-if>
+            <sc-if value="{{ row.isSame }}" hint-placeholder-val="{{ false }}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </sc-if>
+          </div>
+          <image-slot id="{{ row.slotId }}" shape="circle" placeholder="Ảnh" style="width: 44px; height: 44px; border: 2px solid #e2e8f0; flex: none;"></image-slot>
+          <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+            <span style="font-weight: 700; font-size: 14px;">{{ row.name }}</span>
+            <span style="font-size: 11px; font-weight: 600; opacity: 0.55;">{{ row.subtitle }}</span>
+          </div>
+          <span style="font-weight: 900; font-size: 14px; color: #2563EB; flex: none;">{{ row.pointsLabel }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </main>
+
+  <sc-if value="{{ showStickyCard }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; justify-content: center; padding: 14px 20px; animation: slideInBottom .35s ease;">
+      <div style="display: flex; align-items: center; gap: 14px; padding: 12px 20px; width: 100%; max-width: 720px; border-radius: 16px; background: linear-gradient(135deg, #2563EB, #1d4ed8); box-shadow: 0 -8px 24px rgba(37,99,235,0.35);">
+        <span style="width: 26px; text-align: center; font-weight: 900; font-size: 15px; color: #FFD700;">{{ myRow.rank }}</span>
+        <image-slot id="{{ myRow.slotId }}" shape="circle" placeholder="Ảnh của bạn" style="width: 40px; height: 40px; border: 2px solid #FFD700; flex: none;"></image-slot>
+        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+          <span style="font-weight: 800; font-size: 14px; color: #fff;">{{ myRow.name }} (Bạn)</span>
+          <span style="font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.75);">{{ myRow.subtitle }}</span>
+        </div>
+        <span style="font-weight: 900; font-size: 15px; color: #fff;">{{ myRow.pointsLabel }}</span>
+        <sc-if value="{{ myRow.isUp }}" hint-placeholder-val="{{ false }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const GRADES = ['Tất cả khối', 'Khối 1', 'Khối 2', 'Khối 3', 'Khối 4', 'Khối 5'];
+
+const TOP3 = [
+  { rank: 2, name: 'Gia Bảo', subtitle: 'Khối 3 • Toán Sáng Tạo', points: 2840, slotId: 'podium-2' },
+  { rank: 1, name: 'Minh Anh', subtitle: 'Khối 4 • Tiếng Anh Vui', points: 3120, slotId: 'podium-1' },
+  { rank: 3, name: 'Thảo Vy', subtitle: 'Khối 2 • Ngữ Văn 9', points: 2610, slotId: 'podium-3' }
+];
+
+const REST = [
+  { rank: 4, name: 'Đức Huy', subtitle: 'Khối 3 • Toán học lớp 3', points: 2400, change: 'up', delta: 2 },
+  { rank: 5, name: 'Ngọc Hân', subtitle: 'Khối 5 • Tiếng Anh giao tiếp', points: 2280, change: 'down', delta: 1 },
+  { rank: 6, name: 'Quang Minh', subtitle: 'Khối 4 • Hóa Học Vui', points: 2150, change: 'same', delta: 0 },
+  { rank: 7, name: 'Bảo Trân', subtitle: 'Khối 2 • Ngữ Văn 9', points: 2010, change: 'up', delta: 3 },
+  { rank: 8, name: 'Anh Tuấn', subtitle: 'Khối 1 • Vật Lý Khám Phá', points: 1920, change: 'down', delta: 2 },
+  { rank: 9, name: 'Khánh Linh', subtitle: 'Khối 3 • Sinh Học 10', points: 1840, change: 'up', delta: 1 },
+  { rank: 10, name: 'Hữu Phát', subtitle: 'Khối 5 • Toán học lớp 5', points: 1790, change: 'same', delta: 0 },
+  { rank: 11, name: 'Thu Trang', subtitle: 'Khối 2 • Tiếng Anh giao tiếp', points: 1700, change: 'up', delta: 4 },
+  { rank: 12, name: 'Việt Hoàng', subtitle: 'Khối 4 • Lịch Sử Việt Nam', points: 1650, change: 'down', delta: 1 },
+  { rank: 13, name: 'Kim Ngân', subtitle: 'Khối 1 • Hóa Học Vui', points: 1580, change: 'same', delta: 0 },
+  { rank: 14, name: 'Bạn', subtitle: 'Khối 3 • Toán học lớp 3', points: 1520, change: 'up', delta: 2, isMe: true },
+  { rank: 15, name: 'Nhật Nam', subtitle: 'Khối 2 • Ngữ Văn 9', points: 1470, change: 'down', delta: 1 }
+];
+
+const PERIODS = [{ key: 'week', label: 'Tuần này' }, { key: 'month', label: 'Tháng này' }, { key: 'all', label: 'Toàn thời gian' }];
+const TAB_WIDTHS = { week: 76, month: 84, all: 128 };
+
+function fmtPoints(n) { return n.toLocaleString('vi-VN') + ' điểm'; }
+
+class Component extends DCLogic {
+  state = { period: 'week', grade: 'Tất cả khối', revealed: {}, myRowPassed: false };
+  rowRefs = {};
+
+  getRowRef(rank) {
+    if (!this.rowRefs[rank]) this.rowRefs[rank] = React.createRef();
+    return this.rowRefs[rank];
+  }
+
+  componentDidMount() {
+    this._observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const rank = Number(entry.target.getAttribute('data-rank'));
+        if (entry.isIntersecting) this.setState(s => ({ revealed: { ...s.revealed, [rank]: true } }));
+        if (rank === 14) this.setState({ myRowPassed: entry.boundingClientRect.top < 0 && !entry.isIntersecting });
+      });
+    }, { threshold: 0.2 });
+    Object.entries(this.rowRefs).forEach(([rank, r]) => {
+      if (r.current) { r.current.setAttribute('data-rank', rank); this._observer.observe(r.current); }
+    });
+  }
+  componentWillUnmount() { if (this._observer) this._observer.disconnect(); }
+
+  renderVals() {
+    const period = this.state.period;
+    let left = 4;
+    for (const p of PERIODS) { if (p.key === period) break; left += TAB_WIDTHS[p.key] + 4; }
+
+    const periodTabs = PERIODS.map(p => ({
+      label: p.label, color: p.key === period ? '#fff' : '#0f172a',
+      onClick: () => this.setState({ period: p.key })
+    }));
+
+    const gradeTabs = GRADES.map(g => {
+      const active = g === this.state.grade;
+      return {
+        label: g,
+        bg: active ? '#2563EB' : '#fff',
+        color: active ? '#fff' : '#0f172a',
+        borderColor: active ? '#2563EB' : '#e2e8f0',
+        onClick: () => this.setState({ grade: g })
+      };
+    });
+
+    const ringColor = { 1: '#FFD700', 2: '#C0C0C0', 3: '#CD7F32' };
+    const rankBadgeBg = { 1: '#FFD700', 2: '#C0C0C0', 3: '#CD7F32' };
+    const podiumBg = { 1: 'linear-gradient(160deg, #FFD700, #e6b800)', 2: 'linear-gradient(160deg, #C0C0C0, #9a9a9a)', 3: 'linear-gradient(160deg, #CD7F32, #a8672a)' };
+    const podiumHeight = { 1: 120, 2: 84, 3: 64 };
+    const avatarSize = { 1: 92, 2: 70, 3: 70 };
+    const orderDelay = { 2: 0, 1: 0.18, 3: 0.36 };
+
+    const podium = TOP3.map(p => ({
+      ...p, isFirst: p.rank === 1,
+      ringColor: ringColor[p.rank], rankBadgeBg: rankBadgeBg[p.rank],
+      podiumBg: podiumBg[p.rank], podiumHeight: podiumHeight[p.rank],
+      avatarSize: avatarSize[p.rank], delay: orderDelay[p.rank],
+      glowAnim: p.rank === 1 ? 'glow 2.4s ease-in-out infinite' : 'none'
+    }));
+
+    const restList = REST.filter(r => !r.isMe).map(r => {
+      const ref = this.getRowRef(r.rank);
+      const revealed = !!this.state.revealed[r.rank];
+      return {
+        ...r, ref, slotId: 'row-avatar-' + r.rank,
+        pointsLabel: fmtPoints(r.points),
+        isUp: r.change === 'up', isDown: r.change === 'down', isSame: r.change === 'same',
+        changeLabel: r.delta > 0 ? (r.change === 'up' ? '+' + r.delta : '-' + r.delta) : '',
+        revealOpacity: revealed ? 1 : 0, revealTransform: revealed ? 'translateY(0)' : 'translateY(18px)'
+      };
+    });
+
+    const me = REST.find(r => r.isMe);
+    const myRow = { ...me, slotId: 'row-avatar-me', pointsLabel: fmtPoints(me.points), isUp: me.change === 'up' };
+
+    return {
+      gradeTabs,
+      indicatorLeft: left, indicatorWidth: TAB_WIDTHS[period],
+      periodTabs, podium, restList, myRow,
+      showStickyCard: this.state.myRowPassed,
+      rowHoverStyle: { transform: 'translateX(4px)', boxShadow: '0 6px 16px rgba(15,23,42,0.08)' }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

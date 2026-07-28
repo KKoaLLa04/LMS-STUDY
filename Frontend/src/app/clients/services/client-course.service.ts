@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, of, catchError } from 'rxjs';
 import { Course } from '../models/course.model';
@@ -27,6 +27,9 @@ export class ClientCourseService {
   private readonly http = inject(HttpClient);
   private readonly coursesUrl = `${environment.apiBaseUrl}/courses`;
   private readonly categoriesUrl = `${environment.apiBaseUrl}/coursecategories`;
+
+  /** Search query shared between the client shell's header and the course list page. */
+  readonly searchQuery = signal('');
 
   getCategories(): Observable<string[]> {
     return this.http.get<ApiResponse<CourseCategoryApi[]>>(this.categoriesUrl).pipe(

@@ -1,46 +1,42 @@
-<div class="oc-root">
-  <app-oc-header [searchQuery]="searchQuery()" (searchQueryChange)="searchQuery.set($event)"></app-oc-header>
+<main class="oc-list">
+  @if (featuredCourses().length > 0) {
+    <app-oc-course-carousel [courses]="featuredCourses()"></app-oc-course-carousel>
+  }
 
-  <main class="oc-list">
-    @if (featuredCourses().length > 0) {
-      <app-oc-course-carousel [courses]="featuredCourses()"></app-oc-course-carousel>
-    }
+  <app-oc-category-chips
+    [categories]="categories()"
+    [activeCategory]="activeCategory()"
+    (activeCategoryChange)="activeCategory.set($event)"
+  ></app-oc-category-chips>
 
-    <app-oc-category-chips
-      [categories]="categories()"
-      [activeCategory]="activeCategory()"
-      (activeCategoryChange)="activeCategory.set($event)"
-    ></app-oc-category-chips>
-
-    @if (inProgressCourses().length > 0) {
-      <section class="oc-list__section">
-        <h3>Đang học dở</h3>
-        <div class="oc-list__scroll-row">
-          @for (course of inProgressCourses(); track course.id) {
-            <app-oc-course-card [course]="course" variant="compact"></app-oc-course-card>
-          }
-        </div>
-      </section>
-    }
-
+  @if (inProgressCourses().length > 0) {
     <section class="oc-list__section">
-      <div class="oc-list__section-header">
-        <h3>Tất cả khóa học</h3>
-        <span class="oc-text-muted oc-list__count">{{ filteredCourses().length }} khóa học</span>
+      <h3>Đang học dở</h3>
+      <div class="oc-list__scroll-row">
+        @for (course of inProgressCourses(); track course.id) {
+          <app-oc-course-card [course]="course" variant="compact"></app-oc-course-card>
+        }
       </div>
-
-      @if (filteredCourses().length > 0) {
-        <div class="oc-list__grid">
-          @for (course of filteredCourses(); track course.id; let i = $index) {
-            <app-oc-course-card [course]="course" [animationDelay]="animationDelayFor(i)"></app-oc-course-card>
-          }
-        </div>
-      } @else {
-        <div class="oc-list__empty">
-          <app-oc-icon name="search" [size]="40"></app-oc-icon>
-          <span>Không tìm thấy khóa học phù hợp.</span>
-        </div>
-      }
     </section>
-  </main>
-</div>
+  }
+
+  <section class="oc-list__section">
+    <div class="oc-list__section-header">
+      <h3>Tất cả khóa học</h3>
+      <span class="oc-text-muted oc-list__count">{{ filteredCourses().length }} khóa học</span>
+    </div>
+
+    @if (filteredCourses().length > 0) {
+      <div class="oc-list__grid">
+        @for (course of filteredCourses(); track course.id; let i = $index) {
+          <app-oc-course-card [course]="course" [animationDelay]="animationDelayFor(i)"></app-oc-course-card>
+        }
+      </div>
+    } @else {
+      <div class="oc-list__empty">
+        <app-oc-icon name="search" [size]="40"></app-oc-icon>
+        <span>Không tìm thấy khóa học phù hợp.</span>
+      </div>
+    }
+  </section>
+</main>

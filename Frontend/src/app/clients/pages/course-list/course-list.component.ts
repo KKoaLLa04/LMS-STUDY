@@ -2,7 +2,6 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Course } from '../../models/course.model';
 import { ClientCourseService } from '../../services/client-course.service';
 import { isCourseInProgress } from '../../utils/course-progress.util';
-import { ClientHeaderComponent } from '../../components/client-header/client-header.component';
 import { CourseCarouselComponent } from '../../components/course-carousel/course-carousel.component';
 import { CategoryChipsComponent } from '../../components/category-chips/category-chips.component';
 import { CourseCardComponent } from '../../components/course-card/course-card.component';
@@ -14,7 +13,6 @@ const CATEGORY_ALL = 'Tất cả';
   selector: 'app-course-list',
   standalone: true,
   imports: [
-    ClientHeaderComponent,
     CourseCarouselComponent,
     CategoryChipsComponent,
     CourseCardComponent,
@@ -28,7 +26,7 @@ export class CourseListComponent implements OnInit {
 
   readonly categories = signal<string[]>([CATEGORY_ALL]);
   readonly courses = signal<Course[]>([]);
-  readonly searchQuery = signal('');
+  readonly searchQuery = this.courseService.searchQuery;
   readonly activeCategory = signal(CATEGORY_ALL);
 
   readonly featuredCourses = computed(() => this.courses().filter((c) => c.featured));

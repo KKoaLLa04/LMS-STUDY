@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-5658213a-ea75-4a31-a784-41e8cd4e5e04/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="./image-slot.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; overflow-x: hidden; }
+    * { box-sizing: border-box; }
+    body, h1, h2, h3, h4, h5, h6, p, span, div, button, a, label { font-family: 'Nunito', sans-serif !important; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+  </style>
+</helmet>
+<div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text);">
+
+  <header style="position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 20px; padding: 14px 32px; background: var(--color-bg); border-bottom: 1px solid var(--color-divider);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 38px; height: 38px; border-radius: 999px; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: #fff; flex: none;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <span style="font-size: 20px; font-weight: 900;">Học Vui</span>
+    </div>
+  </header>
+
+  <main style="max-width: 1080px; margin: 0 auto; padding: 40px 32px 80px; display: flex; flex-direction: column; gap: 56px;">
+
+    <section ref="{{ refs.hero }}" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-2-600)); border-radius: var(--radius-lg); padding: 44px 40px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; box-shadow: var(--shadow-lg); opacity: {{ vis.hero }}; transform: {{ transforms.hero }}; transition: opacity .7s ease, transform .7s ease;">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="rgba(255,255,255,0.15)" stroke="none" style="position: absolute; right: 40px; top: 20px; animation: floatSlow 6s ease-in-out infinite;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <image-slot id="teacher-avatar" shape="circle" placeholder="Ảnh giáo viên" style="width: 130px; height: 130px; flex: none; box-shadow: 0 0 0 5px rgba(255,255,255,0.4);"></image-slot>
+      <div style="display: flex; flex-direction: column; gap: 10px; color: #fff; flex: 1; min-width: 220px;">
+        <h1 style="margin: 0; font-size: 30px; font-weight: 900;">Thầy Nguyễn Văn An</h1>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span class="tag" style="background: rgba(255,255,255,0.25); color: #fff; font-weight: 800;">Toán học</span>
+          <span class="tag" style="background: rgba(255,255,255,0.25); color: #fff; font-weight: 800;">Luyện thi HSG</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 800;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          4.8 / 5 <span style="opacity: 0.8; font-weight: 600;">(342 đánh giá)</span>
+        </div>
+        <button class="btn" style="background: #fff; color: var(--color-accent-800); border-radius: 999px; font-weight: 900; padding: 12px 26px; width: fit-content; margin-top: 6px;">Xem khoá học</button>
+      </div>
+    </section>
+
+    <section ref="{{ refs.stats }}" style="opacity: {{ vis.stats }}; transform: {{ transforms.stats }}; transition: opacity .6s ease, transform .6s ease;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px;">
+        <sc-for list="{{ statCards }}" as="stat" hint-placeholder-count="3">
+          <div class="card elev-sm" style="align-items: center; text-align: center; gap: 6px;">
+            <div style="width: 46px; height: 46px; border-radius: 999px; background: {{ stat.bg }}; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 2px;">
+              <sc-if value="{{ stat.isUsers }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></sc-if>
+              <sc-if value="{{ stat.isBook }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></sc-if>
+              <sc-if value="{{ stat.isStar }}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></sc-if>
+            </div>
+            <span style="font-size: 28px; font-weight: 900;">{{ stat.display }}</span>
+            <span class="text-muted" style="font-size: 13px; font-weight: 700;">{{ stat.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 20px;">
+      <h2 style="margin: 0; font-size: 26px; font-weight: 900;">Giới thiệu</h2>
+      <p style="margin: 0; font-size: 14px; opacity: 0.8; font-weight: 600; max-width: 640px;">Thầy An có hơn 12 năm kinh nghiệm giảng dạy Toán học, giúp hàng nghìn học sinh chinh phục các kỳ thi quan trọng với phương pháp học dễ hiểu và gần gũi.</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <sc-for list="{{ aboutItems }}" as="item" hint-placeholder-count="3">
+          <div class="card elev-sm" style="flex-direction: row; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; border-radius: 999px; background: {{ item.bg }}; color: #fff; display: flex; align-items: center; justify-content: center; flex: none;">
+              <sc-if value="{{ item.isExp }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></sc-if>
+              <sc-if value="{{ item.isDegree }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></sc-if>
+              <sc-if value="{{ item.isStyle }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 5.5 2 9.5 0 6.28-4.5 11.28-10 11.5"/><path d="M11 20c-3-1-6-3.5-6-9 0-3 1-6.5 3-8.5"/></svg></sc-if>
+            </div>
+            <div style="display: flex; flex-direction: column; text-align: left;">
+              <span style="font-weight: 800; font-size: 13px;">{{ item.label }}</span>
+              <span class="text-muted" style="font-size: 12px; font-weight: 600;">{{ item.value }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 20px;">
+      <h2 style="margin: 0; font-size: 26px; font-weight: 900;">Khoá học đang dạy</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">
+        <sc-for list="{{ courses }}" as="course" hint-placeholder-count="4">
+          <div class="card elev-sm" style="cursor: pointer;" style-hover="{{ liftHover }}">
+            <image-slot id="{{ course.slotId }}" shape="rounded" radius="16" placeholder="Ảnh khoá học" style="width: 100%; height: 140px;"></image-slot>
+            <div class="card-title" style="font-size: 15px; font-weight: 800;">{{ course.title }}</div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="display: flex; align-items: center; gap: 3px; color: var(--color-accent-700); font-weight: 800; font-size: 12px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                {{ course.rating }}
+              </span>
+              <span style="font-size: 15px; font-weight: 900; color: var(--color-accent-700);">{{ course.priceLabel }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 20px;">
+      <h2 style="margin: 0; font-size: 26px; font-weight: 900;">Đánh giá học viên</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+        <sc-for list="{{ reviews }}" as="rev" hint-placeholder-count="3">
+          <div ref="{{ rev.ref }}" class="card elev-sm" style="gap: 10px; opacity: {{ rev.revealOpacity }}; transform: {{ rev.revealTransform }}; transition: opacity .5s ease, transform .5s ease;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <image-slot id="{{ rev.slotId }}" shape="circle" placeholder="Ảnh" style="width: 34px; height: 34px; flex: none;"></image-slot>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 13px; font-weight: 800;">{{ rev.name }}</span>
+                <span class="text-muted" style="font-size: 10px; font-weight: 600;">{{ rev.date }}</span>
+              </div>
+              <span style="margin-left: auto; display: flex; align-items: center; gap: 3px; color: var(--color-accent-700); font-size: 12px; font-weight: 800;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                {{ rev.rating }}
+              </span>
+            </div>
+            <p style="margin: 0; font-size: 13px; font-weight: 600; opacity: 0.85;">{{ rev.comment }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const COURSES = [
+  { title: 'Toán học lớp 10 - Đại số & Hình học', rating: 4.8, price: 299000 },
+  { title: 'Luyện Thi Học Sinh Giỏi Toán 9', rating: 5.0, price: 399000 },
+  { title: 'Toán Nâng Cao Lớp 11', rating: 4.7, price: 279000 },
+  { title: 'Ôn Thi Vào 10 Môn Toán', rating: 4.9, price: 349000 }
+];
+const REVIEWS = [
+  { name: 'Minh Anh', date: '2 tuần trước', rating: 5, comment: 'Thầy giảng rất dễ hiểu, em tiến bộ rõ rệt chỉ sau vài tuần học.' },
+  { name: 'Gia Bảo', date: '1 tháng trước', rating: 5, comment: 'Phương pháp dạy gần gũi, thầy luôn kiên nhẫn giải đáp thắc mắc.' },
+  { name: 'Thảo Vy', date: '1 tháng trước', rating: 4, comment: 'Nội dung khoá học rất chất lượng, mong thầy ra thêm nhiều bài tập.' }
+];
+const ABOUT = [
+  { key: 'exp', label: 'Kinh nghiệm', value: '12 năm giảng dạy Toán học', bg: 'var(--color-accent-500)' },
+  { key: 'degree', label: 'Bằng cấp', value: 'Thạc sĩ Sư phạm Toán học', bg: 'var(--color-accent-2-500)' },
+  { key: 'style', label: 'Phong cách dạy', value: 'Dễ hiểu, gần gũi, nhiều ví dụ thực tế', bg: 'var(--color-accent-600)' }
+];
+
+function fmtPrice(p) { return p.toLocaleString('vi-VN') + 'đ'; }
+
+class Component extends DCLogic {
+  state = { vis: { hero: false, stats: false }, counted: false, counterProgress: 0, revealed: {} };
+  refs = { hero: React.createRef(), stats: React.createRef() };
+  reviewRefs = {};
+
+  getReviewRef(i) {
+    if (!this.reviewRefs[i]) this.reviewRefs[i] = React.createRef();
+    return this.reviewRefs[i];
+  }
+
+  componentDidMount() {
+    this._observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const key = Object.keys(this.refs).find(k => this.refs[k].current === entry.target);
+        if (key) {
+          this.setState(s => ({ vis: { ...s.vis, [key]: true } }));
+          if (key === 'stats' && !this.state.counted) this.startCounter();
+        }
+        const ri = Object.keys(this.reviewRefs).find(k => this.reviewRefs[k].current === entry.target);
+        if (ri !== undefined) this.setState(s => ({ revealed: { ...s.revealed, [ri]: true } }));
+      });
+    }, { threshold: 0.2 });
+    Object.values(this.refs).forEach(r => { if (r.current) this._observer.observe(r.current); });
+    Object.values(this.reviewRefs).forEach(r => { if (r.current) this._observer.observe(r.current); });
+  }
+  componentWillUnmount() {
+    if (this._observer) this._observer.disconnect();
+    if (this._raf) cancelAnimationFrame(this._raf);
+  }
+
+  startCounter() {
+    this.setState({ counted: true });
+    const start = performance.now();
+    const duration = 1300;
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      this.setState({ counterProgress: 1 - Math.pow(1 - t, 3) });
+      if (t < 1) this._raf = requestAnimationFrame(step);
+    };
+    this._raf = requestAnimationFrame(step);
+  }
+
+  renderVals() {
+    const p = this.state.counterProgress;
+    const vis = this.state.vis;
+    const opacityOf = k => vis[k] ? 1 : 0;
+    const transformOf = k => vis[k] ? 'translateY(0)' : 'translateY(24px)';
+
+    const statCards = [
+      { target: 12400, suffix: '+', label: 'Học viên', bg: 'var(--color-accent-500)', isUsers: true },
+      { target: 18, suffix: '', label: 'Khoá học', bg: 'var(--color-accent-2-500)', isBook: true },
+      { target: 4.8, suffix: '', label: 'Đánh giá trung bình', bg: 'var(--color-accent-600)', isStar: true }
+    ].map(s => ({
+      ...s,
+      display: s.key === 'rating' || s.target < 10
+        ? (s.target * p).toFixed(1) + s.suffix
+        : Math.round(s.target * p).toLocaleString('vi-VN') + s.suffix
+    }));
+
+    const aboutItems = ABOUT.map(a => ({ ...a, isExp: a.key === 'exp', isDegree: a.key === 'degree', isStyle: a.key === 'style' }));
+    const courses = COURSES.map((c, i) => ({ ...c, priceLabel: fmtPrice(c.price), slotId: 'course-thumb-' + i }));
+    const reviews = REVIEWS.map((r, i) => {
+      const ref = this.getReviewRef(i);
+      const revealed = !!this.state.revealed[i];
+      return { ...r, ref, slotId: 'review-avatar-' + i, revealOpacity: revealed ? 1 : 0, revealTransform: revealed ? 'translateY(0)' : 'translateY(18px)' };
+    });
+
+    return {
+      refs: this.refs,
+      vis: { hero: 1, stats: opacityOf('stats') },
+      transforms: { hero: 'translateY(0)', stats: transformOf('stats') },
+      statCards, aboutItems, courses, reviews,
+      liftHover: { transform: 'translateY(-5px)', boxShadow: 'var(--shadow-md)' }
+    };
+  }
+}
+
+</script>
+</body>
+</html>
