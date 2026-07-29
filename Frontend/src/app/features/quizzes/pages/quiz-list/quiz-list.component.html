@@ -1,0 +1,257 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Quiz chung</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item active">Quiz chung</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    @if (errorMessage) {
+      <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    }
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="text-muted small">
+          Kho quiz dùng chung — độc lập với khóa học, học viên làm trực tiếp hoặc gắn vào nhiều bài học.
+        </span>
+        <button type="button" class="btn btn-primary btn-sm" (click)="openCreateModal()">
+          <i class="bi bi-plus-lg me-1"></i>Thêm quiz
+        </button>
+      </div>
+
+      <div class="card-body p-0">
+        @if (loading) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+          </div>
+        } @else if (items.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            Chưa có quiz chung nào. Bấm "Thêm quiz" để tạo mới.
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tiêu đề</th>
+                  <th>Mô tả</th>
+                  <th class="text-center">Số câu hỏi</th>
+                  <th class="text-center">Đang dùng ở</th>
+                  <th class="text-center" style="width: 20%">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of items; track item.id) {
+                  <tr>
+                    <td class="align-middle fw-semibold">{{ item.title }}</td>
+                    <td class="align-middle text-muted small">{{ item.description || '—' }}</td>
+                    <td class="align-middle text-center">
+                      <span class="badge" [class.text-bg-secondary]="item.questionCount === 0" [class.text-bg-success]="item.questionCount > 0">
+                        {{ item.questionCount }} câu
+                      </span>
+                    </td>
+                    <td class="align-middle text-center">
+                      <span class="badge" [class.text-bg-secondary]="item.linkedLessonCount === 0" [class.text-bg-info]="item.linkedLessonCount > 0">
+                        {{ item.linkedLessonCount }} bài học
+                      </span>
+                    </td>
+                    <td class="text-center align-middle">
+                      <button type="button" class="btn btn-sm btn-outline-primary me-1" (click)="openQuestionsModal(item)">
+                        <i class="bi bi-list-check me-1"></i>Câu hỏi
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Sửa thông tin" (click)="openEditInfoModal(item)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="deleteItem(item)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ Modal 1: Thêm/Sửa thông tin quiz ═══════════════ -->
+<div #infoModal class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title mb-0">{{ infoMode === 'edit' ? 'Sửa thông tin quiz' : 'Thêm quiz mới' }}</h5>
+        <button type="button" class="btn-close" (click)="closeInfoModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="infoForm" (ngSubmit)="onSubmitInfo()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="title"
+              [class.is-invalid]="infoForm.get('title')?.invalid && infoForm.get('title')?.touched"
+              placeholder="Nhập tiêu đề quiz..."
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mô tả (tuỳ chọn)</label>
+            <app-rich-text-editor formControlName="description"></app-rich-text-editor>
+          </div>
+          @if (infoMode === 'add') {
+            <div class="form-text">Sau khi tạo, bạn có thể thêm câu hỏi bằng nút "Câu hỏi" ở danh sách.</div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeInfoModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submittingInfo">
+            @if (submittingInfo) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Lưu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ Modal 2: Quản lý câu hỏi Quiz ═══════════════ -->
+<div #questionsModal class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title mb-0">Câu hỏi quiz — {{ editingItem?.title }}</h5>
+        <button type="button" class="btn-close" (click)="closeQuestionsModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="questionsForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body" style="max-height: 65vh; overflow-y: auto">
+          @if (loadingQuestions) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          } @else {
+            <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+              <div class="small text-muted">
+                Nhập câu hỏi bằng tay bên dưới, hoặc import từ file Excel theo mẫu — có thể kết hợp cả hai.
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="downloadTemplate()">
+                  <i class="bi bi-download me-1"></i>Tải file mẫu
+                </button>
+                <label class="btn btn-sm btn-outline-success mb-0" [class.disabled]="importing">
+                  @if (importing) {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                    Đang import...
+                  } @else {
+                    <i class="bi bi-file-earmark-excel me-1"></i>Import Excel
+                  }
+                  <input type="file" hidden accept=".xlsx" [disabled]="importing" (change)="onImportFileSelected($event)" />
+                </label>
+              </div>
+            </div>
+
+            @if (importWarnings.length > 0) {
+              <div class="alert alert-warning small py-2">
+                <strong>{{ importWarnings.length }} dòng bị bỏ qua khi import:</strong>
+                <ul class="mb-0 mt-1">
+                  @for (w of importWarnings; track w) {
+                    <li>{{ w }}</li>
+                  }
+                </ul>
+              </div>
+            }
+
+            <div formArrayName="questions" class="d-flex flex-column gap-3">
+              @for (question of questions.controls; track question; let qi = $index) {
+                <div class="card" [formGroupName]="qi">
+                  <div class="card-body">
+                    <div class="d-flex gap-2 align-items-start mb-2">
+                      <input
+                        type="text"
+                        class="form-control"
+                        formControlName="text"
+                        [class.is-invalid]="question.get('text')?.invalid && question.get('text')?.touched"
+                        placeholder="Nội dung câu hỏi..."
+                      />
+                      <button type="button" class="btn btn-outline-danger" (click)="removeQuestion(qi)" title="Xóa câu hỏi">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+
+                    <div class="form-check form-switch mb-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        formControlName="allowMultipleAnswers"
+                        (change)="onAllowMultipleChange(qi)"
+                        [id]="'multi-' + qi"
+                      />
+                      <label class="form-check-label small" [for]="'multi-' + qi">Cho phép nhiều đáp án đúng</label>
+                    </div>
+
+                    <div formArrayName="options" class="d-flex flex-column gap-2">
+                      @for (option of getOptions(qi).controls; track option; let oi = $index) {
+                        <div class="d-flex align-items-center gap-2" [formGroupName]="oi">
+                          <input type="checkbox" formControlName="isCorrect" (change)="onOptionCorrectChange(qi, oi)" title="Đáp án đúng" />
+                          <input type="text" class="form-control form-control-sm" formControlName="text" placeholder="Nội dung đáp án..." />
+                          <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeOption(qi, oi)" title="Xóa đáp án">
+                            <i class="bi bi-x-lg"></i>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addOption(qi)">
+                      <i class="bi bi-plus-lg me-1"></i>Thêm đáp án
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="btn btn-outline-primary mt-3" (click)="addQuestion()">
+              <i class="bi bi-plus-lg me-1"></i>Thêm câu hỏi
+            </button>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeQuestionsModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting || loadingQuestions">
+            @if (submitting) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Lưu câu hỏi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

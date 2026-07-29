@@ -38,12 +38,32 @@
             <span class="oc-text-muted oc-accordion__lesson-duration">{{ lesson.durationMinutes }}p</span>
           </button>
           @if (playingLessonId() === lesson.id) {
-            <video
-              class="oc-accordion__lesson-video"
-              [src]="lesson.videoUrl"
-              controls
-              autoplay
-            ></video>
+            @switch (lesson.lessonType) {
+              @case ('Document') {
+                <div class="oc-accordion__lesson-document">
+                  @if (lesson.content) {
+                    <div class="oc-accordion__lesson-document-content" [innerHTML]="lesson.content"></div>
+                  }
+                  @if (lesson.documentUrl) {
+                    <a class="oc-btn oc-btn-ghost" [href]="lesson.documentUrl" target="_blank" rel="noopener">
+                      <app-oc-icon name="download" [size]="14"></app-oc-icon>
+                      Tải tài liệu
+                    </a>
+                  }
+                </div>
+              }
+              @case ('Quiz') {
+                <app-oc-quiz-player [lessonId]="lesson.id"></app-oc-quiz-player>
+              }
+              @default {
+                <video
+                  class="oc-accordion__lesson-video"
+                  [src]="lesson.videoUrl"
+                  controls
+                  autoplay
+                ></video>
+              }
+            }
           }
         }
       </div>

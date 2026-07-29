@@ -47,6 +47,8 @@ export class StudentSidebarComponent {
     { icon: 'layers', label: 'Khối học', link: true, route: '/khoi-hoc' },
     { icon: 'tag', label: 'Danh mục khóa học', link: true, route: '/course-categories' },
     { icon: 'book', label: 'Khóa học', link: true, route: '/courses' },
+    { icon: 'file-text', label: 'Tài liệu', link: true, route: '/documents' },
+    { icon: 'help-circle', label: 'Quiz', link: true, route: '/quizzes' },
     { icon: 'graduation-cap', label: 'Danh sách giảng viên', link: true, route: '/teachers' },
     { icon: 'users', label: 'Danh sách học sinh', link: true, route: '/students' }
   ];

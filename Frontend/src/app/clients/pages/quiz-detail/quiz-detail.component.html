@@ -1,0 +1,30 @@
+<main class="oc-quiz-detail">
+  @if (loading()) {
+    <div class="oc-quiz-detail-loading">
+      <app-oc-icon name="loader" [size]="20" [strokeWidth]="3" class="oc-quiz-detail-spinner"></app-oc-icon>
+      Đang tải quiz...
+    </div>
+  } @else if (notFound()) {
+    <div class="oc-card oc-elev-sm oc-quiz-detail-empty">
+      <app-oc-icon name="layers" [size]="28" color="var(--oc-neutral-400)"></app-oc-icon>
+      <span>Không tìm thấy quiz này.</span>
+      <a class="oc-btn oc-btn-secondary" routerLink="/client/quiz">Về danh sách quiz</a>
+    </div>
+  } @else {
+    @if (quiz(); as q) {
+      <a class="oc-quiz-detail-back" routerLink="/client/quiz">
+        <app-oc-icon name="arrow-left" [size]="14" [strokeWidth]="2.75"></app-oc-icon>
+        Quiz chung
+      </a>
+
+      <div class="oc-card oc-elev-sm oc-quiz-detail-card">
+        <h1 class="oc-quiz-detail-title">{{ q.title }}</h1>
+        @if (q.description) {
+          <p class="oc-text-muted">{{ q.description }}</p>
+        }
+
+        <app-oc-quiz-player [quizId]="q.id"></app-oc-quiz-player>
+      </div>
+    }
+  }
+</main>

@@ -42,6 +42,26 @@ export const clientsRoutes: Routes = [
           import('./pages/student-profile/student-profile.component').then((m) => m.StudentProfileComponent),
       },
       {
+        path: 'tai-lieu',
+        loadComponent: () =>
+          import('./pages/document-list/document-list.component').then((m) => m.DocumentListComponent),
+      },
+      {
+        path: 'tai-lieu/:id',
+        loadComponent: () =>
+          import('./pages/document-detail/document-detail.component').then((m) => m.DocumentDetailComponent),
+      },
+      {
+        path: 'quiz',
+        loadComponent: () =>
+          import('./pages/quiz-list/quiz-list.component').then((m) => m.QuizListComponent),
+      },
+      {
+        path: 'quiz/:id',
+        loadComponent: () =>
+          import('./pages/quiz-detail/quiz-detail.component').then((m) => m.QuizDetailComponent),
+      },
+      {
         path: ':id',
         loadComponent: () =>
           import('./pages/course-detail/course-detail.component').then((m) => m.CourseDetailComponent),

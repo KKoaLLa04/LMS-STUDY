@@ -2,9 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models;
 
-// Lưu kết quả mỗi lần học sinh làm một bài học dạng Quiz (Lesson.LessonType = Quiz).
-// Chưa có ngân hàng câu hỏi/chấm điểm ở backend — điểm số (ScorePercent) do luồng làm bài
-// (sẽ xây dựng sau) tính toán và gửi lên; bảng này chỉ là nơi lưu kết quả để tính điểm thưởng.
+// Lưu kết quả mỗi lần học sinh làm một Quiz dùng chung (đứng độc lập hoặc được gắn vào một
+// Lesson qua Lesson.QuizId). QuizId để nullable — một số attempt lịch sử (trước khi tách Quiz
+// khỏi Lesson) có thể không xác định lại được Quiz gốc trong quá trình backfill dữ liệu, và ta
+// không muốn xóa mất lịch sử vì lý do đó.
 public class QuizAttempt
 {
     [Key]
@@ -13,8 +14,8 @@ public class QuizAttempt
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
-    public int LessonId { get; set; }
-    public Lesson Lesson { get; set; } = null!;
+    public int? QuizId { get; set; }
+    public Quiz? Quiz { get; set; }
 
     [Range(0, 100)]
     public int ScorePercent { get; set; }

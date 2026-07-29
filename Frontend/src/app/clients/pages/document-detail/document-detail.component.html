@@ -1,0 +1,40 @@
+<main class="oc-document-detail">
+  @if (loading()) {
+    <div class="oc-document-detail-loading">
+      <app-oc-icon name="loader" [size]="20" [strokeWidth]="3" class="oc-document-detail-spinner"></app-oc-icon>
+      Đang tải tài liệu...
+    </div>
+  } @else if (notFound()) {
+    <div class="oc-card oc-elev-sm oc-document-detail-empty">
+      <app-oc-icon name="file-text" [size]="28" color="var(--oc-neutral-400)"></app-oc-icon>
+      <span>Không tìm thấy tài liệu này.</span>
+      <a class="oc-btn oc-btn-secondary" routerLink="/client/tai-lieu">Về danh sách tài liệu</a>
+    </div>
+  } @else {
+    @if (document(); as doc) {
+      <a class="oc-document-detail-back" routerLink="/client/tai-lieu">
+        <app-oc-icon name="arrow-left" [size]="14" [strokeWidth]="2.75"></app-oc-icon>
+        Tài liệu chung
+      </a>
+
+      <div class="oc-card oc-elev-sm oc-document-detail-card">
+        <h1 class="oc-document-detail-title">{{ doc.title }}</h1>
+
+        @if (doc.fileUrl) {
+          <a class="oc-btn oc-btn-secondary oc-document-detail-file" [href]="doc.fileUrl" target="_blank" rel="noopener">
+            <app-oc-icon name="download" [size]="15" [strokeWidth]="2.5"></app-oc-icon>
+            Tải file đính kèm
+          </a>
+        }
+
+        @if (doc.content) {
+          <div class="oc-document-detail-content" [innerHTML]="doc.content"></div>
+        }
+
+        @if (!doc.content && !doc.fileUrl) {
+          <p class="oc-text-muted">Tài liệu này chưa có nội dung.</p>
+        }
+      </div>
+    }
+  }
+</main>

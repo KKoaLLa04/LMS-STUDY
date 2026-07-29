@@ -6,18 +6,25 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 import { CourseService } from '../../services/course.service';
 import { SectionService } from '../../services/section.service';
 import { LessonService } from '../../services/lesson.service';
-import { CreateCourseRequest } from '../../models/course.model';
+import { QuizQuestionService } from '../../services/quiz-question.service';
+import { CreateCourseRequest, QuizQuestionAdmin } from '../../models/course.model';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
 import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
 import { CourseCategoryService } from '../../../course-categories/services/course-category.service';
 import { CourseCategory } from '../../../course-categories/models/course-category.model';
+import { DocumentService } from '../../../documents/services/document.service';
+import { DocumentItem } from '../../../documents/models/document.model';
+import { QuizLibraryService } from '../../../quizzes/services/quiz.service';
+import { QuizItem } from '../../../quizzes/models/quiz.model';
+import { RichTextEditorComponent } from '../../../../shared/components/rich-text-editor/rich-text-editor.component';
 
 declare const bootstrap: any;
 
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_DOCUMENT_SIZE = 50 * 1024 * 1024; // 50MB
 const DEFAULT_EMOJI = '📘';
 
 interface UploadState {
@@ -37,7 +44,7 @@ const slideOut = [
 @Component({
   selector: 'app-course-wizard-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RichTextEditorComponent],
   templateUrl: './course-wizard-modal.component.html',
   styleUrls: ['./course-wizard-modal.component.scss'],
   animations: [
@@ -72,7 +79,10 @@ export class CourseWizardModalComponent implements AfterViewInit {
   priceDisplay = '0';
   khoiHocs: KhoiHoc[] = [];
   categories: CourseCategory[] = [];
+  sharedDocuments: DocumentItem[] = [];
+  sharedQuizzes: QuizItem[] = [];
   uploadState = new Map<AbstractControl, UploadState>();
+  documentUploadState = new Map<AbstractControl, UploadState>();
   imageUploadState: UploadState = { uploading: false };
   previewVideoUploadState: UploadState = { uploading: false };
 
@@ -86,8 +96,11 @@ export class CourseWizardModalComponent implements AfterViewInit {
     private courseService: CourseService,
     private sectionService: SectionService,
     private lessonService: LessonService,
+    private quizQuestionService: QuizQuestionService,
     private khoiHocService: KhoiHocService,
     private courseCategoryService: CourseCategoryService,
+    private documentService: DocumentService,
+    private quizLibraryService: QuizLibraryService,
     private uploadService: UploadService,
     private toast: ToastService
   ) {
@@ -139,12 +152,15 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.priceDisplay = '0';
     this.thumbnailError = false;
     this.uploadState.clear();
+    this.documentUploadState.clear();
     this.imageUploadState = { uploading: false };
     this.previewVideoUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
     this.loadKhoiHocs();
     this.loadCategories();
+    this.loadSharedDocuments();
+    this.loadSharedQuizzes();
     this.modal.show();
   }
 
@@ -155,12 +171,15 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.currentStep = 1;
     this.thumbnailError = false;
     this.uploadState.clear();
+    this.documentUploadState.clear();
     this.imageUploadState = { uploading: false };
     this.previewVideoUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
     this.loadKhoiHocs();
     this.loadCategories();
+    this.loadSharedDocuments();
+    this.loadSharedQuizzes();
     this.loadCourse(id);
     this.modal.show();
   }
@@ -180,6 +199,20 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.courseCategoryService.getCategories().subscribe({
       next: (res) => (this.categories = res.data ?? []),
       error: () => this.toast.error('Không thể tải danh sách danh mục khóa học.')
+    });
+  }
+
+  private loadSharedDocuments(): void {
+    this.documentService.getAll().subscribe({
+      next: (res) => (this.sharedDocuments = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách tài liệu chung.')
+    });
+  }
+
+  private loadSharedQuizzes(): void {
+    this.quizLibraryService.getAll().subscribe({
+      next: (res) => (this.sharedQuizzes = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách quiz chung.')
     });
   }
 
@@ -214,19 +247,31 @@ export class CourseWizardModalComponent implements AfterViewInit {
       sectionsArray.clear();
 
       for (const section of course.sections ?? []) {
-        const lessonsArray = this.fb.array(
-          (section.lessons ?? []).map((lesson) =>
+        const lessonsArray = this.fb.array<FormGroup>([]);
+
+        for (const lesson of section.lessons ?? []) {
+          let questions: QuizQuestionAdmin[] = [];
+          if (lesson.lessonType === 'Quiz') {
+            const qRes = await lastValueFrom(this.quizQuestionService.getQuestions(lesson.id));
+            questions = qRes.data ?? [];
+          }
+
+          lessonsArray.push(
             this.fb.group({
               id: [lesson.id],
               title: [lesson.title, [Validators.required, Validators.maxLength(255)]],
               content: [lesson.content ?? ''],
               videoUrl: [lesson.videoUrl ?? '', Validators.maxLength(500)],
+              documentUrl: [lesson.documentUrl ?? '', Validators.maxLength(500)],
               lessonType: [lesson.lessonType],
               position: [lesson.position, Validators.min(0)],
-              durationMinutes: [lesson.durationMinutes ?? 0, Validators.min(0)]
+              durationMinutes: [lesson.durationMinutes ?? 0, Validators.min(0)],
+              documentId: [lesson.documentId ?? null],
+              quizId: [lesson.quizId ?? null],
+              questions: this.buildQuestionsArray(questions)
             })
-          )
-        );
+          );
+        }
 
         sectionsArray.push(
           this.fb.group({
@@ -370,9 +415,13 @@ export class CourseWizardModalComponent implements AfterViewInit {
         title: ['', [Validators.required, Validators.maxLength(255)]],
         content: [''],
         videoUrl: ['', Validators.maxLength(500)],
+        documentUrl: ['', Validators.maxLength(500)],
         lessonType: ['Video'],
         position: [lessons.length + 1, Validators.min(0)],
-        durationMinutes: [0, Validators.min(0)]
+        durationMinutes: [0, Validators.min(0)],
+        documentId: [null],
+        quizId: [null],
+        questions: this.buildQuestionsArray([])
       })
     );
   }
@@ -383,7 +432,145 @@ export class CourseWizardModalComponent implements AfterViewInit {
     const lessonId = lesson.get('id')?.value;
     if (lessonId) this.deletedLessonIds.push(lessonId);
     this.uploadState.delete(lesson);
+    this.documentUploadState.delete(lesson);
     lessons.removeAt(li);
+  }
+
+  // ── Câu hỏi Quiz (chỉ hiển thị khi lessonType === 'Quiz') ──
+
+  private buildOptionsArray(options: { id?: number; text: string; isCorrect: boolean; orderNumber: number }[]): FormArray {
+    const source = options.length > 0 ? options : [
+      { text: '', isCorrect: false, orderNumber: 1 },
+      { text: '', isCorrect: false, orderNumber: 2 }
+    ];
+    return this.fb.array(
+      source.map((o) =>
+        this.fb.group({
+          id: [o.id ?? null],
+          text: [o.text, Validators.required],
+          isCorrect: [o.isCorrect],
+          orderNumber: [o.orderNumber]
+        })
+      )
+    );
+  }
+
+  private buildQuestionsArray(questions: QuizQuestionAdmin[]): FormArray {
+    return this.fb.array(
+      questions.map((q, i) =>
+        this.fb.group({
+          id: [q.id ?? null],
+          text: [q.text, Validators.required],
+          orderNumber: [q.orderNumber ?? i + 1],
+          allowMultipleAnswers: [q.allowMultipleAnswers],
+          options: this.buildOptionsArray(q.options)
+        })
+      )
+    );
+  }
+
+  getLessonQuestions(si: number, li: number): FormArray {
+    return this.getSectionLessons(si).at(li).get('questions') as FormArray;
+  }
+
+  getQuestionOptions(si: number, li: number, qi: number): FormArray {
+    return this.getLessonQuestions(si, li).at(qi).get('options') as FormArray;
+  }
+
+  addQuestion(si: number, li: number): void {
+    const questions = this.getLessonQuestions(si, li);
+    questions.push(
+      this.fb.group({
+        id: [null],
+        text: ['', Validators.required],
+        orderNumber: [questions.length + 1],
+        allowMultipleAnswers: [false],
+        options: this.buildOptionsArray([])
+      })
+    );
+  }
+
+  removeQuestion(si: number, li: number, qi: number): void {
+    this.getLessonQuestions(si, li).removeAt(qi);
+  }
+
+  addOption(si: number, li: number, qi: number): void {
+    const options = this.getQuestionOptions(si, li, qi);
+    options.push(this.fb.group({ id: [null], text: ['', Validators.required], isCorrect: [false], orderNumber: [options.length + 1] }));
+  }
+
+  removeOption(si: number, li: number, qi: number, oi: number): void {
+    this.getQuestionOptions(si, li, qi).removeAt(oi);
+  }
+
+  // Với câu hỏi 1 đáp án đúng, chọn đáp án này thì tự bỏ chọn các đáp án còn lại
+  // (mô phỏng hành vi radio bằng checkbox, vì mỗi option là một FormGroup độc lập trong FormArray).
+  onOptionCorrectChange(si: number, li: number, qi: number, oi: number): void {
+    const question = this.getLessonQuestions(si, li).at(qi);
+    const options = this.getQuestionOptions(si, li, qi);
+    const allowMultiple = question.get('allowMultipleAnswers')?.value;
+    const clickedIsCorrect = options.at(oi).get('isCorrect')?.value;
+
+    if (!allowMultiple && clickedIsCorrect) {
+      options.controls.forEach((opt, idx) => {
+        if (idx !== oi) opt.get('isCorrect')?.setValue(false, { emitEvent: false });
+      });
+    }
+  }
+
+  onAllowMultipleChange(si: number, li: number, qi: number): void {
+    const question = this.getLessonQuestions(si, li).at(qi);
+    if (question.get('allowMultipleAnswers')?.value) return;
+
+    // Vừa tắt "nhiều đáp án đúng" — chỉ giữ lại đáp án đúng đầu tiên, bỏ chọn các đáp án còn lại.
+    const options = this.getQuestionOptions(si, li, qi);
+    let keptFirst = false;
+    options.controls.forEach((opt) => {
+      if (opt.get('isCorrect')?.value) {
+        if (keptFirst) opt.get('isCorrect')?.setValue(false, { emitEvent: false });
+        keptFirst = true;
+      }
+    });
+  }
+
+  // ── Upload tài liệu (chỉ hiển thị khi lessonType === 'Document') ──
+
+  getDocumentUploadState(lesson: AbstractControl): UploadState {
+    return this.documentUploadState.get(lesson) ?? { uploading: false };
+  }
+
+  onDocumentFileSelected(event: Event, lesson: AbstractControl): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    if (file.size > MAX_DOCUMENT_SIZE) {
+      this.toast.error('File tài liệu không được vượt quá 50MB.');
+      return;
+    }
+
+    this.documentUploadState.set(lesson, { uploading: true });
+    this.uploadService.uploadDocument(file).subscribe({
+      next: (res) => {
+        if (!res.success || !res.data) {
+          this.documentUploadState.set(lesson, { uploading: false });
+          this.toast.error(res.message || 'Tải tài liệu lên thất bại');
+          return;
+        }
+        lesson.get('documentUrl')?.setValue(res.data.url);
+        this.documentUploadState.set(lesson, { uploading: false, fileName: file.name });
+      },
+      error: (err) => {
+        this.documentUploadState.set(lesson, { uploading: false });
+        this.toast.error(err?.error?.message || 'Tải tài liệu lên thất bại');
+      }
+    });
+  }
+
+  clearUploadedDocument(lesson: AbstractControl): void {
+    lesson.get('documentUrl')?.setValue('');
+    this.documentUploadState.delete(lesson);
   }
 
   getUploadState(lesson: AbstractControl): UploadState {
@@ -543,21 +730,37 @@ export class CourseWizardModalComponent implements AfterViewInit {
             title: lesson.title,
             content: lesson.content || undefined,
             videoUrl: lesson.videoUrl || undefined,
+            documentUrl: lesson.documentUrl || undefined,
             lessonType: lesson.lessonType,
             position: lesson.position,
-            durationMinutes: lesson.durationMinutes ?? 0
+            durationMinutes: lesson.durationMinutes ?? 0,
+            documentId: lesson.documentId || undefined,
+            quizId: lesson.quizId || undefined
           };
 
+          let lessonId: number;
           if (lesson.id) {
             const lRes = await lastValueFrom(this.lessonService.updateLesson(lesson.id, lessonPayload));
             if (!lRes.success) {
               this.toast.error(lRes.message || 'Cập nhật bài học thất bại');
               return;
             }
+            lessonId = lesson.id;
           } else {
             const lRes = await lastValueFrom(this.lessonService.createLesson({ sectionId, ...lessonPayload }));
             if (!lRes.success) {
               this.toast.error(lRes.message || 'Tạo bài học thất bại');
+              return;
+            }
+            lessonId = lRes.data!.id;
+          }
+
+          // Nếu lesson gắn quiz có sẵn (quizId), câu hỏi được quản lý ở trang "Quiz chung" —
+          // không ghi đè bằng danh sách câu hỏi rỗng/local ở đây.
+          if (lesson.lessonType === 'Quiz' && !lesson.quizId) {
+            const qRes = await lastValueFrom(this.quizQuestionService.replaceQuestions(lessonId, lesson.questions ?? []));
+            if (!qRes.success) {
+              this.toast.error(qRes.message || 'Lưu câu hỏi quiz thất bại');
               return;
             }
           }

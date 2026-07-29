@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, CreateLessonRequest, LessonResponse } from '../models/course.model';
+import { ApiResponse, CreateLessonRequest, LessonAdminListItem, LessonResponse } from '../models/course.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -9,6 +9,14 @@ export class LessonService {
   private readonly baseUrl = `${environment.apiBaseUrl}/lessons`;
 
   constructor(private http: HttpClient) {}
+
+  getByType(lessonType: 'Document' | 'Quiz'): Observable<ApiResponse<LessonAdminListItem[]>> {
+    return this.http.get<ApiResponse<LessonAdminListItem[]>>(this.baseUrl, { params: { lessonType } });
+  }
+
+  getById(id: number): Observable<ApiResponse<LessonResponse>> {
+    return this.http.get<ApiResponse<LessonResponse>>(`${this.baseUrl}/${id}`);
+  }
 
   createLesson(dto: CreateLessonRequest): Observable<ApiResponse<LessonResponse>> {
     return this.http.post<ApiResponse<LessonResponse>>(this.baseUrl, dto);

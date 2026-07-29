@@ -16,7 +16,9 @@ export type IconName =
   | 'layers'
   | 'log-out'
   | 'tag'
-  | 'users';
+  | 'users'
+  | 'file-text'
+  | 'help-circle';
 
 export interface Student {
   name: string;

@@ -1,0 +1,55 @@
+<div class="oc-quiz">
+  @if (loading()) {
+    <div class="oc-quiz__loading">Đang tải câu hỏi...</div>
+  } @else if (questions().length === 0) {
+    <div class="oc-quiz__empty">Bài quiz này chưa có câu hỏi.</div>
+  } @else {
+    @if (result(); as r) {
+      <div class="oc-quiz__result">
+        <span class="oc-quiz__result-score">Điểm: {{ r.attempt.scorePercent }}%</span>
+        @if (r.pointsAwarded > 0) {
+          <span class="oc-quiz__result-points">+{{ r.pointsAwarded }} điểm thưởng</span>
+        }
+        <span class="oc-quiz__result-best">Điểm cao nhất: {{ r.bestScorePercent }}%</span>
+      </div>
+    }
+
+    @for (question of questions(); track question.id; let qi = $index) {
+      <div class="oc-quiz__question">
+        <span class="oc-quiz__question-title">Câu {{ qi + 1 }}. {{ question.text }}</span>
+        <div class="oc-quiz__options">
+          @for (option of question.options; track option.id) {
+            <label
+              class="oc-quiz__option"
+              [class.is-selected]="isSelected(question.id, option.id)"
+              [class.is-correct]="optionState(question.id, option.id) === 'correct'"
+              [class.is-incorrect]="optionState(question.id, option.id) === 'incorrect'"
+            >
+              <input
+                [type]="question.allowMultipleAnswers ? 'checkbox' : 'radio'"
+                [name]="'question-' + question.id"
+                [checked]="isSelected(question.id, option.id)"
+                [disabled]="!!result()"
+                (change)="toggleOption(question, option.id)"
+              />
+              <span>{{ option.text }}</span>
+              @if (optionState(question.id, option.id) === 'correct') {
+                <app-oc-icon name="check" [size]="14" color="#16A34A"></app-oc-icon>
+              }
+            </label>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="oc-quiz__actions">
+      @if (result()) {
+        <button type="button" class="oc-btn oc-btn-ghost" (click)="retry()">Làm lại</button>
+      } @else {
+        <button type="button" class="oc-btn oc-btn-primary" [disabled]="!allAnswered || submitting()" (click)="submit()">
+          {{ submitting() ? 'Đang nộp bài...' : 'Nộp bài' }}
+        </button>
+      }
+    </div>
+  }
+</div>

@@ -1,11 +1,17 @@
 export type LessonStatus = 'done' | 'current' | 'locked';
+export type LessonKind = 'Video' | 'Document' | 'Quiz';
 
 export interface Lesson {
   id: number;
   title: string;
   durationMinutes: number;
   status: LessonStatus;
+  lessonType: LessonKind;
   videoUrl?: string;
+  /** Nội dung rich text/HTML — chỉ áp dụng cho lessonType 'Document'. */
+  content?: string;
+  /** File đính kèm (PDF/Word/PowerPoint/Excel) — chỉ áp dụng cho lessonType 'Document'. */
+  documentUrl?: string;
 }
 
 export interface Chapter {

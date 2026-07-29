@@ -1,0 +1,33 @@
+<main class="oc-quizzes">
+  <div class="oc-quizzes-header">
+    <h1 class="oc-quizzes-title">Quiz chung</h1>
+    <p class="oc-text-muted">Kho quiz dùng chung của trung tâm — làm trực tiếp, không cần vào khóa học nào.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="oc-quizzes-loading">
+      <app-oc-icon name="loader" [size]="20" [strokeWidth]="3" class="oc-quizzes-spinner"></app-oc-icon>
+      Đang tải quiz...
+    </div>
+  } @else if (quizzes().length === 0) {
+    <div class="oc-card oc-elev-sm oc-quizzes-empty">
+      <app-oc-icon name="layers" [size]="28" color="var(--oc-neutral-400)"></app-oc-icon>
+      <span>Chưa có quiz chung nào.</span>
+    </div>
+  } @else {
+    <div class="oc-quizzes-grid">
+      @for (quiz of quizzes(); track quiz.id; let i = $index) {
+        <a class="oc-card oc-elev-sm oc-quiz-card" [routerLink]="['/client/quiz', quiz.id]" [style.animation-delay.s]="animationDelayFor(i)">
+          <div class="oc-quiz-card__icon">
+            <app-oc-icon name="layers" [size]="22" color="var(--oc-accent-2-700)"></app-oc-icon>
+          </div>
+          <span class="oc-quiz-card__title">{{ quiz.title }}</span>
+          @if (quiz.description) {
+            <span class="oc-text-muted oc-quiz-card__desc">{{ quiz.description }}</span>
+          }
+          <span class="oc-tag">{{ quiz.questionCount }} câu hỏi</span>
+        </a>
+      }
+    </div>
+  }
+</main>

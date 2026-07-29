@@ -1,0 +1,37 @@
+<main class="oc-documents">
+  <div class="oc-documents-header">
+    <h1 class="oc-documents-title">Tài liệu chung</h1>
+    <p class="oc-text-muted">Kho tài liệu dùng chung của trung tâm — xem trực tiếp, không cần vào khóa học nào.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="oc-documents-loading">
+      <app-oc-icon name="loader" [size]="20" [strokeWidth]="3" class="oc-documents-spinner"></app-oc-icon>
+      Đang tải tài liệu...
+    </div>
+  } @else if (documents().length === 0) {
+    <div class="oc-card oc-elev-sm oc-documents-empty">
+      <app-oc-icon name="file-text" [size]="28" color="var(--oc-neutral-400)"></app-oc-icon>
+      <span>Chưa có tài liệu chung nào.</span>
+    </div>
+  } @else {
+    <div class="oc-documents-grid">
+      @for (doc of documents(); track doc.id; let i = $index) {
+        <a class="oc-card oc-elev-sm oc-document-card" [routerLink]="['/client/tai-lieu', doc.id]" [style.animation-delay.s]="animationDelayFor(i)">
+          <div class="oc-document-card__icon">
+            <app-oc-icon name="file-text" [size]="22" color="var(--oc-accent-700)"></app-oc-icon>
+          </div>
+          <span class="oc-document-card__title">{{ doc.title }}</span>
+          <div class="oc-document-card__meta">
+            @if (doc.content) {
+              <span class="oc-tag">Nội dung</span>
+            }
+            @if (doc.fileUrl) {
+              <span class="oc-tag">File đính kèm</span>
+            }
+          </div>
+        </a>
+      }
+    </div>
+  }
+</main>

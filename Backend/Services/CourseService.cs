@@ -323,6 +323,7 @@ public class CourseService : ICourseService
                 Title = l.Title,
                 Content = l.Content,
                 VideoUrl = l.VideoUrl,
+                DocumentUrl = l.DocumentUrl,
                 LessonType = l.LessonType.ToString(),
                 Position = l.Position,
                 DurationMinutes = l.DurationMinutes

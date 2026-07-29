@@ -95,7 +95,13 @@ builder.Services.AddScoped<IPointService, PointService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<ILessonProgressService, LessonProgressService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IQuizQuestionService, QuizQuestionService>();
 builder.Services.AddScoped<IRankingService, RankingService>();
+
+// Kho Tài liệu chung / Quiz chung
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IQuizLibraryService, QuizLibraryService>();
+builder.Services.AddScoped<IQuizImportService, QuizImportService>();
 
 // Cho phép upload video kích thước lớn (tối đa 500MB) qua multipart/form-data
 builder.Services.Configure<FormOptions>(options =>

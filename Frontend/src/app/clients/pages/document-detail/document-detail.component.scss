@@ -1,0 +1,66 @@
+.oc-document-detail {
+  padding: 28px 32px 80px;
+  max-width: 840px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oc-document-detail-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 0;
+  justify-content: center;
+}
+
+.oc-document-detail-spinner {
+  animation: oc-spin 0.9s linear infinite;
+}
+
+@keyframes oc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.oc-document-detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+}
+
+.oc-document-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--oc-text);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.oc-document-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+}
+
+.oc-document-detail-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.oc-document-detail-file {
+  width: fit-content;
+}
+
+.oc-document-detail-content {
+  line-height: 1.7;
+  color: var(--oc-text);
+}

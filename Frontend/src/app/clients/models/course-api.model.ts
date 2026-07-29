@@ -38,6 +38,7 @@ export interface LessonResponseApi {
   title: string;
   content?: string;
   videoUrl?: string;
+  documentUrl?: string;
   lessonType: string;
   position: number;
   durationMinutes: number;

@@ -4,11 +4,12 @@ import { Chapter, Lesson } from '../../models/course.model';
 import { formatChapterMeta } from '../../utils/format.util';
 import { findNextLesson } from '../../utils/chapters.util';
 import { OcIconComponent } from '../icon/icon.component';
+import { QuizPlayerComponent } from '../quiz-player/quiz-player.component';
 
 @Component({
   selector: 'app-oc-chapter-accordion',
   standalone: true,
-  imports: [OcIconComponent],
+  imports: [OcIconComponent, QuizPlayerComponent],
   templateUrl: './chapter-accordion.component.html',
   styleUrl: './chapter-accordion.component.scss',
   animations: [
@@ -55,7 +56,15 @@ export class ChapterAccordionComponent implements OnChanges {
   }
 
   isLessonPlayable(lesson: Lesson): boolean {
-    return lesson.status !== 'locked' && !!lesson.videoUrl;
+    if (lesson.status === 'locked') return false;
+    switch (lesson.lessonType) {
+      case 'Document':
+        return !!lesson.content || !!lesson.documentUrl;
+      case 'Quiz':
+        return true;
+      default:
+        return !!lesson.videoUrl;
+    }
   }
 
   toggleLessonVideo(lesson: Lesson): void {

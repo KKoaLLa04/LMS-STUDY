@@ -25,9 +25,13 @@ export interface CreateLessonRequest {
   title: string;
   content?: string;
   videoUrl?: string;
+  documentUrl?: string;
   lessonType: string;
   position: number;
   durationMinutes: number;
+  // Gắn với Tài liệu/Quiz chung có sẵn (kho dùng chung) thay vì tạo nội dung riêng cho bài học này.
+  documentId?: number;
+  quizId?: number;
 }
 
 export interface CourseListItem {
@@ -52,9 +56,45 @@ export interface LessonResponse {
   title: string;
   content?: string;
   videoUrl?: string;
+  documentUrl?: string;
   lessonType: string;
   position: number;
   durationMinutes: number;
+  documentId?: number;
+  quizId?: number;
+}
+
+// Backend/DTOs/LessonAdminListItemDto.cs — dùng cho trang quản trị "Tài liệu"/"Quiz" độc lập.
+export interface LessonAdminListItem {
+  id: number;
+  title: string;
+  lessonType: string;
+  content?: string;
+  videoUrl?: string;
+  documentUrl?: string;
+  position: number;
+  durationMinutes: number;
+  sectionId: number;
+  sectionTitle: string;
+  courseId: number;
+  courseTitle: string;
+  questionCount: number;
+}
+
+// Backend/DTOs/QuizQuestionDto.cs — QuizQuestionAdminDto/QuizOptionAdminDto (có IsCorrect).
+export interface QuizOptionAdmin {
+  id?: number;
+  text: string;
+  isCorrect: boolean;
+  orderNumber: number;
+}
+
+export interface QuizQuestionAdmin {
+  id?: number;
+  text: string;
+  orderNumber: number;
+  allowMultipleAnswers: boolean;
+  options: QuizOptionAdmin[];
 }
 
 export interface SectionDetail {

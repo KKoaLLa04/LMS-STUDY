@@ -1,4 +1,4 @@
-import { Chapter, Course, Lesson, ThumbnailVariant } from '../models/course.model';
+import { Chapter, Course, Lesson, LessonKind, ThumbnailVariant } from '../models/course.model';
 import { CourseDetailApi, CourseListItemApi, SectionDetailApi } from '../models/course-api.model';
 import { formatTeacherInitials } from './format.util';
 
@@ -48,10 +48,14 @@ function mapSectionToChapter(section: SectionDetailApi, purchased: boolean): Cha
           id: lesson.id,
           title: lesson.title,
           durationMinutes: lesson.durationMinutes,
-          // Chưa có bảng LessonProgress (Phase 2) nên chưa biết bài nào học sinh đã
-          // hoàn thành — chỉ áp dụng quy tắc "học thử 3 bài đầu" cho khóa chưa mua.
+          // Chưa gắn LessonProgress thật vào luồng xem khóa học ở đây — chỉ áp dụng quy tắc
+          // "học thử 3 bài đầu" cho khóa chưa mua (progress theo từng bài là việc client gọi
+          // LessonProgressController riêng khi học, không ảnh hưởng tới khóa/mở bài ở đây).
           status: !purchased && index >= FREE_PREVIEW_LESSON_COUNT ? 'locked' : 'current',
+          lessonType: (lesson.lessonType as LessonKind) ?? 'Video',
           videoUrl: lesson.videoUrl,
+          content: lesson.content,
+          documentUrl: lesson.documentUrl,
         })
       ),
   };

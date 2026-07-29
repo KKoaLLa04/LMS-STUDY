@@ -27,6 +27,10 @@ public class AppDbContext : DbContext
     public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
     public DbSet<PointTransaction> PointTransactions => Set<PointTransaction>();
+    public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
+    public DbSet<QuizOption> QuizOptions => Set<QuizOption>();
+    public DbSet<Document> Documents => Set<Document>();
+    public DbSet<Quiz> Quizzes => Set<Quiz>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,6 +77,33 @@ public class AppDbContext : DbContext
                   .WithMany(s => s.Lessons)
                   .HasForeignKey(l => l.SectionId)
                   .OnDelete(DeleteBehavior.Cascade);
+            // Document/Quiz dùng chung — nullable, không cascade: xóa Lesson không được xóa
+            // Document/Quiz (có thể đang được Lesson khác dùng chung); DocumentService/
+            // QuizLibraryService tự chặn xóa khi vẫn còn Lesson tham chiếu.
+            entity.HasOne(l => l.Document)
+                  .WithMany()
+                  .HasForeignKey(l => l.DocumentId)
+                  .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(l => l.Quiz)
+                  .WithMany()
+                  .HasForeignKey(l => l.QuizId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Document>(entity =>
+        {
+            entity.ToTable("Documents");
+            entity.Property(d => d.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+        });
+
+        modelBuilder.Entity<Quiz>(entity =>
+        {
+            entity.ToTable("Quizzes");
+            entity.Property(q => q.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<KhoiHoc>(entity =>
@@ -232,10 +263,11 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(qa => qa.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(qa => qa.Lesson)
+            // QuizId nullable — giữ lịch sử attempt kể cả khi không backfill được Quiz gốc.
+            entity.HasOne(qa => qa.Quiz)
                   .WithMany()
-                  .HasForeignKey(qa => qa.LessonId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .HasForeignKey(qa => qa.QuizId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<PointTransaction>(entity =>
@@ -255,6 +287,26 @@ public class AppDbContext : DbContext
             // không nên bị chặn xóa hay bị xóa cascade nếu khóa học bị gỡ sau này.
             entity.HasIndex(pt => pt.CourseId);
             entity.HasIndex(pt => new { pt.UserId, pt.CreatedAt });
+        });
+
+        modelBuilder.Entity<QuizQuestion>(entity =>
+        {
+            entity.ToTable("QuizQuestions");
+            entity.HasOne(q => q.Quiz)
+                  .WithMany(q => q.Questions)
+                  .HasForeignKey(q => q.QuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(q => q.QuizId);
+        });
+
+        modelBuilder.Entity<QuizOption>(entity =>
+        {
+            entity.ToTable("QuizOptions");
+            entity.HasOne(o => o.Question)
+                  .WithMany(q => q.Options)
+                  .HasForeignKey(o => o.QuestionId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(o => o.QuestionId);
         });
 
         // Xóa mềm: tự động loại bỏ các bản ghi có IsDeleted = true khỏi mọi truy vấn LINQ,

@@ -76,6 +76,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'documents',
+        loadChildren: () =>
+          import('./features/documents/documents.routes').then(
+            (m) => m.documentsRoutes
+          ),
+      },
+      {
+        path: 'quizzes',
+        loadChildren: () =>
+          import('./features/quizzes/quizzes.routes').then(
+            (m) => m.quizzesRoutes
+          ),
+      },
+      {
         path: 'teachers',
         loadChildren: () =>
           import('./features/users/teachers.routes').then((m) => m.teachersRoutes),

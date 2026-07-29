@@ -416,12 +416,14 @@
                                     <option value="Document">Tài liệu</option>
                                     <option value="Quiz">Quiz</option>
                                   </select>
-                                  <input
-                                    class="lesson-input"
-                                    type="text"
-                                    formControlName="videoUrl"
-                                    placeholder="URL Video (tuỳ chọn)..."
-                                  />
+                                  @if (lesson.get('lessonType')?.value === 'Video') {
+                                    <input
+                                      class="lesson-input"
+                                      type="text"
+                                      formControlName="videoUrl"
+                                      placeholder="URL Video (tuỳ chọn)..."
+                                    />
+                                  }
                                   <input
                                     class="lesson-input lesson-duration-input"
                                     type="number"
@@ -432,33 +434,151 @@
                                   />
                                 </div>
 
-                                <div class="lesson-video-upload">
-                                  <label class="btn-upload-video" [class.disabled]="getUploadState(lesson).uploading">
-                                    @if (getUploadState(lesson).uploading) {
-                                      <span class="spinner-border spinner-border-sm"></span>
-                                      Đang tải lên...
-                                    } @else {
-                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                      Tải video lên
+                                @if (lesson.get('lessonType')?.value === 'Video') {
+                                  <div class="lesson-video-upload">
+                                    <label class="btn-upload-video" [class.disabled]="getUploadState(lesson).uploading">
+                                      @if (getUploadState(lesson).uploading) {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                        Đang tải lên...
+                                      } @else {
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                        Tải video lên
+                                      }
+                                      <input
+                                        type="file"
+                                        hidden
+                                        accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
+                                        [disabled]="getUploadState(lesson).uploading"
+                                        (change)="onVideoFileSelected($event, lesson)"
+                                      />
+                                    </label>
+                                    @if (getUploadState(lesson).fileName) {
+                                      <span class="uploaded-file-badge">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        {{ getUploadState(lesson).fileName }}
+                                        <button type="button" (click)="clearUploadedVideo(lesson)" title="Xóa video">
+                                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </button>
+                                      </span>
                                     }
-                                    <input
-                                      type="file"
-                                      hidden
-                                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
-                                      [disabled]="getUploadState(lesson).uploading"
-                                      (change)="onVideoFileSelected($event, lesson)"
-                                    />
-                                  </label>
-                                  @if (getUploadState(lesson).fileName) {
-                                    <span class="uploaded-file-badge">
-                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                      {{ getUploadState(lesson).fileName }}
-                                      <button type="button" (click)="clearUploadedVideo(lesson)" title="Xóa video">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                      </button>
-                                    </span>
+                                  </div>
+                                }
+
+                                @if (lesson.get('lessonType')?.value === 'Document') {
+                                  <div class="lesson-document-block">
+                                    <select class="lesson-type-select" formControlName="documentId">
+                                      <option [ngValue]="null">-- Tạo tài liệu riêng cho bài học này --</option>
+                                      @for (d of sharedDocuments; track d.id) {
+                                        <option [ngValue]="d.id">📄 {{ d.title }} (Tài liệu chung)</option>
+                                      }
+                                    </select>
+
+                                    @if (!lesson.get('documentId')?.value) {
+                                      <app-rich-text-editor formControlName="content"></app-rich-text-editor>
+
+                                      <div class="lesson-video-upload">
+                                        <label class="btn-upload-video" [class.disabled]="getDocumentUploadState(lesson).uploading">
+                                          @if (getDocumentUploadState(lesson).uploading) {
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                            Đang tải lên...
+                                          } @else {
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                            Tải file tài liệu lên (PDF/Word/PowerPoint/Excel)
+                                          }
+                                          <input
+                                            type="file"
+                                            hidden
+                                            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                                            [disabled]="getDocumentUploadState(lesson).uploading"
+                                            (change)="onDocumentFileSelected($event, lesson)"
+                                          />
+                                        </label>
+                                        @if (getDocumentUploadState(lesson).fileName) {
+                                          <span class="uploaded-file-badge">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                            {{ getDocumentUploadState(lesson).fileName }}
+                                            <button type="button" (click)="clearUploadedDocument(lesson)" title="Xóa tài liệu">
+                                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                          </span>
+                                        }
+                                      </div>
+                                    } @else {
+                                      <div class="field-hint">Bài học này đang dùng chung tài liệu ở trên — chỉnh sửa nội dung tại trang "Tài liệu chung".</div>
+                                    }
+                                  </div>
+                                }
+
+                                @if (lesson.get('lessonType')?.value === 'Quiz') {
+                                  <select class="lesson-type-select" formControlName="quizId">
+                                    <option [ngValue]="null">-- Tạo quiz riêng cho bài học này --</option>
+                                    @for (q of sharedQuizzes; track q.id) {
+                                      <option [ngValue]="q.id">📝 {{ q.title }} (Quiz chung, {{ q.questionCount }} câu)</option>
+                                    }
+                                  </select>
+
+                                  @if (lesson.get('quizId')?.value) {
+                                    <div class="field-hint">Bài học này đang dùng chung quiz ở trên — quản lý câu hỏi tại trang "Quiz chung".</div>
                                   }
-                                </div>
+                                }
+
+                                @if (lesson.get('lessonType')?.value === 'Quiz' && !lesson.get('quizId')?.value) {
+                                  <div class="lesson-quiz-block" [formArrayName]="'questions'">
+                                    @for (question of getLessonQuestions(si, li).controls; track question; let qi = $index) {
+                                      <div class="quiz-question-item" [formGroupName]="qi">
+                                        <div class="lesson-item-top">
+                                          <input
+                                            class="lesson-input"
+                                            type="text"
+                                            formControlName="text"
+                                            placeholder="Nội dung câu hỏi..."
+                                          />
+                                          <button type="button" class="btn-icon" (click)="removeQuestion(si, li, qi)" title="Xóa câu hỏi">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                          </button>
+                                        </div>
+
+                                        <label class="quiz-multi-toggle">
+                                          <input
+                                            type="checkbox"
+                                            formControlName="allowMultipleAnswers"
+                                            (change)="onAllowMultipleChange(si, li, qi)"
+                                          />
+                                          Cho phép nhiều đáp án đúng
+                                        </label>
+
+                                        <div [formArrayName]="'options'" class="quiz-options-list">
+                                          @for (option of getQuestionOptions(si, li, qi).controls; track option; let oi = $index) {
+                                            <div class="quiz-option-row" [formGroupName]="oi">
+                                              <input
+                                                type="checkbox"
+                                                formControlName="isCorrect"
+                                                (change)="onOptionCorrectChange(si, li, qi, oi)"
+                                                title="Đáp án đúng"
+                                              />
+                                              <input
+                                                class="lesson-input"
+                                                type="text"
+                                                formControlName="text"
+                                                placeholder="Nội dung đáp án..."
+                                              />
+                                              <button type="button" class="btn-icon" (click)="removeOption(si, li, qi, oi)" title="Xóa đáp án">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                              </button>
+                                            </div>
+                                          }
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addOption(si, li, qi)">
+                                          + Thêm đáp án
+                                        </button>
+                                      </div>
+                                    }
+                                    <button type="button" class="btn btn-outline-primary" style="margin-top:6px" (click)="addQuestion(si, li)">
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                      Thêm câu hỏi
+                                    </button>
+                                  </div>
+                                }
                               </div>
                             }
                           </div>

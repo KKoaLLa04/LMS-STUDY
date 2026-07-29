@@ -37,6 +37,7 @@ export function buildChapters(lessonsCount: number, progressPercent: number, pur
         title: `Bài ${lessonCounter}: ${LESSON_TITLES[(lessonCounter - 1) % LESSON_TITLES.length]}`,
         durationMinutes: 8 + (lessonCounter % 5) * 3,
         status,
+        lessonType: 'Video',
       });
     }
     chapters.push({

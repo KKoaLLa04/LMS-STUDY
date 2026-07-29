@@ -18,6 +18,27 @@ public class LessonsController : ControllerBase
     }
 
     /// <summary>
+    /// [Admin] Lấy danh sách bài học theo loại (Document/Quiz) trên toàn bộ khóa học —
+    /// dùng cho các trang quản trị "Tài liệu"/"Quiz" độc lập
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetByType([FromQuery] string lessonType)
+    {
+        var result = await _lessonService.GetByTypeAsync(lessonType);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>
+    /// [Admin] Lấy chi tiết một bài học
+    /// </summary>
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var result = await _lessonService.GetByIdAsync(id);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>
     /// [Admin] Tạo mới bài học thuộc một chương học
     /// </summary>
     [HttpPost]

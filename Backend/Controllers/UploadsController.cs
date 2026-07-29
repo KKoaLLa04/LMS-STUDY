@@ -37,4 +37,15 @@ public class UploadsController : ControllerBase
         var result = await _uploadService.SaveImageAsync(file, Request.Scheme, Request.Host.Value);
         return StatusCode(result.HttpStatusCode, result);
     }
+
+    /// <summary>
+    /// [Admin] Tải tài liệu (PDF/Word/PowerPoint/Excel) lên server cho bài học dạng Document
+    /// </summary>
+    [HttpPost("document")]
+    [RequestSizeLimit(50 * 1024 * 1024)]
+    public async Task<IActionResult> UploadDocument(IFormFile file)
+    {
+        var result = await _uploadService.SaveDocumentAsync(file, Request.Scheme, Request.Host.Value);
+        return StatusCode(result.HttpStatusCode, result);
+    }
 }
