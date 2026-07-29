@@ -156,6 +156,14 @@ export class CourseListComponent implements OnInit {
     return course.emoji || DEFAULT_EMOJI;
   }
 
+  // Mô tả khóa học lưu dạng HTML (CKEditor) — bỏ thẻ HTML để hiển thị dạng chữ thường trong bảng/tooltip.
+  getDescriptionText(course: CourseListItem): string {
+    if (!course.description) return '';
+    const div = document.createElement('div');
+    div.innerHTML = course.description;
+    return (div.textContent || '').trim();
+  }
+
   getSubjectBg(id: number): string {
     return SUBJECT_BG_PALETTE[id % SUBJECT_BG_PALETTE.length];
   }

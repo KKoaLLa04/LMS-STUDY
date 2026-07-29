@@ -32,5 +32,42 @@
     <app-oc-icon name="bell" [size]="17"></app-oc-icon>
   </button>
 
-  <div class="oc-header__avatar cursor-pointer" aria-hidden="true" [routerLink]="'/client/ho-so'">HS</div>
+  @if (isLoggedIn()) {
+    <div class="oc-header__user">
+      <button
+        type="button"
+        class="oc-header__avatar-btn"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-haspopup="true"
+      >
+        <div class="oc-header__avatar">{{ avatarInitials() }}</div>
+      </button>
+
+      @if (menuOpen()) {
+        <div class="oc-header__dropdown">
+          <div class="oc-header__dropdown-user">
+            <div class="oc-header__dropdown-name">{{ currentUser()?.fullName || currentUser()?.username }}</div>
+            @if (currentUser()?.username) {
+              <div class="oc-header__dropdown-username">&#64;{{ currentUser()?.username }}</div>
+            }
+          </div>
+          <a class="oc-header__dropdown-item" routerLink="/client/ho-so" (click)="closeMenu()">
+            <app-oc-icon name="user" [size]="16"></app-oc-icon>
+            Thông tin cá nhân
+          </a>
+          <a class="oc-header__dropdown-item" routerLink="/client/doi-mat-khau" (click)="closeMenu()">
+            <app-oc-icon name="key" [size]="16"></app-oc-icon>
+            Đổi mật khẩu
+          </a>
+          <button type="button" class="oc-header__dropdown-item oc-header__dropdown-item--danger" (click)="onLogout()">
+            <app-oc-icon name="log-out" [size]="16"></app-oc-icon>
+            Đăng xuất
+          </button>
+        </div>
+      }
+    </div>
+  } @else {
+    <a class="oc-btn oc-btn-primary" routerLink="/login">Đăng nhập</a>
+  }
 </header>

@@ -3,13 +3,6 @@ using Backend.Common;
 
 namespace Backend.Models;
 
-public enum AchievementCategory
-{
-    HocTap,
-    ChuyenCan,
-    TuongTac
-}
-
 public class Achievement : ISoftDelete
 {
     [Key]
@@ -23,7 +16,9 @@ public class Achievement : ISoftDelete
     [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
 
-    public AchievementCategory Category { get; set; }
+    // Nhóm huy hiệu (Backend/Models/AchievementGroup.cs) — không khai báo navigation/FK,
+    // cùng quy ước với Course.CategoryId: xóa AchievementGroup không bao giờ bị chặn.
+    public int GroupId { get; set; }
 
     // Tên icon phía client (app-oc-icon), vd. "book-open", "flame", "trophy".
     [Required]

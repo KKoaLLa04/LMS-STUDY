@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Achievement> Achievements => Set<Achievement>();
+    public DbSet<AchievementGroup> AchievementGroups => Set<AchievementGroup>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
     public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
@@ -196,9 +197,15 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Achievement>(entity =>
         {
             entity.ToTable("Achievements");
-            entity.Property(a => a.Category)
-                  .HasConversion<string>()
-                  .HasMaxLength(20);
+            // Không khai báo quan hệ khóa ngoại tới AchievementGroup — cùng lý do như
+            // Course.CategoryId: xóa nhóm huy hiệu không bao giờ bị chặn.
+            entity.HasIndex(a => a.GroupId);
+        });
+
+        modelBuilder.Entity<AchievementGroup>(entity =>
+        {
+            entity.ToTable("AchievementGroups");
+            entity.HasIndex(g => g.Code).IsUnique().HasFilter("[IsDeleted] = 0");
         });
 
         modelBuilder.Entity<Enrollment>(entity =>

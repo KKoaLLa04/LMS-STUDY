@@ -24,10 +24,15 @@ public class AchievementService : IAchievementService
     {
         try
         {
-            var items = await _context.Achievements
-                .OrderBy(a => a.OrderNumber)
-                .Select(a => MapToDto(a))
-                .ToListAsync();
+            var rows = await (
+                from a in _context.Achievements
+                join g in _context.AchievementGroups on a.GroupId equals g.Id into groupJoin
+                from g in groupJoin.DefaultIfEmpty()
+                orderby a.OrderNumber
+                select new { Achievement = a, Group = g }
+            ).ToListAsync();
+
+            var items = rows.Select(r => MapToDto(r.Achievement, r.Group)).ToList();
 
             return ApiResponse<List<AchievementDto>>.Ok(items);
         }
@@ -46,7 +51,8 @@ public class AchievementService : IAchievementService
             if (achievement == null)
                 return ApiResponse<AchievementDto>.NotFound("Huy hiệu thành tích không tồn tại");
 
-            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement));
+            var group = await _context.AchievementGroups.FirstOrDefaultAsync(g => g.Id == achievement.GroupId);
+            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group));
         }
         catch (Exception ex)
         {
@@ -59,22 +65,24 @@ public class AchievementService : IAchievementService
     {
         try
         {
+            var group = await _context.AchievementGroups.FirstOrDefaultAsync(g => g.Id == dto.GroupId);
+            if (group == null)
+                return ApiResponse<AchievementDto>.BadRequest("Nhóm huy hiệu không tồn tại");
+
             var achievement = new Achievement
             {
                 Name = dto.Name.Trim(),
                 Description = dto.Description.Trim(),
-                Category = dto.Category,
+                GroupId = dto.GroupId,
                 IconKey = dto.IconKey.Trim(),
                 OrderNumber = dto.OrderNumber,
-                IsUnlocked = dto.IsUnlocked,
-                ProgressPercent = dto.IsUnlocked ? 0 : dto.ProgressPercent,
                 Points = dto.Points
             };
 
             _context.Achievements.Add(achievement);
             await _context.SaveChangesAsync();
 
-            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement), "Tạo huy hiệu thành tích thành công");
+            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group), "Tạo huy hiệu thành tích thành công");
         }
         catch (Exception ex)
         {
@@ -91,18 +99,20 @@ public class AchievementService : IAchievementService
             if (achievement == null)
                 return ApiResponse<AchievementDto>.NotFound("Huy hiệu thành tích không tồn tại");
 
+            var group = await _context.AchievementGroups.FirstOrDefaultAsync(g => g.Id == dto.GroupId);
+            if (group == null)
+                return ApiResponse<AchievementDto>.BadRequest("Nhóm huy hiệu không tồn tại");
+
             achievement.Name = dto.Name.Trim();
             achievement.Description = dto.Description.Trim();
-            achievement.Category = dto.Category;
+            achievement.GroupId = dto.GroupId;
             achievement.IconKey = dto.IconKey.Trim();
             achievement.OrderNumber = dto.OrderNumber;
-            achievement.IsUnlocked = dto.IsUnlocked;
-            achievement.ProgressPercent = dto.IsUnlocked ? 0 : dto.ProgressPercent;
             achievement.Points = dto.Points;
 
             await _context.SaveChangesAsync();
 
-            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement), "Cập nhật huy hiệu thành tích thành công");
+            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group), "Cập nhật huy hiệu thành tích thành công");
         }
         catch (Exception ex)
         {
@@ -140,19 +150,22 @@ public class AchievementService : IAchievementService
                 .Where(ua => ua.UserId == userId)
                 .ToDictionaryAsync(ua => ua.AchievementId, ua => ua.UnlockedAt);
 
-            var items = await _context.Achievements
-                .OrderBy(a => a.OrderNumber)
-                .Select(a => new MyAchievementDto
+            var items = await (
+                from a in _context.Achievements
+                join g in _context.AchievementGroups on a.GroupId equals g.Id into groupJoin
+                from g in groupJoin.DefaultIfEmpty()
+                orderby a.OrderNumber
+                select new MyAchievementDto
                 {
                     Id = a.Id,
                     Name = a.Name,
                     Description = a.Description,
-                    Category = a.Category.ToString(),
+                    Category = g != null ? g.Code : string.Empty,
                     IconKey = a.IconKey,
                     OrderNumber = a.OrderNumber,
                     Points = a.Points
-                })
-                .ToListAsync();
+                }
+            ).ToListAsync();
 
             foreach (var item in items)
             {
@@ -201,12 +214,14 @@ public class AchievementService : IAchievementService
         }
     }
 
-    private static AchievementDto MapToDto(Achievement achievement) => new()
+    private static AchievementDto MapToDto(Achievement achievement, AchievementGroup? group) => new()
     {
         Id = achievement.Id,
         Name = achievement.Name,
         Description = achievement.Description,
-        Category = achievement.Category.ToString(),
+        GroupId = achievement.GroupId,
+        GroupName = group?.Name ?? string.Empty,
+        Category = group?.Code ?? string.Empty,
         IconKey = achievement.IconKey,
         OrderNumber = achievement.OrderNumber,
         IsUnlocked = achievement.IsUnlocked,

@@ -85,6 +85,7 @@ builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IKhoiHocService, KhoiHocService>();
 builder.Services.AddScoped<ICourseCategoryService, CourseCategoryService>();
 builder.Services.AddScoped<IAchievementService, AchievementService>();
+builder.Services.AddScoped<IAchievementGroupService, AchievementGroupService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

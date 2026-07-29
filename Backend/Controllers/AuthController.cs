@@ -50,4 +50,16 @@ public class AuthController : ControllerBase
     {
         return Ok(ApiResponse<object?>.Ok(null, "Đăng xuất thành công"));
     }
+
+    /// <summary>
+    /// Đổi mật khẩu cho người dùng đang đăng nhập
+    /// </summary>
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _authService.ChangePasswordAsync(userId, dto);
+        return StatusCode(result.HttpStatusCode, result);
+    }
 }

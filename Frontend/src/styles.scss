@@ -15,6 +15,12 @@ app-root {
   opacity: 0.5 !important;
 }
 
+/* Chiều cao mặc định cho vùng soạn thảo CKEditor (app-rich-text-editor) — CKEditor gắn
+   DOM ngoài phạm vi encapsulation của Angular nên style phải đặt ở global. */
+.ck-editor__editable_inline {
+  min-height: 200px;
+}
+
 /* Student dashboard design tokens — prefixed --sd- so nothing collides with
    Bootstrap/AdminLTE's own --bs-* variables used by the admin pages. */
 :root {
@@ -53,4 +59,9 @@ app-root {
 
 .cursor-pointer{
   cursor: pointer !important;
+}
+
+
+.card-header::after {
+  content: none !important;
 }

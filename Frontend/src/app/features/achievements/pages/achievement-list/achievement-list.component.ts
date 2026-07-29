@@ -3,20 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AchievementService } from '../../services/achievement.service';
-import { Achievement, AchievementCategory } from '../../models/achievement.model';
+import { AchievementGroupService } from '../../services/achievement-group.service';
+import { Achievement } from '../../models/achievement.model';
+import { AchievementGroup } from '../../models/achievement-group.model';
+import { AchievementIconComponent, AchievementIconKey } from '../../components/achievement-icon/achievement-icon.component';
 import { ToastService } from '../../../../shared/services/toast.service';
 
 declare const bootstrap: any;
 
 type ModalMode = 'create' | 'edit';
 
-const CATEGORY_LABELS: Record<AchievementCategory, string> = {
-  HocTap: 'Học tập',
-  ChuyenCan: 'Chuyên cần',
-  TuongTac: 'Tương tác'
-};
-
-const ICON_OPTIONS = [
+const ICON_OPTIONS: AchievementIconKey[] = [
   'book-open', 'target', 'trophy', 'flame', 'message-circle', 'heart',
   'star', 'crown', 'users', 'graduation-cap', 'layers', 'check'
 ];
@@ -24,20 +21,26 @@ const ICON_OPTIONS = [
 @Component({
   selector: 'app-achievement-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, AchievementIconComponent],
   templateUrl: './achievement-list.component.html',
   styleUrls: ['./achievement-list.component.scss']
 })
 export class AchievementListComponent implements OnInit, AfterViewInit {
   @ViewChild('formModal') formModalEl!: ElementRef<HTMLElement>;
   @ViewChild('deleteModal') deleteModalEl!: ElementRef<HTMLElement>;
+  @ViewChild('groupModal') groupModalEl!: ElementRef<HTMLElement>;
   @ViewChild('nameInput') nameInputEl?: ElementRef<HTMLInputElement>;
+  @ViewChild('groupNameInput') groupNameInputEl?: ElementRef<HTMLInputElement>;
 
   achievements: Achievement[] = [];
+  groups: AchievementGroup[] = [];
   loading = false;
   errorMessage = '';
 
-  readonly categoryOptions = Object.entries(CATEGORY_LABELS) as [AchievementCategory, string][];
+  // Bộ lọc: nhóm đang chọn (hiển thị cùng dòng với nút "Thêm huy hiệu") + từ khóa tìm kiếm.
+  selectedGroupId: number | 'all' = 'all';
+  keyword = '';
+
   readonly iconOptions = ICON_OPTIONS;
 
   form: FormGroup;
@@ -45,36 +48,46 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
   editingItem: Achievement | null = null;
   submitting = false;
 
+  groupForm: FormGroup;
+  submittingGroup = false;
+
   deleteTarget: Achievement | null = null;
   deleteConfirmInput = '';
   deleting = false;
 
   private formModal: any;
   private deleteModal: any;
+  private groupModal: any;
 
   constructor(
     private fb: FormBuilder,
     private achievementService: AchievementService,
+    private achievementGroupService: AchievementGroupService,
     private toast: ToastService
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
-      category: ['HocTap' as AchievementCategory, [Validators.required]],
+      groupId: [null as number | null, [Validators.required]],
       iconKey: ['star', [Validators.required, Validators.maxLength(50)]],
       orderNumber: [0, [Validators.required, Validators.min(0)]],
-      isUnlocked: [false],
-      progressPercent: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
+      points: [50, [Validators.required, Validators.min(0)]]
+    });
+
+    this.groupForm = this.fb.group({
+      name: ['', [Validators.required, Validators.maxLength(255)]]
     });
   }
 
   ngOnInit(): void {
+    this.loadGroups();
     this.loadAchievements();
   }
 
   ngAfterViewInit(): void {
     this.formModal = new bootstrap.Modal(this.formModalEl.nativeElement);
     this.deleteModal = new bootstrap.Modal(this.deleteModalEl.nativeElement);
+    this.groupModal = new bootstrap.Modal(this.groupModalEl.nativeElement);
   }
 
   loadAchievements(): void {
@@ -92,8 +105,24 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  categoryLabel(category: string): string {
-    return CATEGORY_LABELS[category as AchievementCategory] ?? category;
+  loadGroups(): void {
+    this.achievementGroupService.getGroups().subscribe({
+      next: (res) => (this.groups = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách nhóm huy hiệu.')
+    });
+  }
+
+  get filteredAchievements(): Achievement[] {
+    const kw = this.keyword.trim().toLowerCase();
+    return this.achievements.filter((a) => {
+      const matchesGroup = this.selectedGroupId === 'all' || a.groupId === this.selectedGroupId;
+      const matchesKeyword = !kw || a.name.toLowerCase().includes(kw) || a.description.toLowerCase().includes(kw);
+      return matchesGroup && matchesKeyword;
+    });
+  }
+
+  selectGroupFilter(groupId: number | 'all'): void {
+    this.selectedGroupId = groupId;
   }
 
   get modalTitle(): string {
@@ -103,14 +132,14 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
   openCreateModal(): void {
     this.modalMode = 'create';
     this.editingItem = null;
+    const defaultGroupId = this.selectedGroupId !== 'all' ? this.selectedGroupId : (this.groups[0]?.id ?? null);
     this.form.reset({
       name: '',
       description: '',
-      category: 'HocTap',
+      groupId: defaultGroupId,
       iconKey: 'star',
       orderNumber: this.achievements.length,
-      isUnlocked: false,
-      progressPercent: 0
+      points: 50
     });
     this.formModal.show();
     setTimeout(() => this.nameInputEl?.nativeElement.focus(), 200);
@@ -122,11 +151,10 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
     this.form.reset({
       name: item.name,
       description: item.description,
-      category: item.category,
+      groupId: item.groupId,
       iconKey: item.iconKey,
       orderNumber: item.orderNumber,
-      isUnlocked: item.isUnlocked,
-      progressPercent: item.progressPercent
+      points: item.points
     });
     this.formModal.show();
     setTimeout(() => this.nameInputEl?.nativeElement.focus(), 200);
@@ -134,6 +162,10 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
 
   closeFormModal(): void {
     this.formModal.hide();
+  }
+
+  selectIcon(icon: AchievementIconKey): void {
+    this.form.get('iconKey')?.setValue(icon);
   }
 
   onSubmit(): void {
@@ -148,11 +180,10 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
     const payload = {
       name: v.name.trim(),
       description: v.description.trim(),
-      category: v.category,
+      groupId: v.groupId,
       iconKey: v.iconKey,
       orderNumber: v.orderNumber,
-      isUnlocked: v.isUnlocked,
-      progressPercent: v.progressPercent
+      points: v.points
     };
 
     const request$ =
@@ -177,6 +208,45 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         this.submitting = false;
+        this.toast.error(err?.error?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
+    });
+  }
+
+  // ── Nhóm huy hiệu (modal tạo mới, dùng luôn làm filter ở trên) ──
+
+  openCreateGroupModal(): void {
+    this.groupForm.reset({ name: '' });
+    this.groupModal.show();
+    setTimeout(() => this.groupNameInputEl?.nativeElement.focus(), 200);
+  }
+
+  closeGroupModal(): void {
+    this.groupModal.hide();
+  }
+
+  submitGroup(): void {
+    this.groupForm.markAllAsTouched();
+    if (this.groupForm.invalid) {
+      this.toast.error('Vui lòng nhập tên nhóm huy hiệu.');
+      return;
+    }
+
+    this.submittingGroup = true;
+    const name = (this.groupForm.value.name as string).trim();
+    this.achievementGroupService.createGroup({ name }).subscribe({
+      next: (res) => {
+        this.submittingGroup = false;
+        if (!res.success) {
+          this.toast.error(res.message || 'Tạo nhóm huy hiệu thất bại');
+          return;
+        }
+        this.toast.success(`Tạo nhóm huy hiệu "${name}" thành công!`);
+        this.closeGroupModal();
+        this.loadGroups();
+      },
+      error: (err) => {
+        this.submittingGroup = false;
         this.toast.error(err?.error?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
       }
     });

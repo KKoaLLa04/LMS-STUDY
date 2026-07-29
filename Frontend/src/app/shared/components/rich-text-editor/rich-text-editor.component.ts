@@ -126,8 +126,10 @@ export class RichTextEditorComponent implements ControlValueAccessor {
   }
 
   onEditorChange(event: ChangeEvent): void {
+    // Không gán lại `this.value` ở đây: nó đang bind vào [data] của <ckeditor>, và mỗi lần
+    // Angular phát hiện input đó đổi, ckeditor5-angular gọi lại setData() khiến con trỏ nhảy
+    // về đầu văn bản — gõ liên tục sẽ bị chèn ngược ký tự. Chỉ báo giá trị ra ngoài qua form control.
     const data = (event.editor as ClassicEditor).getData();
-    this.value = data;
     this.onChangeFn(data);
   }
 }

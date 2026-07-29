@@ -25,10 +25,46 @@
     }
 
     <div class="card ach-card">
-      <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
-        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-1"></i>Thêm huy hiệu
-        </button>
+      <div class="card-header ach-toolbar">
+        <div class="ach-filter-chips">
+          <button
+            type="button"
+            class="ach-chip"
+            [class.active]="selectedGroupId === 'all'"
+            (click)="selectGroupFilter('all')"
+          >
+            Tất cả
+          </button>
+          @for (g of groups; track g.id) {
+            <button
+              type="button"
+              class="ach-chip"
+              [class.active]="selectedGroupId === g.id"
+              (click)="selectGroupFilter(g.id)"
+            >
+              {{ g.name }}
+            </button>
+          }
+          <button type="button" class="ach-chip ach-chip-add" (click)="openCreateGroupModal()" title="Thêm nhóm huy hiệu">
+            <i class="bi bi-plus-lg"></i>Nhóm
+          </button>
+        </div>
+
+        <div class="ach-toolbar-actions">
+          <div class="ach-search">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Tìm theo tên hoặc mô tả..."
+              [(ngModel)]="keyword"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </div>
+          <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+            <i class="bi bi-plus-circle me-1"></i>Thêm huy hiệu
+          </button>
+        </div>
       </div>
 
       <div class="card-body p-0">
@@ -45,22 +81,26 @@
             Chưa có huy hiệu nào.
             <a href="javascript:void(0)" (click)="openCreateModal()">Thêm huy hiệu đầu tiên</a>
           </div>
+        } @else if (filteredAchievements.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-search fs-1 d-block mb-2"></i>
+            Không tìm thấy huy hiệu phù hợp.
+          </div>
         } @else {
           <div class="table-responsive">
             <table class="table table-hover table-striped mb-0">
               <thead class="table-light">
                 <tr>
                   <th class="text-center" style="width: 5%">#</th>
-                  <th style="width: 22%">Tên huy hiệu</th>
-                  <th style="width: 15%">Nhóm</th>
-                  <th style="width: 10%">Icon</th>
-                  <th style="width: 8%">Thứ tự</th>
-                  <th style="width: 20%">Trạng thái</th>
-                  <th class="text-center" style="width: 20%">Thao tác</th>
+                  <th style="width: 40%">Tên huy hiệu</th>
+                  <th style="width: 16%">Nhóm</th>
+                  <th style="width: 12%">Icon</th>
+                  <th style="width: 9%">Thứ tự</th>
+                  <th class="text-center" style="width: 18%">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                @for (item of achievements; track item.id; let i = $index) {
+                @for (item of filteredAchievements; track item.id; let i = $index) {
                   <tr>
                     <td class="text-center align-middle text-muted">{{ i + 1 }}</td>
                     <td class="align-middle">
@@ -68,25 +108,15 @@
                       <div class="text-muted small">{{ item.description }}</div>
                     </td>
                     <td class="align-middle">
-                      <span class="badge ach-category-badge">{{ categoryLabel(item.category) }}</span>
+                      <span class="badge ach-category-badge">{{ item.groupName }}</span>
                     </td>
                     <td class="align-middle">
-                      <i class="bi bi-award"></i>
+                      <span class="ach-icon-preview">
+                        <app-achievement-icon [name]="item.iconKey" [size]="18"></app-achievement-icon>
+                      </span>
                       <span class="ms-1 text-muted small">{{ item.iconKey }}</span>
                     </td>
                     <td class="align-middle">{{ item.orderNumber }}</td>
-                    <td class="align-middle">
-                      @if (item.isUnlocked) {
-                        <span class="badge ach-status-unlocked"><i class="bi bi-unlock-fill me-1"></i>Đã mở khoá</span>
-                      } @else {
-                        <div class="ach-progress-cell">
-                          <div class="progress" style="height: 6px; width: 90px;">
-                            <div class="progress-bar" [style.width.%]="item.progressPercent"></div>
-                          </div>
-                          <span class="text-muted small">{{ item.progressPercent }}%</span>
-                        </div>
-                      }
-                    </td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
                         <button
@@ -164,28 +194,48 @@
             }
           </div>
 
-          <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label">Nhóm <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="category">
-                @for (opt of categoryOptions; track opt[0]) {
-                  <option [value]="opt[0]">{{ opt[1] }}</option>
-                }
-              </select>
-            </div>
+          <div class="mb-3">
+            <label class="form-label">Nhóm huy hiệu <span class="text-danger">*</span></label>
+            <select
+              class="form-select"
+              formControlName="groupId"
+              [class.is-invalid]="form.get('groupId')?.invalid && form.get('groupId')?.touched"
+            >
+              <option [ngValue]="null" disabled>-- Chọn nhóm --</option>
+              @for (g of groups; track g.id) {
+                <option [ngValue]="g.id">{{ g.name }}</option>
+              }
+            </select>
+            @if (groups.length === 0) {
+              <div class="form-text text-danger">
+                Chưa có nhóm huy hiệu nào — đóng cửa sổ này và bấm "<i class="bi bi-plus-lg"></i> Nhóm" để tạo nhóm trước.
+              </div>
+            }
+            @if (form.get('groupId')?.invalid && form.get('groupId')?.touched) {
+              <div class="invalid-feedback">Vui lòng chọn nhóm huy hiệu.</div>
+            }
+          </div>
 
-            <div class="col-6 mb-3">
-              <label class="form-label">Icon <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="iconKey">
-                @for (icon of iconOptions; track icon) {
-                  <option [value]="icon">{{ icon }}</option>
-                }
-              </select>
+          <div class="mb-3">
+            <label class="form-label">Icon <span class="text-danger">*</span></label>
+            <div class="ach-icon-grid">
+              @for (icon of iconOptions; track icon) {
+                <button
+                  type="button"
+                  class="ach-icon-option"
+                  [class.selected]="form.get('iconKey')?.value === icon"
+                  (click)="selectIcon(icon)"
+                  [title]="icon"
+                >
+                  <app-achievement-icon [name]="icon" [size]="20"></app-achievement-icon>
+                  <span>{{ icon }}</span>
+                </button>
+              }
             </div>
           </div>
 
           <div class="row">
-            <div class="col-4 mb-3">
+            <div class="col-6 mb-3">
               <label class="form-label">Thứ tự <span class="text-danger">*</span></label>
               <input
                 type="number"
@@ -199,27 +249,18 @@
               }
             </div>
 
-            <div class="col-4 mb-3">
-              <label class="form-label">Tiến độ (%)</label>
+            <div class="col-6 mb-3">
+              <label class="form-label">Điểm thưởng</label>
               <input
                 type="number"
                 class="form-control"
-                formControlName="progressPercent"
+                formControlName="points"
                 min="0"
-                max="100"
-                [class.is-invalid]="form.get('progressPercent')?.invalid && form.get('progressPercent')?.touched"
+                [class.is-invalid]="form.get('points')?.invalid && form.get('points')?.touched"
               />
-              @if (form.get('progressPercent')?.invalid && form.get('progressPercent')?.touched) {
-                <div class="invalid-feedback">Tiến độ phải trong khoảng 0-100.</div>
+              @if (form.get('points')?.invalid && form.get('points')?.touched) {
+                <div class="invalid-feedback">Điểm thưởng không được âm.</div>
               }
-            </div>
-
-            <div class="col-4 mb-3">
-              <label class="form-label d-block">Trạng thái</label>
-              <div class="form-check form-switch mt-2">
-                <input class="form-check-input" type="checkbox" role="switch" formControlName="isUnlocked" id="isUnlockedSwitch" />
-                <label class="form-check-label" for="isUnlockedSwitch">Đã mở khoá</label>
-              </div>
             </div>
           </div>
         </div>
@@ -231,6 +272,52 @@
               <span class="spinner-border spinner-border-sm me-1"></span>
             }
             Lưu huy hiệu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Thêm nhóm huy hiệu ═══════════════ -->
+<div #groupModal class="modal fade ach-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="ach-modal-title">
+          <span class="ach-modal-icon">
+            <i class="bi bi-plus-lg"></i>
+          </span>
+          <h5 class="modal-title mb-0">Thêm nhóm huy hiệu</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeGroupModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="groupForm" (ngSubmit)="submitGroup()">
+        <div class="modal-body">
+          <div class="mb-0">
+            <label class="form-label">Tên nhóm <span class="text-danger">*</span></label>
+            <input
+              #groupNameInput
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Ví dụ: Kỹ năng mềm"
+              [class.is-invalid]="groupForm.get('name')?.invalid && groupForm.get('name')?.touched"
+            />
+            @if (groupForm.get('name')?.invalid && groupForm.get('name')?.touched) {
+              <div class="invalid-feedback">Tên nhóm không được để trống (tối đa 255 ký tự).</div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeGroupModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submittingGroup">
+            @if (submittingGroup) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            Lưu nhóm
           </button>
         </div>
       </form>

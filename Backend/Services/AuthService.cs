@@ -54,6 +54,29 @@ public class AuthService : IAuthService
         }
     }
 
+    public async Task<ApiResponse<object?>> ChangePasswordAsync(int userId, ChangePasswordDto dto)
+    {
+        try
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return ApiResponse<object?>.NotFound("Không tìm thấy người dùng");
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+                return ApiResponse<object?>.BadRequest("Mật khẩu hiện tại không đúng");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _context.SaveChangesAsync();
+
+            return ApiResponse<object?>.Ok(null, "Đổi mật khẩu thành công");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi đổi mật khẩu");
+            return ApiResponse<object?>.Error("Đã xảy ra lỗi khi đổi mật khẩu");
+        }
+    }
+
     public async Task<ApiResponse<CurrentUserDto>> GetCurrentUserAsync(int userId)
     {
         try

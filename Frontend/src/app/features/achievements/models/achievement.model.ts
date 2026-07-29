@@ -1,24 +1,23 @@
-export type AchievementCategory = 'HocTap' | 'ChuyenCan' | 'TuongTac';
-
 export interface Achievement {
   id: number;
   name: string;
   description: string;
-  category: AchievementCategory;
+  groupId: number;
+  groupName: string;
   iconKey: string;
   orderNumber: number;
   isUnlocked: boolean;
   progressPercent: number;
+  points: number;
 }
 
 export interface CreateAchievementRequest {
   name: string;
   description: string;
-  category: AchievementCategory;
+  groupId: number;
   iconKey: string;
   orderNumber: number;
-  isUnlocked: boolean;
-  progressPercent: number;
+  points: number;
 }
 
 export interface ApiResponse<T> {

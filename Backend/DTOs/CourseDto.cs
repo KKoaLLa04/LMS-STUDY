@@ -70,6 +70,7 @@ public class CourseListItemDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public string? Thumbnail { get; set; }
     public string? Teacher { get; set; }
     public string? Emoji { get; set; }

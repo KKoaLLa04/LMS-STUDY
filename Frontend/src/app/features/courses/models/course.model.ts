@@ -37,6 +37,7 @@ export interface CreateLessonRequest {
 export interface CourseListItem {
   id: number;
   title: string;
+  description?: string;
   thumbnail?: string;
   teacher?: string;
   emoji?: string;

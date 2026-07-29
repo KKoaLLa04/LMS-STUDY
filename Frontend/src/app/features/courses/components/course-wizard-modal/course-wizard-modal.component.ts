@@ -19,6 +19,8 @@ import { DocumentItem } from '../../../documents/models/document.model';
 import { QuizLibraryService } from '../../../quizzes/services/quiz.service';
 import { QuizItem } from '../../../quizzes/models/quiz.model';
 import { RichTextEditorComponent } from '../../../../shared/components/rich-text-editor/rich-text-editor.component';
+import { UserService } from '../../../users/services/user.service';
+import { AppUser } from '../../../users/models/user.model';
 
 declare const bootstrap: any;
 
@@ -26,6 +28,13 @@ const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_DOCUMENT_SIZE = 50 * 1024 * 1024; // 50MB
 const DEFAULT_EMOJI = '📘';
+
+const ICON_OPTIONS = [
+  '📘', '📙', '📗', '📕', '📖', '📐', '📏', '🔬', '🧪', '🧫',
+  '🌍', '🎨', '🎵', '⚽', '🧮', '🔢', '💻', '🖥️', '📊', '📈',
+  '🧠', '🚀', '🔭', '🧬', '🏛️', '📜', '🗺️', '🎬', '🎤', '🏫',
+  '✏️', '📝', '🎯', '🏆'
+];
 
 interface UploadState {
   uploading: boolean;
@@ -79,8 +88,11 @@ export class CourseWizardModalComponent implements AfterViewInit {
   priceDisplay = '0';
   khoiHocs: KhoiHoc[] = [];
   categories: CourseCategory[] = [];
+  teachers: AppUser[] = [];
   sharedDocuments: DocumentItem[] = [];
   sharedQuizzes: QuizItem[] = [];
+  iconOptions = ICON_OPTIONS;
+  iconPickerOpen = false;
   uploadState = new Map<AbstractControl, UploadState>();
   documentUploadState = new Map<AbstractControl, UploadState>();
   imageUploadState: UploadState = { uploading: false };
@@ -101,6 +113,7 @@ export class CourseWizardModalComponent implements AfterViewInit {
     private courseCategoryService: CourseCategoryService,
     private documentService: DocumentService,
     private quizLibraryService: QuizLibraryService,
+    private userService: UserService,
     private uploadService: UploadService,
     private toast: ToastService
   ) {
@@ -157,8 +170,10 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.previewVideoUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
+    this.iconPickerOpen = false;
     this.loadKhoiHocs();
     this.loadCategories();
+    this.loadTeachers();
     this.loadSharedDocuments();
     this.loadSharedQuizzes();
     this.modal.show();
@@ -176,8 +191,10 @@ export class CourseWizardModalComponent implements AfterViewInit {
     this.previewVideoUploadState = { uploading: false };
     this.deletedSectionIds = [];
     this.deletedLessonIds = [];
+    this.iconPickerOpen = false;
     this.loadKhoiHocs();
     this.loadCategories();
+    this.loadTeachers();
     this.loadSharedDocuments();
     this.loadSharedQuizzes();
     this.loadCourse(id);
@@ -200,6 +217,28 @@ export class CourseWizardModalComponent implements AfterViewInit {
       next: (res) => (this.categories = res.data ?? []),
       error: () => this.toast.error('Không thể tải danh sách danh mục khóa học.')
     });
+  }
+
+  private loadTeachers(): void {
+    this.userService.getUsers('Teacher').subscribe({
+      next: (res) => (this.teachers = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách giáo viên.')
+    });
+  }
+
+  get teacherOptions(): string[] {
+    const names = this.teachers.map((t) => t.fullName);
+    const current = this.form.get('teacher')?.value;
+    return current && !names.includes(current) ? [current, ...names] : names;
+  }
+
+  toggleIconPicker(): void {
+    this.iconPickerOpen = !this.iconPickerOpen;
+  }
+
+  selectIcon(icon: string): void {
+    this.form.get('emoji')?.setValue(icon);
+    this.iconPickerOpen = false;
   }
 
   private loadSharedDocuments(): void {
@@ -256,21 +295,30 @@ export class CourseWizardModalComponent implements AfterViewInit {
             questions = qRes.data ?? [];
           }
 
-          lessonsArray.push(
-            this.fb.group({
-              id: [lesson.id],
-              title: [lesson.title, [Validators.required, Validators.maxLength(255)]],
-              content: [lesson.content ?? ''],
-              videoUrl: [lesson.videoUrl ?? '', Validators.maxLength(500)],
-              documentUrl: [lesson.documentUrl ?? '', Validators.maxLength(500)],
-              lessonType: [lesson.lessonType],
-              position: [lesson.position, Validators.min(0)],
-              durationMinutes: [lesson.durationMinutes ?? 0, Validators.min(0)],
-              documentId: [lesson.documentId ?? null],
-              quizId: [lesson.quizId ?? null],
-              questions: this.buildQuestionsArray(questions)
-            })
-          );
+          const lessonGroup = this.fb.group({
+            id: [lesson.id],
+            title: [lesson.title, [Validators.required, Validators.maxLength(255)]],
+            content: [lesson.content ?? ''],
+            videoUrl: [lesson.videoUrl ?? '', Validators.maxLength(500)],
+            documentUrl: [lesson.documentUrl ?? '', Validators.maxLength(500)],
+            lessonType: [lesson.lessonType],
+            position: [lesson.position, Validators.min(0)],
+            durationMinutes: [lesson.durationMinutes ?? 0, Validators.min(0)],
+            documentId: [lesson.documentId ?? null],
+            quizId: [lesson.quizId ?? null],
+            questions: this.buildQuestionsArray(questions)
+          });
+
+          // Bài học đã có sẵn video/tài liệu upload từ trước — hiển thị lại badge "đã tải lên" để
+          // người dùng không tưởng nhầm là trống (dữ liệu vẫn còn nguyên trong videoUrl/documentUrl).
+          if (lesson.videoUrl) {
+            this.uploadState.set(lessonGroup, { uploading: false, fileName: this.fileNameFromUrl(lesson.videoUrl) });
+          }
+          if (lesson.documentUrl) {
+            this.documentUploadState.set(lessonGroup, { uploading: false, fileName: this.fileNameFromUrl(lesson.documentUrl) });
+          }
+
+          lessonsArray.push(lessonGroup);
         }
 
         sectionsArray.push(
@@ -288,6 +336,12 @@ export class CourseWizardModalComponent implements AfterViewInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  private fileNameFromUrl(url: string): string {
+    const clean = url.split('?')[0].split('#')[0];
+    const segments = clean.split('/');
+    return segments[segments.length - 1] || url;
   }
 
   get sections(): FormArray {
@@ -608,11 +662,60 @@ export class CourseWizardModalComponent implements AfterViewInit {
         this.toast.error(err?.error?.message || 'Tải video lên thất bại');
       }
     });
+
+    // Đọc thời lượng video trực tiếp từ file (không cần chờ upload xong) để tự điền vào ô "Phút".
+    this.readVideoDuration(file).then((seconds) => {
+      if (seconds) lesson.get('durationMinutes')?.setValue(Math.max(1, Math.round(seconds / 60)));
+    });
   }
 
   clearUploadedVideo(lesson: AbstractControl): void {
     lesson.get('videoUrl')?.setValue('');
     this.uploadState.delete(lesson);
+  }
+
+  // Khi người dùng dán URL video thủ công (không upload), thử đọc metadata để tự điền số phút.
+  // Chỉ hoạt động với URL trỏ thẳng tới file video cho phép truy cập metadata (vd: cùng domain
+  // hoặc CORS mở) — với link YouTube/Vimeo dạng trang xem thì trình duyệt không đọc được, bỏ qua
+  // âm thầm, người dùng vẫn có thể tự nhập số phút như trước.
+  onVideoUrlChange(event: Event, lesson: AbstractControl): void {
+    const url = (event.target as HTMLInputElement).value?.trim();
+    if (!url) return;
+
+    this.readVideoDuration(url).then((seconds) => {
+      if (seconds) lesson.get('durationMinutes')?.setValue(Math.max(1, Math.round(seconds / 60)));
+    });
+  }
+
+  private readVideoDuration(source: File | string): Promise<number | null> {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+
+      const objectUrl = typeof source === 'string' ? null : URL.createObjectURL(source);
+      const cleanup = () => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        clearTimeout(timer);
+      };
+
+      const timer = setTimeout(() => {
+        cleanup();
+        resolve(null);
+      }, 8000);
+
+      video.onloadedmetadata = () => {
+        const duration = video.duration;
+        cleanup();
+        resolve(isFinite(duration) && duration > 0 ? duration : null);
+      };
+      video.onerror = () => {
+        cleanup();
+        resolve(null);
+      };
+
+      video.src = objectUrl ?? source as string;
+    });
   }
 
   isStep1Valid(): boolean {

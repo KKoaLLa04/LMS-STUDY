@@ -51,6 +51,7 @@ public class CourseService : ICourseService
                 {
                     Id = x.Course.Id,
                     Title = x.Course.Title,
+                    Description = x.Course.Description,
                     Thumbnail = x.Course.Thumbnail,
                     Teacher = x.Course.Teacher,
                     Emoji = x.Course.Emoji,
@@ -276,6 +277,7 @@ public class CourseService : ICourseService
     {
         Id = course.Id,
         Title = course.Title,
+        Description = course.Description,
         Thumbnail = course.Thumbnail,
         Teacher = course.Teacher,
         Emoji = course.Emoji,
@@ -326,7 +328,9 @@ public class CourseService : ICourseService
                 DocumentUrl = l.DocumentUrl,
                 LessonType = l.LessonType.ToString(),
                 Position = l.Position,
-                DurationMinutes = l.DurationMinutes
+                DurationMinutes = l.DurationMinutes,
+                DocumentId = l.DocumentId,
+                QuizId = l.QuizId
             }).ToList()
         }).ToList()
     };

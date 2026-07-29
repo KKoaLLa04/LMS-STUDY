@@ -154,8 +154,11 @@
                 formControlName="username"
                 placeholder="Ví dụ: gv.nguyenvana"
                 [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched"
+                [readonly]="modalMode === 'edit'"
               />
-              @if (form.get('username')?.invalid && form.get('username')?.touched) {
+              @if (modalMode === 'edit') {
+                <div class="form-text">Không thể thay đổi tên đăng nhập sau khi đã tạo tài khoản.</div>
+              } @else if (form.get('username')?.invalid && form.get('username')?.touched) {
                 <div class="invalid-feedback">Tên đăng nhập không được để trống (tối đa 100 ký tự).</div>
               }
             </div>

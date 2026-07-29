@@ -23,6 +23,135 @@
   border-radius: 999px;
 }
 
+/* ── Toolbar: filter chips + search + "Thêm huy hiệu" trên cùng 1 dòng ── */
+.ach-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ach-filter-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ach-chip {
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  color: var(--muted, #6b7280);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 150ms;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  &.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+}
+
+.ach-chip-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-style: dashed;
+  color: var(--primary);
+
+  i { font-size: 0.7rem; }
+}
+
+.ach-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ach-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  i {
+    position: absolute;
+    left: 0.7rem;
+    color: var(--muted, #9ca3af);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  .form-control {
+    padding-left: 2rem;
+    width: 220px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* ── Icon preview trong bảng + picker trong modal ── */
+.ach-icon-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  vertical-align: middle;
+}
+
+.ach-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.ach-icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.3rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--muted, #6b7280);
+  cursor: pointer;
+  transition: all 150ms;
+
+  span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  &:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  &.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+}
+
 .ach-status-unlocked {
   background: var(--amber-light);
   color: #b45309;

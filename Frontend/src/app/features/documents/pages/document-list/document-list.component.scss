@@ -1,1 +1,7 @@
 // Kế thừa toàn bộ style từ theme admin (Bootstrap) — không cần tuỳ biến riêng.
+
+.document-modal-dialog {
+  @media (min-width: 576px) {
+    max-width: 70vw;
+  }
+}

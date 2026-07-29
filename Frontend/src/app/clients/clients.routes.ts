@@ -42,6 +42,11 @@ export const clientsRoutes: Routes = [
           import('./pages/student-profile/student-profile.component').then((m) => m.StudentProfileComponent),
       },
       {
+        path: 'doi-mat-khau',
+        loadComponent: () =>
+          import('./pages/change-password/change-password.component').then((m) => m.ChangePasswordComponent),
+      },
+      {
         path: 'tai-lieu',
         loadComponent: () =>
           import('./pages/document-list/document-list.component').then((m) => m.DocumentListComponent),

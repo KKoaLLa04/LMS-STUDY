@@ -126,11 +126,9 @@ public class DocumentService : IDocumentService
             if (document == null)
                 return ApiResponse<object?>.NotFound("Không tìm thấy tài liệu");
 
-            var linkedCount = await _context.Lessons.CountAsync(l => l.DocumentId == id);
-            if (linkedCount > 0)
-                return ApiResponse<object?>.BadRequest(
-                    $"Không thể xóa — tài liệu đang được sử dụng ở {linkedCount} bài học. Vui lòng gỡ khỏi các bài học đó trước.");
-
+            // Xóa mềm: không chặn dù tài liệu đang gắn ở bài học nào đó — giống cách xử lý
+            // KhoiHocId/CategoryId trên Course (giá trị thường, không FK), để tránh việc xóa
+            // bị kẹt vì các tham chiếu khác. Các bài học đã gắn vẫn giữ DocumentId cũ.
             document.IsDeleted = true;
             document.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();

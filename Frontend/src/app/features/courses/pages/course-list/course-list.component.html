@@ -69,8 +69,10 @@
               <thead>
                 <tr>
                   <th class="text-center" style="width: 50px">#</th>
-                  <th style="width: 64px">Ảnh</th>
+                  <th style="width: 72px">Ảnh</th>
+                  <th class="text-center" style="width: 64px">Biểu tượng</th>
                   <th>Tên khóa học</th>
+                  <th style="width: 220px">Mô tả</th>
                   <th style="width: 110px">Khối</th>
                   <th style="width: 160px">Giá</th>
                   <th style="width: 120px">Trạng thái</th>
@@ -85,6 +87,15 @@
                       {{ startIndex + i }}
                     </td>
                     <td class="align-middle">
+                      @if (course.thumbnail) {
+                        <img class="cl-thumb" [src]="course.thumbnail" alt="{{ course.title }}" />
+                      } @else {
+                        <div class="cl-thumb cl-thumb-placeholder">
+                          <i class="bi bi-image"></i>
+                        </div>
+                      }
+                    </td>
+                    <td class="align-middle text-center">
                       <div class="cl-emoji-tile" [style.background]="getSubjectBg(course.id)">
                         {{ getEmoji(course) }}
                       </div>
@@ -93,6 +104,16 @@
                       <div class="cl-title">{{ course.title }}</div>
                       @if (course.teacher) {
                         <div class="cl-subtext">GV: {{ course.teacher }}</div>
+                      }
+                    </td>
+                    <td class="align-middle">
+                      @if (getDescriptionText(course)) {
+                        <div class="cl-desc-wrap">
+                          <div class="cl-desc-clamp">{{ getDescriptionText(course) }}</div>
+                          <div class="cl-desc-tooltip">{{ getDescriptionText(course) }}</div>
+                        </div>
+                      } @else {
+                        <span class="text-muted">—</span>
                       }
                     </td>
                     <td class="align-middle">

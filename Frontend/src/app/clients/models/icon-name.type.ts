@@ -32,4 +32,7 @@ export type OcIconName =
   | 'target'
   | 'heart'
   | 'grid'
-  | 'loader';
+  | 'loader'
+  | 'user'
+  | 'log-out'
+  | 'key';
