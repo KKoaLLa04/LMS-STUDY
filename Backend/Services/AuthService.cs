@@ -12,13 +12,20 @@ public class AuthService : IAuthService
     private readonly AppDbContext _context;
     private readonly ITokenService _tokenService;
     private readonly IPointService _pointService;
+    private readonly IAchievementEvaluationService _achievementEvaluationService;
     private readonly ILogger<AuthService> _logger;
 
-    public AuthService(AppDbContext context, ITokenService tokenService, IPointService pointService, ILogger<AuthService> logger)
+    public AuthService(
+        AppDbContext context,
+        ITokenService tokenService,
+        IPointService pointService,
+        IAchievementEvaluationService achievementEvaluationService,
+        ILogger<AuthService> logger)
     {
         _context = context;
         _tokenService = tokenService;
         _pointService = pointService;
+        _achievementEvaluationService = achievementEvaluationService;
         _logger = logger;
     }
 
@@ -33,7 +40,10 @@ public class AuthService : IAuthService
                 return ApiResponse<LoginResponseDto>.Unauthorized("Tên đăng nhập hoặc mật khẩu không đúng");
 
             if (user.Role == UserRole.Student)
+            {
                 await _pointService.RecordLoginStreakAsync(user.Id);
+                await _achievementEvaluationService.EvaluateAsync(user.Id);
+            }
 
             var (token, expiresAt) = _tokenService.GenerateToken(user);
 

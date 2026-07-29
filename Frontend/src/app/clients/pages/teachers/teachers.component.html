@@ -56,6 +56,13 @@
 
     <span class="oc-text-muted oc-teachers-count">{{ filteredTeachers().length }} giáo viên</span>
 
+    @if (initialLoading()) {
+      <div class="oc-teachers-loading">
+        <app-oc-icon name="loader" [size]="20" [strokeWidth]="3" class="oc-teachers-spinner"></app-oc-icon>
+        <span class="oc-text-muted">Đang tải danh sách giáo viên...</span>
+      </div>
+    }
+
     <div class="oc-teachers-grid">
       @for (teacher of visibleTeachers(); track teacher.id; let i = $index) {
         <a class="oc-card oc-elev-sm oc-teacher-card" [routerLink]="['/client/giao-vien', teacher.id]" [style.animation-delay.s]="animationDelayFor(i)">

@@ -232,6 +232,14 @@ app-oc-icon.oc-teachers-sort__chevron--open {
   animation: ocSpin 0.8s linear infinite;
 }
 
+.oc-teachers-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 0;
+}
+
 @keyframes ocSpin {
   to {
     transform: rotate(360deg);

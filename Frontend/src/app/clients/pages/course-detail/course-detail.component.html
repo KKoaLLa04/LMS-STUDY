@@ -96,6 +96,10 @@
         <app-oc-icon name="message-circle" [size]="14"></app-oc-icon>
         Đánh giá
       </button>
+      <button type="button" class="oc-seg-opt" [class.is-active]="activeTab() === 'discussion'" (click)="setTab('discussion')">
+        <app-oc-icon name="message-circle" [size]="14"></app-oc-icon>
+        Thảo luận
+      </button>
     </div>
 
     @switch (activeTab()) {
@@ -156,6 +160,9 @@
             </div>
           }
         </div>
+      }
+      @case ('discussion') {
+        <app-discussion-panel [courseId]="course.id"></app-discussion-panel>
       }
     }
   } @else if (notFound()) {

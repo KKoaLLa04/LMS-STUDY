@@ -11,4 +11,6 @@ public interface IUserService
     Task<ApiResponse<UserDto>> CreateAsync(CreateUserDto dto);
     Task<ApiResponse<UserDto>> UpdateAsync(int id, UpdateUserDto dto);
     Task<ApiResponse<object?>> DeleteAsync(int id);
+    Task<ApiResponse<List<PublicUserDto>>> GetPublicTeachersAsync();
+    Task<ApiResponse<PublicUserDto>> GetPublicByIdAsync(int id);
 }

@@ -11,12 +11,18 @@ public class QuizService : IQuizService
 {
     private readonly AppDbContext _context;
     private readonly IPointService _pointService;
+    private readonly IAchievementEvaluationService _achievementEvaluationService;
     private readonly ILogger<QuizService> _logger;
 
-    public QuizService(AppDbContext context, IPointService pointService, ILogger<QuizService> logger)
+    public QuizService(
+        AppDbContext context,
+        IPointService pointService,
+        IAchievementEvaluationService achievementEvaluationService,
+        ILogger<QuizService> logger)
     {
         _context = context;
         _pointService = pointService;
+        _achievementEvaluationService = achievementEvaluationService;
         _logger = logger;
     }
 
@@ -83,6 +89,7 @@ public class QuizService : IQuizService
                 await _pointService.AwardAsync(userId, pointsAwarded, PointSourceType.QuizCompleted, quizId, courseId);
 
             await _pointService.RecordHomeworkStreakAsync(userId);
+            await _achievementEvaluationService.EvaluateAsync(userId);
 
             var result = new QuizAttemptResultDto
             {

@@ -46,7 +46,8 @@ export class StudentSidebarComponent {
     { icon: 'file-text', label: 'Tài liệu', link: true, route: '/documents' },
     { icon: 'help-circle', label: 'Quiz', link: true, route: '/quizzes' },
     { icon: 'graduation-cap', label: 'Danh sách giảng viên', link: true, route: '/teachers' },
-    { icon: 'users', label: 'Danh sách học sinh', link: true, route: '/students' }
+    { icon: 'users', label: 'Danh sách học sinh', link: true, route: '/students' },
+    { icon: 'message-circle', label: 'Thảo luận', link: true, route: '/discussion-forums' }
   ];
 
   get showLabels(): boolean {

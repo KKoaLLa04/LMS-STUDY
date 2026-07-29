@@ -23,23 +23,26 @@ public class DiscussionForumsController : ControllerBase
     private int? CurrentUserId =>
         int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
-    /// <summary>Lấy danh sách bài viết thảo luận theo khóa học</summary>
+    /// <summary>[User] Lấy danh sách bài viết thảo luận theo khóa học — mở cho mọi user đã đăng nhập
+    /// (chỉ xem, đăng bài vẫn giới hạn Admin), ghi đè [Authorize(Roles = "Admin")] ở cấp class.</summary>
     [HttpGet("by-course/{courseId}")]
+    [Authorize]
     public async Task<IActionResult> GetByCourse(
         int courseId,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? keyword = null)
     {
-        var result = await _service.GetPostsByCourseAsync(courseId, page, pageSize, keyword);
+        var result = await _service.GetPostsByCourseAsync(courseId, page, pageSize, keyword, CurrentUserId);
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>Lấy chi tiết bài viết kèm các replies</summary>
+    /// <summary>[User] Lấy chi tiết bài viết kèm các replies — mở cho mọi user đã đăng nhập (xem thư trả lời).</summary>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _service.GetPostByIdAsync(id);
+        var result = await _service.GetPostByIdAsync(id, CurrentUserId);
         return StatusCode(result.HttpStatusCode, result);
     }
 
@@ -72,6 +75,32 @@ public class DiscussionForumsController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _service.DeletePostAsync(id);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>[User] Thích bài viết thảo luận — mở cho mọi user đã đăng nhập, ghi đè
+    /// [Authorize(Roles = "Admin")] ở cấp class (đăng bài vẫn đang giới hạn Admin, nhưng thích
+    /// bài viết thì không cần).</summary>
+    [HttpPost("{id}/like")]
+    [Authorize]
+    public async Task<IActionResult> Like(int id)
+    {
+        if (CurrentUserId is not int userId)
+            return Unauthorized();
+
+        var result = await _service.LikePostAsync(id, userId);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>[User] Bỏ thích bài viết thảo luận</summary>
+    [HttpDelete("{id}/like")]
+    [Authorize]
+    public async Task<IActionResult> Unlike(int id)
+    {
+        if (CurrentUserId is not int userId)
+            return Unauthorized();
+
+        var result = await _service.UnlikePostAsync(id, userId);
         return StatusCode(result.HttpStatusCode, result);
     }
 }

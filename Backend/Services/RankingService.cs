@@ -65,6 +65,13 @@ public class RankingService : IRankingService
                 .Select(u => new { u.Id, u.FullName, u.AvatarUrl, u.CreatedAt })
                 .ToListAsync();
 
+            // Người mà currentUser đang theo dõi — tính 1 lần cho cả trang thay vì N truy vấn/dòng.
+            var followingIds = (await _context.Follows
+                .Where(f => f.FollowerId == currentUserId)
+                .Select(f => f.FollowingId)
+                .ToListAsync())
+                .ToHashSet();
+
             // Xếp hạng: tổng điểm cao hơn đứng trước; hòa điểm thì tài khoản tạo sớm hơn đứng trên.
             var ranked = students
                 .Select(s => new
@@ -84,7 +91,8 @@ public class RankingService : IRankingService
                     FullName = x.FullName,
                     AvatarUrl = x.AvatarUrl,
                     TotalPoints = x.Total,
-                    IsMe = x.Id == currentUserId
+                    IsMe = x.Id == currentUserId,
+                    IsFollowing = followingIds.Contains(x.Id)
                 })
                 .ToList();
 

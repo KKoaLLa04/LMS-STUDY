@@ -17,6 +17,7 @@ public class RankingEntryDto
     public string? AvatarUrl { get; set; }
     public int TotalPoints { get; set; }
     public bool IsMe { get; set; }
+    public bool IsFollowing { get; set; }
 }
 
 public class LeaderboardResponseDto

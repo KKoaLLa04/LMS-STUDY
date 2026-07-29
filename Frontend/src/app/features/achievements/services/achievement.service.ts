@@ -29,4 +29,8 @@ export class AchievementService {
   deleteAchievement(id: number): Observable<ApiResponse<null>> {
     return this.http.delete<ApiResponse<null>>(`${this.baseUrl}/${id}`);
   }
+
+  unlockForUser(achievementId: number, userId: number): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(`${this.baseUrl}/${achievementId}/unlock/${userId}`, {});
+  }
 }

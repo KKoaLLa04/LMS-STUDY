@@ -106,6 +106,9 @@
                     <td class="align-middle">
                       <div class="fw-semibold">{{ item.name }}</div>
                       <div class="text-muted small">{{ item.description }}</div>
+                      <div class="text-muted small ach-condition-summary" [title]="fullConditionSummary(item)">
+                        <i class="bi bi-flag-fill me-1"></i>{{ shortConditionSummary(item) }}
+                      </div>
                     </td>
                     <td class="align-middle">
                       <span class="badge ach-category-badge">{{ item.groupName }}</span>
@@ -232,6 +235,51 @@
                 </button>
               }
             </div>
+          </div>
+
+          <div class="mb-3" formArrayName="conditions">
+            <label class="form-label">Điều kiện đạt được <span class="text-danger">*</span></label>
+
+            @for (conditionGroup of conditions.controls; track $index) {
+              <div class="ach-condition-row" [formGroupName]="$index">
+                <select class="form-select" formControlName="conditionType">
+                  @for (t of conditionTypes; track t.code) {
+                    <option [value]="t.code">{{ t.displayName }}</option>
+                  }
+                </select>
+                <input
+                  type="number"
+                  class="form-control ach-condition-value"
+                  formControlName="targetValue"
+                  min="1"
+                  [placeholder]="conditionTypeMeta(conditionGroup.get('conditionType')?.value)?.placeholder || ''"
+                />
+                <span class="ach-condition-unit">{{ conditionTypeMeta(conditionGroup.get('conditionType')?.value)?.unit }}</span>
+                <input
+                  type="number"
+                  class="form-control ach-condition-group"
+                  formControlName="logicGroup"
+                  min="0"
+                  title="Nhóm điều kiện (các điều kiện cùng nhóm phải đạt hết — AND)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  title="Xóa điều kiện"
+                  (click)="removeConditionRow($index)"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            }
+
+            <button type="button" class="ach-chip ach-chip-add" (click)="addConditionRow()" title="Thêm điều kiện đạt được">
+              <i class="bi bi-plus-lg"></i>Điều kiện
+            </button>
+
+            @if (conditions.invalid && conditions.touched) {
+              <div class="text-danger small mt-1">Cần có ít nhất một điều kiện đạt được.</div>
+            }
           </div>
 
           <div class="row">

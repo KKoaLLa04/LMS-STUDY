@@ -16,12 +16,18 @@ public class LessonProgressService : ILessonProgressService
 
     private readonly AppDbContext _context;
     private readonly IPointService _pointService;
+    private readonly IAchievementEvaluationService _achievementEvaluationService;
     private readonly ILogger<LessonProgressService> _logger;
 
-    public LessonProgressService(AppDbContext context, IPointService pointService, ILogger<LessonProgressService> logger)
+    public LessonProgressService(
+        AppDbContext context,
+        IPointService pointService,
+        IAchievementEvaluationService achievementEvaluationService,
+        ILogger<LessonProgressService> logger)
     {
         _context = context;
         _pointService = pointService;
+        _achievementEvaluationService = achievementEvaluationService;
         _logger = logger;
     }
 
@@ -73,6 +79,7 @@ public class LessonProgressService : ILessonProgressService
             await _context.SaveChangesAsync();
 
             await _pointService.RecordHomeworkStreakAsync(userId);
+            await _achievementEvaluationService.EvaluateAsync(userId);
 
             return ApiResponse<LessonProgressDto>.Ok(MapToDto(progress, lesson.Title));
         }

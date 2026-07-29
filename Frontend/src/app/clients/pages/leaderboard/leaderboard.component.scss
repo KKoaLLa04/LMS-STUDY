@@ -293,6 +293,39 @@
   font-weight: 600;
 }
 
+// — nút Theo dõi (podium + rows) —
+.oc-lb-follow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid var(--oc-accent-500);
+  background: #fff;
+  color: var(--oc-accent-700);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 150ms;
+  flex: none;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: var(--oc-accent-100);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &.is-following {
+    background: var(--oc-accent-500);
+    border-color: var(--oc-accent-500);
+    color: #fff;
+  }
+}
+
 .oc-lb-row-points {
   font-weight: 900;
   font-size: 14px;

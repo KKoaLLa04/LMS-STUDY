@@ -9,8 +9,9 @@ import { CoursePricePipe } from '../../pipes/course-price.pipe';
 import { CourseDurationPipe } from '../../pipes/course-duration.pipe';
 import { StudentsCountPipe } from '../../pipes/students-count.pipe';
 import { RelativeDatePipe } from '../../pipes/relative-date.pipe';
+import { DiscussionPanelComponent } from '../../components/discussion-panel/discussion-panel.component';
 
-type DetailTab = 'content' | 'materials' | 'reviews';
+type DetailTab = 'content' | 'materials' | 'reviews' | 'discussion';
 
 @Component({
   selector: 'app-course-detail',
@@ -23,6 +24,7 @@ type DetailTab = 'content' | 'materials' | 'reviews';
     CourseDurationPipe,
     StudentsCountPipe,
     RelativeDatePipe,
+    DiscussionPanelComponent,
   ],
   templateUrl: './course-detail.component.html',
   styleUrl: './course-detail.component.scss',

@@ -18,12 +18,18 @@ public class DiscussionForumService : IDiscussionForumService
 
     private readonly AppDbContext _context;
     private readonly IPointService _pointService;
+    private readonly IAchievementEvaluationService _achievementEvaluationService;
     private readonly ILogger<DiscussionForumService> _logger;
 
-    public DiscussionForumService(AppDbContext context, IPointService pointService, ILogger<DiscussionForumService> logger)
+    public DiscussionForumService(
+        AppDbContext context,
+        IPointService pointService,
+        IAchievementEvaluationService achievementEvaluationService,
+        ILogger<DiscussionForumService> logger)
     {
         _context = context;
         _pointService = pointService;
+        _achievementEvaluationService = achievementEvaluationService;
         _logger = logger;
     }
 
@@ -48,7 +54,7 @@ public class DiscussionForumService : IDiscussionForumService
         await _pointService.RecordHomeworkStreakAsync(currentUserId.Value);
     }
 
-    public async Task<ApiResponse<PagedResultDto<DiscussionPostListItemDto>>> GetPostsByCourseAsync(int courseId, int page, int pageSize, string? keyword)
+    public async Task<ApiResponse<PagedResultDto<DiscussionPostListItemDto>>> GetPostsByCourseAsync(int courseId, int page, int pageSize, string? keyword, int? currentUserId)
     {
         try
         {
@@ -74,7 +80,10 @@ public class DiscussionForumService : IDiscussionForumService
                     CourseId = p.CourseId,
                     CourseName = p.Course.Title,
                     ReplyCount = p.Replies.Count,
-                    CreatedAt = p.CreatedAt
+                    CreatedAt = p.CreatedAt,
+                    LikeCount = _context.DiscussionPostLikes.Count(l => l.PostId == p.Id),
+                    IsLikedByCurrentUser = currentUserId.HasValue &&
+                        _context.DiscussionPostLikes.Any(l => l.PostId == p.Id && l.UserId == currentUserId)
                 })
                 .ToListAsync();
 
@@ -96,7 +105,7 @@ public class DiscussionForumService : IDiscussionForumService
         }
     }
 
-    public async Task<ApiResponse<DiscussionPostResponseDto>> GetPostByIdAsync(int id)
+    public async Task<ApiResponse<DiscussionPostResponseDto>> GetPostByIdAsync(int id, int? currentUserId)
     {
         try
         {
@@ -108,13 +117,34 @@ public class DiscussionForumService : IDiscussionForumService
             if (post is null)
                 return ApiResponse<DiscussionPostResponseDto>.NotFound("Không tìm thấy bài viết");
 
-            return ApiResponse<DiscussionPostResponseDto>.Ok(MapToResponseDto(post));
+            var allIds = CollectPostIds(post);
+            var likeCounts = await _context.DiscussionPostLikes
+                .Where(l => allIds.Contains(l.PostId))
+                .GroupBy(l => l.PostId)
+                .Select(g => new { PostId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.PostId, g => g.Count);
+
+            var likedByMe = currentUserId.HasValue
+                ? (await _context.DiscussionPostLikes
+                    .Where(l => allIds.Contains(l.PostId) && l.UserId == currentUserId)
+                    .Select(l => l.PostId)
+                    .ToListAsync()).ToHashSet()
+                : new HashSet<int>();
+
+            return ApiResponse<DiscussionPostResponseDto>.Ok(MapToResponseDto(post, likeCounts, likedByMe));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi lấy bài viết {Id}", id);
             return ApiResponse<DiscussionPostResponseDto>.Error("Đã xảy ra lỗi khi lấy bài viết");
         }
+    }
+
+    private static List<int> CollectPostIds(DiscussionPost p)
+    {
+        var ids = new List<int> { p.Id };
+        foreach (var r in p.Replies) ids.AddRange(CollectPostIds(r));
+        return ids;
     }
 
     public async Task<ApiResponse<DiscussionPostResponseDto>> CreatePostAsync(CreateDiscussionPostDto dto, int? currentUserId)
@@ -140,6 +170,10 @@ public class DiscussionForumService : IDiscussionForumService
 
             await _context.Entry(post).Reference(p => p.Course).LoadAsync();
             await AwardInteractionPointsAsync(currentUserId, CreatePostPoints, post.Id, post.CourseId);
+            // Đếm cho điều kiện huy hiệu CommentCount — không phụ thuộc giới hạn điểm/ngày ở trên,
+            // vì số lượng bài viết vẫn tăng kể cả khi đã hết lượt được tính điểm hôm nay.
+            if (currentUserId.HasValue)
+                await _achievementEvaluationService.EvaluateAsync(currentUserId.Value);
 
             return ApiResponse<DiscussionPostResponseDto>.Ok(MapToResponseDto(post), "Tạo bài viết thành công");
         }
@@ -240,6 +274,8 @@ public class DiscussionForumService : IDiscussionForumService
 
             await _context.Entry(reply).Reference(p => p.Course).LoadAsync();
             await AwardInteractionPointsAsync(currentUserId, ReplyPoints, reply.Id, reply.CourseId);
+            if (currentUserId.HasValue)
+                await _achievementEvaluationService.EvaluateAsync(currentUserId.Value);
 
             return ApiResponse<DiscussionPostResponseDto>.Ok(MapToResponseDto(reply), "Trả lời bài viết thành công");
         }
@@ -250,7 +286,60 @@ public class DiscussionForumService : IDiscussionForumService
         }
     }
 
-    private static DiscussionPostResponseDto MapToResponseDto(DiscussionPost p) => new()
+    public async Task<ApiResponse<object?>> LikePostAsync(int postId, int userId)
+    {
+        try
+        {
+            var post = await _context.DiscussionPosts.FirstOrDefaultAsync(p => p.Id == postId);
+            if (post == null)
+                return ApiResponse<object?>.NotFound("Không tìm thấy bài viết");
+
+            var alreadyLiked = await _context.DiscussionPostLikes
+                .AnyAsync(l => l.PostId == postId && l.UserId == userId);
+            if (alreadyLiked)
+                return ApiResponse<object?>.Ok(null, "Bạn đã thích bài viết này trước đó");
+
+            _context.DiscussionPostLikes.Add(new DiscussionPostLike { PostId = postId, UserId = userId });
+            await _context.SaveChangesAsync();
+
+            // Tác giả bài viết có thể vừa đủ điều kiện huy hiệu ReceivedLikeCount.
+            if (post.UserId.HasValue)
+                await _achievementEvaluationService.EvaluateAsync(post.UserId.Value);
+
+            return ApiResponse<object?>.Ok(null, "Đã thích bài viết");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi user {UserId} thích bài viết {PostId}", userId, postId);
+            return ApiResponse<object?>.Error("Đã xảy ra lỗi khi thích bài viết");
+        }
+    }
+
+    public async Task<ApiResponse<object?>> UnlikePostAsync(int postId, int userId)
+    {
+        try
+        {
+            var like = await _context.DiscussionPostLikes
+                .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
+            if (like == null)
+                return ApiResponse<object?>.Ok(null, "Bạn chưa thích bài viết này");
+
+            _context.DiscussionPostLikes.Remove(like);
+            await _context.SaveChangesAsync();
+
+            return ApiResponse<object?>.Ok(null, "Đã bỏ thích bài viết");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi user {UserId} bỏ thích bài viết {PostId}", userId, postId);
+            return ApiResponse<object?>.Error("Đã xảy ra lỗi khi bỏ thích bài viết");
+        }
+    }
+
+    private static DiscussionPostResponseDto MapToResponseDto(DiscussionPost p) =>
+        MapToResponseDto(p, new Dictionary<int, int>(), new HashSet<int>());
+
+    private static DiscussionPostResponseDto MapToResponseDto(DiscussionPost p, Dictionary<int, int> likeCounts, HashSet<int> likedByMe) => new()
     {
         Id = p.Id,
         Title = p.Title,
@@ -259,8 +348,10 @@ public class DiscussionForumService : IDiscussionForumService
         CourseId = p.CourseId,
         CourseName = p.Course?.Title ?? string.Empty,
         ParentPostId = p.ParentPostId,
-        Replies = p.Replies?.Select(r => MapToResponseDto(r)).ToList() ?? new(),
+        Replies = p.Replies?.Select(r => MapToResponseDto(r, likeCounts, likedByMe)).ToList() ?? new(),
         CreatedAt = p.CreatedAt,
-        UpdatedAt = p.UpdatedAt
+        UpdatedAt = p.UpdatedAt,
+        LikeCount = likeCounts.GetValueOrDefault(p.Id, 0),
+        IsLikedByCurrentUser = likedByMe.Contains(p.Id)
     };
 }

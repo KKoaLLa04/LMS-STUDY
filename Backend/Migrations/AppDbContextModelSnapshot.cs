@@ -73,6 +73,35 @@ namespace Backend.Migrations
                     b.ToTable("Achievements", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.AchievementCondition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AchievementId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConditionType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("LogicGroup")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetValue")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.ToTable("AchievementConditions", (string)null);
+                });
+
             modelBuilder.Entity("Backend.Models.AchievementGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -345,6 +374,35 @@ namespace Backend.Migrations
                     b.ToTable("DiscussionPosts", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.DiscussionPostLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("PostId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("DiscussionPostLikes", (string)null);
+                });
+
             modelBuilder.Entity("Backend.Models.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -418,6 +476,35 @@ namespace Backend.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("Enrollments", (string)null);
+                });
+
+            modelBuilder.Entity("Backend.Models.Follow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("FollowerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FollowingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FollowingId");
+
+                    b.HasIndex("FollowerId", "FollowingId")
+                        .IsUnique();
+
+                    b.ToTable("Follows", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Models.KhoiHoc", b =>
@@ -934,6 +1021,17 @@ namespace Backend.Migrations
                     b.ToTable("VirtualClassrooms", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.AchievementCondition", b =>
+                {
+                    b.HasOne("Backend.Models.Achievement", "Achievement")
+                        .WithMany()
+                        .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Achievement");
+                });
+
             modelBuilder.Entity("Backend.Models.ChatChannel", b =>
                 {
                     b.HasOne("Backend.Models.Course", "Course")
@@ -981,6 +1079,25 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Backend.Models.DiscussionPostLike", b =>
+                {
+                    b.HasOne("Backend.Models.DiscussionPost", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Backend.Models.Enrollment", b =>
                 {
                     b.HasOne("Backend.Models.Course", "Course")
@@ -998,6 +1115,25 @@ namespace Backend.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Backend.Models.Follow", b =>
+                {
+                    b.HasOne("Backend.Models.User", "Follower")
+                        .WithMany()
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.User", "Following")
+                        .WithMany()
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
                 });
 
             modelBuilder.Entity("Backend.Models.Lesson", b =>

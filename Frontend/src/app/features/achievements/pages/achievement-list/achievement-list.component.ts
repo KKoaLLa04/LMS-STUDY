@@ -1,11 +1,13 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AchievementService } from '../../services/achievement.service';
 import { AchievementGroupService } from '../../services/achievement-group.service';
-import { Achievement } from '../../models/achievement.model';
+import { AchievementConditionService } from '../../services/achievement-condition.service';
+import { Achievement, AchievementCondition } from '../../models/achievement.model';
 import { AchievementGroup } from '../../models/achievement-group.model';
+import { AchievementConditionType } from '../../models/achievement-condition-type.model';
 import { AchievementIconComponent, AchievementIconKey } from '../../components/achievement-icon/achievement-icon.component';
 import { ToastService } from '../../../../shared/services/toast.service';
 
@@ -34,6 +36,7 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
 
   achievements: Achievement[] = [];
   groups: AchievementGroup[] = [];
+  conditionTypes: AchievementConditionType[] = [];
   loading = false;
   errorMessage = '';
 
@@ -63,6 +66,7 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private achievementService: AchievementService,
     private achievementGroupService: AchievementGroupService,
+    private achievementConditionService: AchievementConditionService,
     private toast: ToastService
   ) {
     this.form = this.fb.group({
@@ -71,7 +75,8 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
       groupId: [null as number | null, [Validators.required]],
       iconKey: ['star', [Validators.required, Validators.maxLength(50)]],
       orderNumber: [0, [Validators.required, Validators.min(0)]],
-      points: [50, [Validators.required, Validators.min(0)]]
+      points: [50, [Validators.required, Validators.min(0)]],
+      conditions: this.fb.array([], [Validators.minLength(1)])
     });
 
     this.groupForm = this.fb.group({
@@ -81,7 +86,60 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadGroups();
+    this.loadConditionTypes();
     this.loadAchievements();
+  }
+
+  get conditions(): FormArray {
+    return this.form.get('conditions') as FormArray;
+  }
+
+  private createConditionGroup(condition?: AchievementCondition): FormGroup {
+    return this.fb.group({
+      conditionType: [condition?.conditionType ?? this.conditionTypes[0]?.code ?? null, [Validators.required]],
+      targetValue: [condition?.targetValue ?? 1, [Validators.required, Validators.min(1)]],
+      logicGroup: [condition?.logicGroup ?? 0, [Validators.required, Validators.min(0)]]
+    });
+  }
+
+  addConditionRow(): void {
+    this.conditions.push(this.createConditionGroup());
+  }
+
+  removeConditionRow(index: number): void {
+    this.conditions.removeAt(index);
+  }
+
+  conditionTypeMeta(code: string): AchievementConditionType | undefined {
+    return this.conditionTypes.find((t) => t.code === code);
+  }
+
+  private summarizeCondition(c: AchievementCondition): string {
+    const meta = this.conditionTypeMeta(c.conditionType);
+    const label = meta?.displayName ?? c.conditionType;
+    const unit = meta?.unit ?? '';
+    return `${label}: ${c.targetValue}${unit ? ' ' + unit : ''}`;
+  }
+
+  // Gộp các điều kiện cùng logicGroup bằng "và" (AND), nối các group khác nhau bằng "HOẶC" (OR) —
+  // đúng ngữ nghĩa đánh giá của AchievementEvaluationService ở Backend.
+  fullConditionSummary(item: Achievement): string {
+    if (!item.conditions?.length) return 'Chưa có điều kiện';
+    const groups = new Map<number, AchievementCondition[]>();
+    for (const c of item.conditions) {
+      const list = groups.get(c.logicGroup) ?? [];
+      list.push(c);
+      groups.set(c.logicGroup, list);
+    }
+    return Array.from(groups.values())
+      .map((conds) => conds.map((c) => this.summarizeCondition(c)).join(' và '))
+      .join(' HOẶC ');
+  }
+
+  shortConditionSummary(item: Achievement): string {
+    if (!item.conditions?.length) return 'Chưa có điều kiện';
+    const first = this.summarizeCondition(item.conditions[0]);
+    return item.conditions.length > 1 ? `${first} (+${item.conditions.length - 1} khác)` : first;
   }
 
   ngAfterViewInit(): void {
@@ -109,6 +167,13 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
     this.achievementGroupService.getGroups().subscribe({
       next: (res) => (this.groups = res.data ?? []),
       error: () => this.toast.error('Không thể tải danh sách nhóm huy hiệu.')
+    });
+  }
+
+  loadConditionTypes(): void {
+    this.achievementConditionService.getTypes().subscribe({
+      next: (res) => (this.conditionTypes = res.data ?? []),
+      error: () => this.toast.error('Không thể tải danh sách loại điều kiện huy hiệu.')
     });
   }
 
@@ -141,6 +206,8 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
       orderNumber: this.achievements.length,
       points: 50
     });
+    this.conditions.clear();
+    this.addConditionRow();
     this.formModal.show();
     setTimeout(() => this.nameInputEl?.nativeElement.focus(), 200);
   }
@@ -156,6 +223,12 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
       orderNumber: item.orderNumber,
       points: item.points
     });
+    this.conditions.clear();
+    if (item.conditions?.length) {
+      item.conditions.forEach((c) => this.conditions.push(this.createConditionGroup(c)));
+    } else {
+      this.addConditionRow();
+    }
     this.formModal.show();
     setTimeout(() => this.nameInputEl?.nativeElement.focus(), 200);
   }
@@ -171,7 +244,11 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
   onSubmit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.toast.error('Vui lòng điền đầy đủ các trường bắt buộc.');
+      this.toast.error(
+        this.conditions.invalid
+          ? 'Cần có ít nhất một điều kiện đạt được.'
+          : 'Vui lòng điền đầy đủ các trường bắt buộc.'
+      );
       return;
     }
 
@@ -183,7 +260,8 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
       groupId: v.groupId,
       iconKey: v.iconKey,
       orderNumber: v.orderNumber,
-      points: v.points
+      points: v.points,
+      conditions: v.conditions
     };
 
     const request$ =

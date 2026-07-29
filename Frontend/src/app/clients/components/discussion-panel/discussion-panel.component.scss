@@ -1,0 +1,155 @@
+.oc-disc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.oc-disc__loading,
+.oc-disc__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.oc-disc__spinner {
+  display: inline-flex;
+  animation: ocDiscSpin 0.8s linear infinite;
+}
+
+@keyframes ocDiscSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.oc-disc__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.oc-disc__post {
+  padding: 14px 16px;
+}
+
+.oc-disc__post-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.oc-disc__post-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.oc-disc__post-title {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.oc-disc__post-sub {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.oc-disc__chevron--open {
+  transform: rotate(180deg);
+}
+
+.oc-disc__post-actions {
+  display: flex;
+  margin-top: 8px;
+}
+
+.oc-disc__like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid var(--oc-divider);
+  background: #fff;
+  color: var(--oc-text-muted, #6b7280);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 150ms;
+
+  &:hover:not(:disabled) {
+    border-color: var(--oc-accent-500);
+    color: var(--oc-accent-700);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  &.is-liked {
+    background: var(--oc-accent-100);
+    border-color: var(--oc-accent-500);
+    color: var(--oc-accent-700);
+  }
+
+  &--sm {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}
+
+.oc-disc__detail {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--oc-divider);
+}
+
+.oc-disc__content {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+
+.oc-disc__replies {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.oc-disc__reply {
+  padding: 10px 12px;
+  background: var(--oc-bg-muted, rgba(0, 0, 0, 0.02));
+  border-radius: 10px;
+}
+
+.oc-disc__reply-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.oc-disc__reply-author {
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.oc-disc__reply-date {
+  font-size: 11px;
+}
+
+.oc-disc__reply-content {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+}

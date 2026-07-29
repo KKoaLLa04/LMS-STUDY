@@ -1,3 +1,16 @@
+export interface AchievementCondition {
+  id: number;
+  conditionType: string;
+  targetValue: number;
+  logicGroup: number;
+}
+
+export interface CreateAchievementConditionRequest {
+  conditionType: string;
+  targetValue: number;
+  logicGroup: number;
+}
+
 export interface Achievement {
   id: number;
   name: string;
@@ -9,6 +22,7 @@ export interface Achievement {
   isUnlocked: boolean;
   progressPercent: number;
   points: number;
+  conditions: AchievementCondition[];
 }
 
 export interface CreateAchievementRequest {
@@ -18,6 +32,7 @@ export interface CreateAchievementRequest {
   iconKey: string;
   orderNumber: number;
   points: number;
+  conditions: CreateAchievementConditionRequest[];
 }
 
 export interface ApiResponse<T> {

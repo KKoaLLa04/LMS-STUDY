@@ -99,6 +99,13 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/users/students.routes').then((m) => m.studentsRoutes),
       },
+      {
+        path: 'discussion-forums',
+        loadChildren: () =>
+          import('./features/discussion-forums/discussion-forums.routes').then(
+            (m) => m.discussionForumsRoutes
+          ),
+      },
     ],
   },
 ];

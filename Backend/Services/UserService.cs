@@ -163,6 +163,51 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<ApiResponse<List<PublicUserDto>>> GetPublicTeachersAsync()
+    {
+        try
+        {
+            var items = await _context.Users
+                .Where(u => u.Role == UserRole.Teacher)
+                .OrderBy(u => u.FullName)
+                .Select(u => MapToPublicDto(u))
+                .ToListAsync();
+
+            return ApiResponse<List<PublicUserDto>>.Ok(items);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lấy danh sách giáo viên công khai");
+            return ApiResponse<List<PublicUserDto>>.Error("Đã xảy ra lỗi khi lấy danh sách giáo viên");
+        }
+    }
+
+    public async Task<ApiResponse<PublicUserDto>> GetPublicByIdAsync(int id)
+    {
+        try
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+                return ApiResponse<PublicUserDto>.NotFound("Không tìm thấy người dùng");
+
+            return ApiResponse<PublicUserDto>.Ok(MapToPublicDto(user));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lấy thông tin công khai người dùng {Id}", id);
+            return ApiResponse<PublicUserDto>.Error("Đã xảy ra lỗi khi lấy thông tin người dùng");
+        }
+    }
+
+    private static PublicUserDto MapToPublicDto(User user) => new()
+    {
+        Id = user.Id,
+        FullName = user.FullName,
+        AvatarUrl = user.AvatarUrl,
+        Role = user.Role.ToString(),
+        Gender = user.Gender?.ToString()
+    };
+
     private static UserDto MapToDto(User user) => new()
     {
         Id = user.Id,

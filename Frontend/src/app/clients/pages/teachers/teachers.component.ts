@@ -1,8 +1,9 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { OcIconName } from '../../models/icon-name.type';
-import { SUBJECTS, TEACHERS, TeacherRecord } from './teachers.data';
+import { SUBJECTS, TeacherRecord, buildTeacherRecord } from './teachers.data';
+import { PublicUserService } from '../../../shared/services/public-user.service';
 
 interface FilterSubject {
   key: string;
@@ -48,6 +49,8 @@ function initialsOf(name: string): string {
   styleUrl: './teachers.component.scss',
 })
 export class TeachersComponent {
+  private readonly publicUserService = inject(PublicUserService);
+
   readonly subjects = FILTER_SUBJECTS;
   readonly sorts = SORTS;
 
@@ -57,15 +60,27 @@ export class TeachersComponent {
   readonly sortOpen = signal(false);
   readonly visibleCount = signal(PAGE_SIZE);
   readonly isLoading = signal(false);
+  readonly initialLoading = signal(true);
+  readonly allTeachers = signal<TeacherRecord[]>([]);
 
   readonly sortLabel = computed(() => this.sorts.find((s) => s.key === this.sortKey())?.label ?? '');
+
+  constructor() {
+    this.publicUserService.getTeachers().subscribe({
+      next: (res) => {
+        this.allTeachers.set((res.data ?? []).map(buildTeacherRecord));
+        this.initialLoading.set(false);
+      },
+      error: () => this.initialLoading.set(false),
+    });
+  }
 
   readonly filteredTeachers = computed(() => {
     const subject = this.activeSubject();
     const query = this.searchQuery().trim().toLowerCase();
     const sortKey = this.sortKey();
 
-    const filtered = TEACHERS.filter(
+    const filtered = this.allTeachers().filter(
       (t) => (subject === SUBJECT_ALL || t.subjectKey === subject) && t.name.toLowerCase().includes(query)
     );
 

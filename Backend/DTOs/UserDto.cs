@@ -91,3 +91,14 @@ public class UserDto
     public string Role { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 }
+
+// Thông tin công khai tối thiểu — dùng cho các trang hiển thị người dùng khác (vd. hồ sơ giáo viên),
+// không lộ email/số điện thoại/địa chỉ như UserDto đầy đủ (chỉ Admin mới xem được UserDto).
+public class PublicUserDto
+{
+    public int Id { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+    public string Role { get; set; } = string.Empty;
+    public string? Gender { get; set; }
+}

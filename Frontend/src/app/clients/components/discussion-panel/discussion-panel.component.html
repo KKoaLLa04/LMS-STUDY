@@ -1,0 +1,77 @@
+<div class="oc-disc">
+  @if (loading()) {
+    <div class="oc-disc__loading">
+      <app-oc-icon name="loader" [size]="18" [strokeWidth]="3" class="oc-disc__spinner"></app-oc-icon>
+      <span class="oc-text-muted">Đang tải bài viết thảo luận...</span>
+    </div>
+  } @else if (posts().length === 0) {
+    <div class="oc-disc__empty">
+      <app-oc-icon name="message-circle" [size]="28"></app-oc-icon>
+      <span class="oc-text-muted">Chưa có bài viết thảo luận nào cho khóa học này.</span>
+    </div>
+  } @else {
+    <div class="oc-disc__list">
+      @for (post of posts(); track post.id) {
+        <div class="oc-card oc-elev-sm oc-disc__post" [class.is-expanded]="expandedPostId() === post.id">
+          <div class="oc-disc__post-head" (click)="toggleExpand(post)">
+            <div class="oc-disc__post-meta">
+              <span class="oc-disc__post-title">{{ post.title }}</span>
+              <span class="oc-text-muted oc-disc__post-sub">
+                {{ post.authorName }} · {{ post.createdAt | ocRelativeDate }} · {{ post.replyCount }} trả lời
+              </span>
+            </div>
+            <app-oc-icon name="chevron-down" [size]="16" [class.oc-disc__chevron--open]="expandedPostId() === post.id"></app-oc-icon>
+          </div>
+
+          <div class="oc-disc__post-actions">
+            <button
+              type="button"
+              class="oc-disc__like-btn"
+              [class.is-liked]="post.isLikedByCurrentUser"
+              (click)="toggleLikePost(post, $event)"
+            >
+              <app-oc-icon name="heart" [size]="13" [strokeWidth]="2.5"></app-oc-icon>
+              {{ post.likeCount }}
+            </button>
+          </div>
+
+          @if (expandedPostId() === post.id) {
+            <div class="oc-disc__detail">
+              @if (detailLoading()) {
+                <div class="oc-disc__loading">
+                  <app-oc-icon name="loader" [size]="16" [strokeWidth]="3" class="oc-disc__spinner"></app-oc-icon>
+                </div>
+              } @else if (expandedDetail()) {
+                <p class="oc-disc__content">{{ expandedDetail()?.content }}</p>
+
+                @if (expandedReplies().length > 0) {
+                  <div class="oc-disc__replies">
+                    @for (reply of expandedReplies(); track reply.id) {
+                      <div class="oc-disc__reply" [style.margin-left.px]="(reply.depth - 1) * 20">
+                        <div class="oc-disc__reply-head">
+                          <span class="oc-disc__reply-author">{{ reply.authorName }}</span>
+                          <span class="oc-text-muted oc-disc__reply-date">{{ reply.createdAt | ocRelativeDate }}</span>
+                        </div>
+                        <p class="oc-disc__reply-content">{{ reply.content }}</p>
+                        <button
+                          type="button"
+                          class="oc-disc__like-btn oc-disc__like-btn--sm"
+                          [class.is-liked]="reply.isLikedByCurrentUser"
+                          [disabled]="reply.likeBusy"
+                          (click)="toggleLikeReply(reply)"
+                        >
+                          <app-oc-icon name="heart" [size]="12" [strokeWidth]="2.5"></app-oc-icon>
+                          {{ reply.likeCount }}
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

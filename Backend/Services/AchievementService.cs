@@ -32,7 +32,13 @@ public class AchievementService : IAchievementService
                 select new { Achievement = a, Group = g }
             ).ToListAsync();
 
-            var items = rows.Select(r => MapToDto(r.Achievement, r.Group)).ToList();
+            var conditionsByAchievementId = await _context.AchievementConditions
+                .Where(c => rows.Select(r => r.Achievement.Id).Contains(c.AchievementId))
+                .ToListAsync();
+
+            var items = rows
+                .Select(r => MapToDto(r.Achievement, r.Group, conditionsByAchievementId.Where(c => c.AchievementId == r.Achievement.Id)))
+                .ToList();
 
             return ApiResponse<List<AchievementDto>>.Ok(items);
         }
@@ -52,7 +58,8 @@ public class AchievementService : IAchievementService
                 return ApiResponse<AchievementDto>.NotFound("Huy hiệu thành tích không tồn tại");
 
             var group = await _context.AchievementGroups.FirstOrDefaultAsync(g => g.Id == achievement.GroupId);
-            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group));
+            var conditions = await _context.AchievementConditions.Where(c => c.AchievementId == id).ToListAsync();
+            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group, conditions));
         }
         catch (Exception ex)
         {
@@ -82,7 +89,17 @@ public class AchievementService : IAchievementService
             _context.Achievements.Add(achievement);
             await _context.SaveChangesAsync();
 
-            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group), "Tạo huy hiệu thành tích thành công");
+            var conditions = dto.Conditions.Select(c => new AchievementCondition
+            {
+                AchievementId = achievement.Id,
+                ConditionType = c.ConditionType,
+                TargetValue = c.TargetValue,
+                LogicGroup = c.LogicGroup
+            }).ToList();
+            _context.AchievementConditions.AddRange(conditions);
+            await _context.SaveChangesAsync();
+
+            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group, conditions), "Tạo huy hiệu thành tích thành công");
         }
         catch (Exception ex)
         {
@@ -110,9 +127,25 @@ public class AchievementService : IAchievementService
             achievement.OrderNumber = dto.OrderNumber;
             achievement.Points = dto.Points;
 
+            // Thay thế toàn bộ điều kiện cũ bằng danh sách mới — đơn giản hơn so với việc so khớp
+            // (diff) từng điều kiện, và số lượng điều kiện mỗi huy hiệu luôn nhỏ.
+            var existingConditions = await _context.AchievementConditions
+                .Where(c => c.AchievementId == id)
+                .ToListAsync();
+            _context.AchievementConditions.RemoveRange(existingConditions);
+
+            var conditions = dto.Conditions.Select(c => new AchievementCondition
+            {
+                AchievementId = id,
+                ConditionType = c.ConditionType,
+                TargetValue = c.TargetValue,
+                LogicGroup = c.LogicGroup
+            }).ToList();
+            _context.AchievementConditions.AddRange(conditions);
+
             await _context.SaveChangesAsync();
 
-            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group), "Cập nhật huy hiệu thành tích thành công");
+            return ApiResponse<AchievementDto>.Ok(MapToDto(achievement, group, conditions), "Cập nhật huy hiệu thành tích thành công");
         }
         catch (Exception ex)
         {
@@ -214,7 +247,7 @@ public class AchievementService : IAchievementService
         }
     }
 
-    private static AchievementDto MapToDto(Achievement achievement, AchievementGroup? group) => new()
+    private static AchievementDto MapToDto(Achievement achievement, AchievementGroup? group, IEnumerable<AchievementCondition> conditions) => new()
     {
         Id = achievement.Id,
         Name = achievement.Name,
@@ -226,6 +259,13 @@ public class AchievementService : IAchievementService
         OrderNumber = achievement.OrderNumber,
         IsUnlocked = achievement.IsUnlocked,
         ProgressPercent = achievement.ProgressPercent,
-        Points = achievement.Points
+        Points = achievement.Points,
+        Conditions = conditions.Select(c => new AchievementConditionDto
+        {
+            Id = c.Id,
+            ConditionType = c.ConditionType,
+            TargetValue = c.TargetValue,
+            LogicGroup = c.LogicGroup
+        }).ToList()
     };
 }

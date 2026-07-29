@@ -18,6 +18,26 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>[User] Danh sách công khai giáo viên (tên/avatar) — dùng cho trang giáo viên phía học sinh,
+    /// mở cho mọi user đã đăng nhập, ghi đè [Authorize(Roles = "Admin")] ở cấp class.</summary>
+    [HttpGet("teachers/public")]
+    [Authorize]
+    public async Task<IActionResult> GetPublicTeachers()
+    {
+        var result = await _userService.GetPublicTeachersAsync();
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>[User] Thông tin công khai tối thiểu của một người dùng (tên/avatar) — dùng cho trang hồ sơ
+    /// giáo viên/học sinh phía học sinh, mở cho mọi user đã đăng nhập.</summary>
+    [HttpGet("public/{id:int}")]
+    [Authorize]
+    public async Task<IActionResult> GetPublicUser(int id)
+    {
+        var result = await _userService.GetPublicByIdAsync(id);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
     /// <summary>
     /// [Admin] Lấy danh sách người dùng, có thể lọc theo vai trò (?role=Teacher|Student|Admin)
     /// </summary>

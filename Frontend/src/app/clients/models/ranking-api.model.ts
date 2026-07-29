@@ -10,6 +10,7 @@ export interface RankingEntryApi {
   avatarUrl?: string;
   totalPoints: number;
   isMe: boolean;
+  isFollowing: boolean;
 }
 
 export interface LeaderboardResponseApi {

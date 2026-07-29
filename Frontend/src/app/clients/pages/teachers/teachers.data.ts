@@ -85,25 +85,30 @@ export interface TeacherRecord {
   experienceYears: number;
 }
 
-/** Mock data for now — will be swapped for a real teachers endpoint once the
- * backend exposes an instructors list. */
-export const TEACHERS: TeacherRecord[] = [
-  { id: 1, name: 'Nguyễn Văn An', honorific: 'Thầy', subjectKey: 'math', rating: 4.8, coursesCount: 18, experienceYears: 12 },
-  { id: 2, name: 'Trần Thị Bích', honorific: 'Cô', subjectKey: 'physics', rating: 4.6, coursesCount: 12, experienceYears: 9 },
-  { id: 3, name: 'Lê Minh Khoa', honorific: 'Thầy', subjectKey: 'chem', rating: 4.9, coursesCount: 21, experienceYears: 14 },
-  { id: 4, name: 'Phạm Thu Hà', honorific: 'Cô', subjectKey: 'lit', rating: 4.7, coursesCount: 9, experienceYears: 7 },
-  { id: 5, name: 'Vũ Ngọc Lan', honorific: 'Cô', subjectKey: 'eng', rating: 4.9, coursesCount: 26, experienceYears: 11 },
-  { id: 6, name: 'Đỗ Quang Huy', honorific: 'Thầy', subjectKey: 'bio', rating: 4.5, coursesCount: 8, experienceYears: 6 },
-  { id: 7, name: 'Hoàng Anh Tuấn', honorific: 'Thầy', subjectKey: 'math', rating: 4.7, coursesCount: 14, experienceYears: 10 },
-  { id: 8, name: 'Ngô Bảo Châu', honorific: 'Thầy', subjectKey: 'physics', rating: 4.8, coursesCount: 11, experienceYears: 9 },
-  { id: 9, name: 'Trịnh Thu Trang', honorific: 'Cô', subjectKey: 'chem', rating: 4.6, coursesCount: 10, experienceYears: 8 },
-  { id: 10, name: 'Bùi Gia Bảo', honorific: 'Thầy', subjectKey: 'lit', rating: 4.8, coursesCount: 13, experienceYears: 7 },
-  { id: 11, name: 'Lý Khánh Linh', honorific: 'Cô', subjectKey: 'eng', rating: 4.9, coursesCount: 22, experienceYears: 12 },
-  { id: 12, name: 'Đặng Việt Hoàng', honorific: 'Thầy', subjectKey: 'bio', rating: 4.5, coursesCount: 7, experienceYears: 6 },
-];
+/** Minimal shape returned by the real backend (Backend/DTOs/UserDto.cs → PublicUserDto). */
+export interface PublicTeacher {
+  id: number;
+  fullName: string;
+  avatarUrl?: string;
+  gender?: string;
+}
 
-export function findTeacher(id: number): TeacherRecord | undefined {
-  return TEACHERS.find((t) => t.id === id);
+/** The backend only tracks name/avatar/gender for a teacher — rating, subject,
+ * course count and years of experience aren't modeled yet. Derive a stable
+ * "flavor" from the real id so the page still reads as a rich profile instead
+ * of showing zeros everywhere, without inventing per-teacher mock identities. */
+export function buildTeacherRecord(pu: PublicTeacher): TeacherRecord {
+  const id = pu.id;
+  const honorific: 'Thầy' | 'Cô' = pu.gender === 'Male' ? 'Thầy' : pu.gender === 'Female' ? 'Cô' : (id % 2 === 0 ? 'Thầy' : 'Cô');
+  return {
+    id,
+    name: pu.fullName,
+    honorific,
+    subjectKey: SUBJECTS[id % SUBJECTS.length].key,
+    rating: Math.round((4.5 + ((id * 37) % 5) / 10) * 10) / 10,
+    coursesCount: 5 + ((id * 13) % 20),
+    experienceYears: 4 + ((id * 7) % 12),
+  };
 }
 
 /** Students and reviews aren't tracked by the backend yet, so these are

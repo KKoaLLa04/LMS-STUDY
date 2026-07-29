@@ -32,6 +32,9 @@ public class AppDbContext : DbContext
     public DbSet<QuizOption> QuizOptions => Set<QuizOption>();
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<Quiz> Quizzes => Set<Quiz>();
+    public DbSet<AchievementCondition> AchievementConditions => Set<AchievementCondition>();
+    public DbSet<Follow> Follows => Set<Follow>();
+    public DbSet<DiscussionPostLike> DiscussionPostLikes => Set<DiscussionPostLike>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -241,6 +244,55 @@ public class AppDbContext : DbContext
                   .HasForeignKey(ua => ua.AchievementId)
                   .OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(ua => new { ua.UserId, ua.AchievementId }).IsUnique();
+        });
+
+        modelBuilder.Entity<AchievementCondition>(entity =>
+        {
+            entity.ToTable("AchievementConditions");
+            entity.Property(c => c.ConditionType)
+                  .HasConversion<string>()
+                  .HasMaxLength(30);
+            entity.HasOne(c => c.Achievement)
+                  .WithMany()
+                  .HasForeignKey(c => c.AchievementId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(c => c.AchievementId);
+        });
+
+        modelBuilder.Entity<Follow>(entity =>
+        {
+            entity.ToTable("Follows");
+            entity.Property(f => f.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            // Cả hai FK đều trỏ tới Users — chỉ được phép Cascade ở một phía, nếu không SQL Server
+            // báo lỗi multiple cascade paths (cùng lý do như DiscussionPost.ParentPost dùng NoAction).
+            entity.HasOne(f => f.Follower)
+                  .WithMany()
+                  .HasForeignKey(f => f.FollowerId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(f => f.Following)
+                  .WithMany()
+                  .HasForeignKey(f => f.FollowingId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(f => new { f.FollowerId, f.FollowingId }).IsUnique();
+        });
+
+        modelBuilder.Entity<DiscussionPostLike>(entity =>
+        {
+            entity.ToTable("DiscussionPostLikes");
+            entity.Property(l => l.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(l => l.Post)
+                  .WithMany()
+                  .HasForeignKey(l => l.PostId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(l => l.User)
+                  .WithMany()
+                  .HasForeignKey(l => l.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(l => new { l.PostId, l.UserId }).IsUnique();
         });
 
         modelBuilder.Entity<LessonProgress>(entity =>

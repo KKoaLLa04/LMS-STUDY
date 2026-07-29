@@ -4,11 +4,14 @@ import { OcIconComponent } from '../../components/icon/icon.component';
 import { OcIconName } from '../../models/icon-name.type';
 import { RankingService } from '../../services/ranking.service';
 import { RankingEntryApi } from '../../models/ranking-api.model';
+import { FollowService } from '../../../shared/services/follow.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 type RankChange = 'up' | 'down' | 'same';
 
 interface LeaderboardEntry {
   rank: number;
+  userId: number;
   name: string;
   grade: string;
   subtitle: string;
@@ -16,6 +19,8 @@ interface LeaderboardEntry {
   change: RankChange;
   delta: number;
   isMe?: boolean;
+  isFollowing: boolean;
+  followBusy?: boolean;
 }
 
 type LeaderboardPeriod = 'week' | 'month' | 'all';
@@ -55,6 +60,7 @@ const PERIODS: Array<{ key: LeaderboardPeriod; label: string }> = [
 function mapRankingEntry(e: RankingEntryApi): LeaderboardEntry {
   return {
     rank: e.rank,
+    userId: e.userId,
     name: e.fullName,
     grade: '',
     subtitle: '',
@@ -62,6 +68,7 @@ function mapRankingEntry(e: RankingEntryApi): LeaderboardEntry {
     change: 'same',
     delta: 0,
     isMe: e.isMe,
+    isFollowing: e.isFollowing,
   };
 }
 
@@ -96,6 +103,8 @@ function initialsOf(name: string): string {
 })
 export class LeaderboardComponent {
   private readonly rankingService = inject(RankingService);
+  private readonly followService = inject(FollowService);
+  private readonly toast = inject(ToastService);
 
   readonly grades = GRADES;
   readonly periods = PERIODS;
@@ -171,5 +180,34 @@ export class LeaderboardComponent {
 
   formatPoints(points: number): string {
     return `${points.toLocaleString('vi-VN')} điểm`;
+  }
+
+  toggleFollow(entry: LeaderboardEntry, event: Event): void {
+    event.stopPropagation();
+    if (entry.followBusy) return;
+
+    const wasFollowing = entry.isFollowing;
+    this.patchEntry(entry.userId, { followBusy: true });
+    const request = wasFollowing
+      ? this.followService.unfollow(entry.userId)
+      : this.followService.follow(entry.userId);
+
+    request.subscribe({
+      next: () => {
+        this.patchEntry(entry.userId, { isFollowing: !wasFollowing, followBusy: false });
+        this.toast.success(wasFollowing ? 'Đã bỏ theo dõi' : 'Đã theo dõi');
+      },
+      error: () => {
+        this.patchEntry(entry.userId, { followBusy: false });
+        this.toast.error('Có lỗi xảy ra, vui lòng thử lại');
+      },
+    });
+  }
+
+  private patchEntry(userId: number, patch: Partial<LeaderboardEntry>): void {
+    this.entries.update((list) => list.map((e) => (e.userId === userId ? { ...e, ...patch } : e)));
+    if (this.me()?.userId === userId) {
+      this.me.update((m) => (m ? { ...m, ...patch } : m));
+    }
   }
 }

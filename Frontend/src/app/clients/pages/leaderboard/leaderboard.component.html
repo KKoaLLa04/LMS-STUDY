@@ -61,6 +61,18 @@
           <span class="oc-text-muted oc-lb-podium-subtitle">{{ entry.subtitle }}</span>
         }
         <span class="oc-lb-podium-points">{{ formatPoints(entry.points) }}</span>
+        @if (!entry.isMe) {
+          <button
+            type="button"
+            class="oc-lb-follow-btn"
+            [class.is-following]="entry.isFollowing"
+            [disabled]="entry.followBusy"
+            (click)="toggleFollow(entry, $event)"
+          >
+            <app-oc-icon [name]="entry.isFollowing ? 'check' : 'user'" [size]="12" [strokeWidth]="2.5"></app-oc-icon>
+            {{ entry.isFollowing ? 'Đang theo dõi' : 'Theo dõi' }}
+          </button>
+        }
         <div
           class="oc-lb-podium-bar"
           [style.height.px]="rankMeta(entry.rank).height"
@@ -92,6 +104,18 @@
           }
         </div>
         <span class="oc-lb-row-points">{{ formatPoints(entry.points) }}</span>
+        @if (!entry.isMe) {
+          <button
+            type="button"
+            class="oc-lb-follow-btn"
+            [class.is-following]="entry.isFollowing"
+            [disabled]="entry.followBusy"
+            (click)="toggleFollow(entry, $event)"
+          >
+            <app-oc-icon [name]="entry.isFollowing ? 'check' : 'user'" [size]="12" [strokeWidth]="2.5"></app-oc-icon>
+            {{ entry.isFollowing ? 'Đang theo dõi' : 'Theo dõi' }}
+          </button>
+        }
       </div>
     }
   </div>

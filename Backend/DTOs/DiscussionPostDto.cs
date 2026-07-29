@@ -43,6 +43,8 @@ public class DiscussionPostResponseDto
     public List<DiscussionPostResponseDto> Replies { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public int LikeCount { get; set; }
+    public bool IsLikedByCurrentUser { get; set; }
 }
 
 public class DiscussionPostListItemDto
@@ -54,4 +56,6 @@ public class DiscussionPostListItemDto
     public string CourseName { get; set; } = string.Empty;
     public int ReplyCount { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int LikeCount { get; set; }
+    public bool IsLikedByCurrentUser { get; set; }
 }

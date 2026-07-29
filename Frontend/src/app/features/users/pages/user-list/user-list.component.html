@@ -84,6 +84,16 @@
                     <td class="align-middle text-muted">{{ item.createdAt | date: 'dd/MM/yyyy' }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
+                        @if (role === 'Student') {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-success"
+                            title="Mở khóa huy hiệu thủ công"
+                            (click)="openUnlockModal(item)"
+                          >
+                            <i class="bi bi-award"></i>
+                          </button>
+                        }
                         <button
                           type="button"
                           class="btn btn-sm btn-outline-primary"
@@ -337,6 +347,51 @@
             <span class="spinner-border spinner-border-sm me-1"></span>
           }
           Xóa vĩnh viễn
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ Modal: Mở khóa huy hiệu thủ công ═══════════════ -->
+<div #unlockModal class="modal fade usr-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="usr-modal-title">
+          <span class="usr-modal-icon"><i class="bi bi-award"></i></span>
+          <h5 class="modal-title mb-0">Mở khóa huy hiệu thủ công</h5>
+        </div>
+        <button type="button" class="btn-close" (click)="closeUnlockModal()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        @if (unlockTarget) {
+          <p class="mb-3">
+            Mở khóa một huy hiệu cho học sinh <strong>{{ unlockTarget.fullName }}</strong> (bỏ qua điều kiện tự động,
+            cộng điểm thưởng tương ứng ngay lập tức).
+          </p>
+          <label class="form-label">Chọn huy hiệu <span class="text-danger">*</span></label>
+          @if (achievements.length === 0) {
+            <div class="text-muted small">Đang tải danh sách huy hiệu...</div>
+          } @else {
+            <select class="form-select" [(ngModel)]="selectedAchievementId" [ngModelOptions]="{ standalone: true }">
+              <option [ngValue]="null" disabled>-- Chọn huy hiệu --</option>
+              @for (a of achievements; track a.id) {
+                <option [ngValue]="a.id">{{ a.name }} ({{ a.points }} điểm)</option>
+              }
+            </select>
+          }
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeUnlockModal()">Hủy</button>
+        <button type="button" class="btn btn-primary" [disabled]="!selectedAchievementId || unlocking" (click)="confirmUnlock()">
+          @if (unlocking) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          Mở khóa
         </button>
       </div>
     </div>

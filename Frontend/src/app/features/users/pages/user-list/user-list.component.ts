@@ -6,6 +6,8 @@ import { UserService } from '../../services/user.service';
 import { AppUser, AppUserGender, AppUserRole, AppUserStatus } from '../../models/user.model';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { UploadService } from '../../../../shared/services/upload.service';
+import { AchievementService } from '../../../achievements/services/achievement.service';
+import { Achievement } from '../../../achievements/models/achievement.model';
 
 declare const bootstrap: any;
 
@@ -39,6 +41,7 @@ const GENDER_LABELS: Record<AppUserGender, string> = {
 export class UserListComponent implements OnInit, AfterViewInit {
   @ViewChild('formModal') formModalEl!: ElementRef<HTMLElement>;
   @ViewChild('deleteModal') deleteModalEl!: ElementRef<HTMLElement>;
+  @ViewChild('unlockModal') unlockModalEl!: ElementRef<HTMLElement>;
   @ViewChild('fullNameInput') fullNameInputEl?: ElementRef<HTMLInputElement>;
 
   // Cấu hình theo route data — cùng 1 component phục vụ cả "Danh sách giảng viên" và "Danh sách học sinh".
@@ -67,14 +70,21 @@ export class UserListComponent implements OnInit, AfterViewInit {
   avatarError = false;
   avatarUploadState: AvatarUploadState = { uploading: false };
 
+  achievements: Achievement[] = [];
+  unlockTarget: AppUser | null = null;
+  selectedAchievementId: number | null = null;
+  unlocking = false;
+
   private formModal: any;
   private deleteModal: any;
+  private unlockModal: any;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private userService: UserService,
     private uploadService: UploadService,
+    private achievementService: AchievementService,
     private toast: ToastService
   ) {
     this.form = this.fb.group({
@@ -104,6 +114,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.formModal = new bootstrap.Modal(this.formModalEl.nativeElement);
     this.deleteModal = new bootstrap.Modal(this.deleteModalEl.nativeElement);
+    this.unlockModal = new bootstrap.Modal(this.unlockModalEl.nativeElement);
   }
 
   loadUsers(): void {
@@ -325,6 +336,45 @@ export class UserListComponent implements OnInit, AfterViewInit {
       error: (err) => {
         this.deleting = false;
         this.toast.error(err?.error?.message || 'Xóa thất bại. Vui lòng thử lại.');
+      }
+    });
+  }
+
+  openUnlockModal(item: AppUser): void {
+    this.unlockTarget = item;
+    this.selectedAchievementId = null;
+    if (this.achievements.length === 0) {
+      this.achievementService.getAchievements().subscribe((res) => {
+        this.achievements = res.data ?? [];
+      });
+    }
+    this.unlockModal.show();
+  }
+
+  closeUnlockModal(): void {
+    this.unlockModal.hide();
+  }
+
+  confirmUnlock(): void {
+    if (!this.unlockTarget || !this.selectedAchievementId) {
+      this.toast.error('Vui lòng chọn một huy hiệu.');
+      return;
+    }
+
+    this.unlocking = true;
+    this.achievementService.unlockForUser(this.selectedAchievementId, this.unlockTarget.id).subscribe({
+      next: (res) => {
+        this.unlocking = false;
+        if (!res.success) {
+          this.toast.error(res.message || 'Mở khóa thất bại');
+          return;
+        }
+        this.toast.success(`Đã mở khóa huy hiệu cho "${this.unlockTarget!.fullName}".`);
+        this.closeUnlockModal();
+      },
+      error: (err) => {
+        this.unlocking = false;
+        this.toast.error(err?.error?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
       }
     });
   }

@@ -1,4 +1,9 @@
-@if (teacher; as t) {
+@if (loading) {
+  <main class="oc-teacher-detail oc-td-not-found">
+    <app-oc-icon name="loader" [size]="32" class="oc-td-loading-spinner"></app-oc-icon>
+    <span>Đang tải hồ sơ giáo viên...</span>
+  </main>
+} @else if (teacher) {
   <main class="oc-teacher-detail">
 
     <section class="oc-td-hero">
@@ -14,9 +19,22 @@
         </div>
         <div class="oc-td-hero__rating">
           <app-oc-icon name="star" [size]="16" color="#FFD700"></app-oc-icon>
-          {{ t.rating }} / 5 <span class="oc-td-hero__rating-count">({{ reviewsCount }} đánh giá)</span>
+          {{ teacher.rating }} / 5 <span class="oc-td-hero__rating-count">({{ reviewsCount }} đánh giá)</span>
+          <span class="oc-td-hero__rating-count">· {{ followersCount }} người theo dõi</span>
         </div>
-        <button type="button" class="oc-btn oc-td-hero__cta" (click)="scrollToCourses()">Xem khoá học</button>
+        <div class="oc-td-hero__actions">
+          <button type="button" class="oc-btn oc-td-hero__cta" (click)="scrollToCourses()">Xem khoá học</button>
+          <button
+            type="button"
+            class="oc-btn oc-td-hero__follow"
+            [class.is-following]="isFollowing"
+            [disabled]="followBusy"
+            (click)="toggleFollow()"
+          >
+            <app-oc-icon [name]="isFollowing ? 'check' : 'user'" [size]="15" [strokeWidth]="2.5"></app-oc-icon>
+            {{ isFollowing ? 'Đang theo dõi' : 'Theo dõi' }}
+          </button>
+        </div>
       </div>
     </section>
 
@@ -42,7 +60,7 @@
           </div>
           <div class="oc-td-about-item__text">
             <span class="oc-td-about-item__label">Kinh nghiệm</span>
-            <span class="oc-text-muted oc-td-about-item__value">{{ t.experienceYears }} năm giảng dạy {{ subject?.name }}</span>
+            <span class="oc-text-muted oc-td-about-item__value">{{ teacher.experienceYears }} năm giảng dạy {{ subject?.name }}</span>
           </div>
         </div>
         <div class="oc-card oc-elev-sm oc-td-about-item">

@@ -24,6 +24,9 @@ public class CreateAchievementDto
 
     [Range(0, int.MaxValue, ErrorMessage = "Điểm thưởng không được âm")]
     public int Points { get; set; } = 50;
+
+    [MinLength(1, ErrorMessage = "Cần có ít nhất một điều kiện đạt được")]
+    public List<CreateAchievementConditionDto> Conditions { get; set; } = new();
 }
 
 public class UpdateAchievementDto
@@ -48,6 +51,9 @@ public class UpdateAchievementDto
 
     [Range(0, int.MaxValue, ErrorMessage = "Điểm thưởng không được âm")]
     public int Points { get; set; } = 50;
+
+    [MinLength(1, ErrorMessage = "Cần có ít nhất một điều kiện đạt được")]
+    public List<CreateAchievementConditionDto> Conditions { get; set; } = new();
 }
 
 public class AchievementDto
@@ -67,6 +73,7 @@ public class AchievementDto
     public bool IsUnlocked { get; set; }
     public int ProgressPercent { get; set; }
     public int Points { get; set; }
+    public List<AchievementConditionDto> Conditions { get; set; } = new();
 }
 
 // Trạng thái mở khóa huy hiệu thật của MỘT học sinh cụ thể (qua bảng UserAchievement),
