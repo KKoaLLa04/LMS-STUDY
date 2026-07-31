@@ -8,6 +8,8 @@ import { ToastService } from '../../../../shared/services/toast.service';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { AchievementService } from '../../../achievements/services/achievement.service';
 import { Achievement } from '../../../achievements/models/achievement.model';
+import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
+import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
 
 declare const bootstrap: any;
 
@@ -75,6 +77,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
   selectedAchievementId: number | null = null;
   unlocking = false;
 
+  khoiHocs: KhoiHoc[] = [];
+
   private formModal: any;
   private deleteModal: any;
   private unlockModal: any;
@@ -85,6 +89,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
     private userService: UserService,
     private uploadService: UploadService,
     private achievementService: AchievementService,
+    private khoiHocService: KhoiHocService,
     private toast: ToastService
   ) {
     this.form = this.fb.group({
@@ -97,7 +102,11 @@ export class UserListComponent implements OnInit, AfterViewInit {
       gender: [''],
       dateOfBirth: [''],
       address: ['', [Validators.maxLength(500)]],
-      avatarUrl: ['']
+      avatarUrl: [''],
+      subject: ['', [Validators.maxLength(100)]],
+      experienceYears: [''],
+      bio: ['', [Validators.maxLength(1000)]],
+      khoiHocId: ['']
     });
   }
 
@@ -107,6 +116,10 @@ export class UserListComponent implements OnInit, AfterViewInit {
     this.pageTitle = data['pageTitle'] ?? this.pageTitle;
     this.entityLabel = data['entityLabel'] ?? this.entityLabel;
     this.createLabel = data['createLabel'] ?? this.createLabel;
+
+    if (this.role === 'Student') {
+      this.khoiHocService.getKhoiHocs().subscribe((res) => (this.khoiHocs = res.data ?? []));
+    }
 
     this.loadUsers();
   }
@@ -178,7 +191,11 @@ export class UserListComponent implements OnInit, AfterViewInit {
       gender: '',
       dateOfBirth: '',
       address: '',
-      avatarUrl: ''
+      avatarUrl: '',
+      subject: '',
+      experienceYears: '',
+      bio: '',
+      khoiHocId: ''
     });
     this.avatarPreviewUrl = null;
     this.avatarError = false;
@@ -202,7 +219,11 @@ export class UserListComponent implements OnInit, AfterViewInit {
       gender: item.gender ?? '',
       dateOfBirth: item.dateOfBirth ?? '',
       address: item.address ?? '',
-      avatarUrl: item.avatarUrl ?? ''
+      avatarUrl: item.avatarUrl ?? '',
+      subject: item.subject ?? '',
+      experienceYears: item.experienceYears ?? '',
+      bio: item.bio ?? '',
+      khoiHocId: item.khoiHocId ?? ''
     });
     this.avatarPreviewUrl = item.avatarUrl ?? null;
     this.avatarError = false;
@@ -276,6 +297,10 @@ export class UserListComponent implements OnInit, AfterViewInit {
       dateOfBirth: v.dateOfBirth || null,
       address: v.address?.trim() || null,
       avatarUrl: v.avatarUrl?.trim() || null,
+      subject: this.role === 'Teacher' ? v.subject?.trim() || null : null,
+      experienceYears: this.role === 'Teacher' && v.experienceYears !== '' ? Number(v.experienceYears) : null,
+      bio: this.role === 'Teacher' ? v.bio?.trim() || null : null,
+      khoiHocId: this.role === 'Student' && v.khoiHocId !== '' ? Number(v.khoiHocId) : null,
       role: this.role
     };
 

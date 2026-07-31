@@ -60,6 +60,19 @@ public class User : ISoftDelete
 
     public string? Address { get; set; }
 
+    // Chỉ có ý nghĩa khi Role = Teacher — môn dạy/số năm kinh nghiệm/giới thiệu, admin nhập qua
+    // form sửa user. Trước đây các trường này bị suy diễn giả ở Frontend vì chưa tồn tại ở DB.
+    [MaxLength(100)]
+    public string? Subject { get; set; }
+    public int? ExperienceYears { get; set; }
+    [MaxLength(1000)]
+    public string? Bio { get; set; }
+
+    // Chỉ có ý nghĩa khi Role = Student — khối/lớp đang học, dùng để lọc bảng xếp hạng theo khối.
+    // Không khai báo FK tới KhoiHoc (cùng quy ước với Course.KhoiHocId): xóa KhoiHoc không bao
+    // giờ bị chặn bởi các User đang tham chiếu tới nó.
+    public int? KhoiHocId { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public bool IsDeleted { get; set; }

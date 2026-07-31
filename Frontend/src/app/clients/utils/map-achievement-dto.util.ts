@@ -8,6 +8,8 @@ const CATEGORY_MAP: Record<string, BadgeCategory> = {
   TuongTac: 'tuongtac',
 };
 
+// Catalogue-only view (no logged-in student context) — unlock status isn't meaningful here,
+// only GET /me (mapMyAchievementDtoToBadge below) reflects a real per-student unlock state.
 export function mapAchievementDtoToBadge(dto: AchievementApi): Badge {
   return {
     id: String(dto.id),
@@ -15,8 +17,7 @@ export function mapAchievementDtoToBadge(dto: AchievementApi): Badge {
     name: dto.name,
     desc: dto.description,
     icon: dto.iconKey as OcIconName,
-    unlocked: dto.isUnlocked,
-    progress: dto.isUnlocked ? undefined : dto.progressPercent,
+    unlocked: false,
   };
 }
 

@@ -1,9 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { OcIconName } from '../../models/icon-name.type';
-import { SUBJECTS, TeacherRecord, buildTeacherRecord } from './teachers.data';
+import { TeacherRecord, buildTeacherRecord, subjectIcon } from './teachers.data';
 import { PublicUserService } from '../../../shared/services/public-user.service';
+import { ClientCourseService } from '../../services/client-course.service';
 
 interface FilterSubject {
   key: string;
@@ -15,11 +17,7 @@ interface FilterSubject {
 type SortKey = 'rating' | 'courses' | 'name';
 
 const SUBJECT_ALL = 'all';
-
-const FILTER_SUBJECTS: FilterSubject[] = [
-  { key: SUBJECT_ALL, name: 'Tất cả', icon: 'grid', iconBg: 'var(--oc-neutral-500)' },
-  ...SUBJECTS.map((s) => ({ key: s.key, name: s.name, icon: s.icon, iconBg: s.iconBg })),
-];
+const ALL_SUBJECTS_FILTER: FilterSubject = { key: SUBJECT_ALL, name: 'Tất cả', icon: 'grid', iconBg: 'var(--oc-neutral-500)' };
 
 const SORTS: Array<{ key: SortKey; label: string }> = [
   { key: 'rating', label: 'Đánh giá cao nhất' },
@@ -50,8 +48,8 @@ function initialsOf(name: string): string {
 })
 export class TeachersComponent {
   private readonly publicUserService = inject(PublicUserService);
+  private readonly courseService = inject(ClientCourseService);
 
-  readonly subjects = FILTER_SUBJECTS;
   readonly sorts = SORTS;
 
   readonly activeSubject = signal(SUBJECT_ALL);
@@ -65,10 +63,28 @@ export class TeachersComponent {
 
   readonly sortLabel = computed(() => this.sorts.find((s) => s.key === this.sortKey())?.label ?? '');
 
+  // Danh sách môn dạy thật xuất hiện trong dữ liệu giáo viên hiện có (Subject là chuỗi tự do
+  // admin nhập, không phải enum cố định) — "Tất cả" luôn đứng đầu.
+  readonly subjects = computed<FilterSubject[]>(() => {
+    const names = new Set(this.allTeachers().map((t) => t.subject).filter((s): s is string => !!s));
+    return [
+      ALL_SUBJECTS_FILTER,
+      ...Array.from(names)
+        .sort((a, b) => a.localeCompare(b, 'vi'))
+        .map((name) => {
+          const meta = subjectIcon(name);
+          return { key: name, name, icon: meta.icon, iconBg: meta.bg };
+        }),
+    ];
+  });
+
   constructor() {
-    this.publicUserService.getTeachers().subscribe({
-      next: (res) => {
-        this.allTeachers.set((res.data ?? []).map(buildTeacherRecord));
+    forkJoin({
+      teachers: this.publicUserService.getTeachers(),
+      courses: this.courseService.getCourses(),
+    }).subscribe({
+      next: ({ teachers, courses }) => {
+        this.allTeachers.set((teachers.data ?? []).map((pu) => buildTeacherRecord(pu, courses)));
         this.initialLoading.set(false);
       },
       error: () => this.initialLoading.set(false),
@@ -81,7 +97,7 @@ export class TeachersComponent {
     const sortKey = this.sortKey();
 
     const filtered = this.allTeachers().filter(
-      (t) => (subject === SUBJECT_ALL || t.subjectKey === subject) && t.name.toLowerCase().includes(query)
+      (t) => (subject === SUBJECT_ALL || t.subject === subject) && t.name.toLowerCase().includes(query)
     );
 
     return filtered.slice().sort((a, b) => {
@@ -129,12 +145,12 @@ export class TeachersComponent {
     return AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length];
   }
 
-  subjectColor(subjectKey: string): string {
-    return this.subjects.find((s) => s.key === subjectKey)?.iconBg ?? 'var(--oc-neutral-500)';
+  subjectColor(subject: string | null): string {
+    return subjectIcon(subject).bg;
   }
 
   subjectName(t: TeacherRecord): string {
-    return this.subjects.find((s) => s.key === t.subjectKey)?.name ?? t.subjectKey;
+    return t.subject ?? 'Chưa cập nhật';
   }
 
   initials(name: string): string {

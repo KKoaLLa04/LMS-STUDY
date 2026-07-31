@@ -18,7 +18,7 @@
   <section class="oc-sp-section">
     <h2>Khoá học đang học</h2>
     <div class="oc-sp-course-list">
-      @for (course of inProgressCourses; track course.title) {
+      @for (course of inProgressCourses(); track course.title) {
         <div class="oc-card oc-elev-sm oc-sp-course-row">
           <div class="oc-sp-course-row__thumb">
             <app-oc-icon name="book-open" [size]="26" color="rgba(255,255,255,0.9)"></app-oc-icon>
@@ -31,6 +31,8 @@
             <span class="oc-text-muted oc-sp-course-row__meta">{{ course.progress }}% hoàn thành · {{ course.lessonsLeft }} bài còn lại</span>
           </div>
         </div>
+      } @empty {
+        <p class="oc-text-muted">Chưa có khóa học nào đang học dở.</p>
       }
     </div>
   </section>

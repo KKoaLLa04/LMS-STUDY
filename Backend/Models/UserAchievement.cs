@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models;
 
-// Bảng nối User-Achievement: ghi nhận huy hiệu nào đã mở khóa cho học sinh nào.
-// Achievement (catalog) vẫn giữ IsUnlocked/ProgressPercent cũ dùng cho màn quản trị chung,
-// còn bảng này là nguồn dữ liệu thật cho trạng thái mở khóa theo từng học sinh.
+// Bảng nối User-Achievement: nguồn dữ liệu duy nhất cho trạng thái mở khóa huy hiệu theo
+// từng học sinh (Achievement/catalog không còn cờ IsUnlocked/ProgressPercent chung nữa).
 public class UserAchievement
 {
     [Key]

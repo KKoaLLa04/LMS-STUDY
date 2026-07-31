@@ -4,8 +4,8 @@ import { OcIconComponent } from '../../components/icon/icon.component';
 import { Badge } from '../../models/badge.model';
 import { AchievementService } from '../../services/achievement.service';
 import { RankingService } from '../../services/ranking.service';
+import { EnrollmentService } from '../../services/enrollment.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import { MOCK_BADGES } from '../achievements/achievements.data';
 
 interface InProgressCourse {
   title: string;
@@ -46,11 +46,7 @@ function rankTitleFromPoints(points: number): string {
   return RANK_TITLES.find((t) => points >= t.minPoints)?.title ?? RANK_TITLES[RANK_TITLES.length - 1].title;
 }
 
-const COURSES: InProgressCourse[] = [
-  { title: 'Toán học lớp 10 - Đại số & Hình học', progress: 64, lessonsLeft: Math.round(48 * 0.36) },
-  { title: 'Hóa Học Vô Cơ 12 - Ôn thi THPT', progress: 88, lessonsLeft: Math.round(40 * 0.12) },
-  { title: 'Sinh Học 10 - Tế bào & Di truyền', progress: 40, lessonsLeft: Math.round(32 * 0.6) },
-];
+const IN_PROGRESS_DISPLAY_COUNT = 4;
 
 const HIGHLIGHT_UNLOCKED_COUNT = 3;
 const HIGHLIGHT_LOCKED_COUNT = 3;
@@ -65,14 +61,13 @@ const HIGHLIGHT_LOCKED_COUNT = 3;
 export class StudentProfileComponent implements OnInit, OnDestroy {
   private readonly achievementService = inject(AchievementService);
   private readonly rankingService = inject(RankingService);
+  private readonly enrollmentService = inject(EnrollmentService);
   private readonly authService = inject(AuthService);
 
   readonly student = signal<StudentSummary>(DEFAULT_STUDENT);
-  readonly inProgressCourses = COURSES;
+  readonly inProgressCourses = signal<InProgressCourse[]>([]);
 
-  // Seeded with the mock list so the page paints immediately; ngOnInit()
-  // reconciles it with the real API response right after.
-  private readonly badges = signal<Badge[]>(MOCK_BADGES);
+  private readonly badges = signal<Badge[]>([]);
 
   /** Small highlight reel — a few unlocked badges plus a few in-progress ones,
    * same source of truth as the achievements page (not tied to specific ids,
@@ -90,6 +85,20 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.achievementService.getMyAchievements().subscribe((badges) => this.badges.set(badges));
+
+    // "Đang học" = đã ghi danh, có ít nhất 1 bài học, chưa hoàn thành 100%.
+    this.enrollmentService.getMyEnrollments().subscribe((enrollments) => {
+      const inProgress = enrollments
+        .filter((e) => e.totalLessons > 0 && e.progressPercent > 0 && e.progressPercent < 100)
+        .sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime())
+        .slice(0, IN_PROGRESS_DISPLAY_COUNT)
+        .map((e) => ({
+          title: e.courseName,
+          progress: e.progressPercent,
+          lessonsLeft: e.totalLessons - e.completedLessons,
+        }));
+      this.inProgressCourses.set(inProgress);
+    });
 
     this.authService.getCurrentUser().subscribe((user) => {
       if (user) this.student.update((s) => ({ ...s, name: user.fullName }));

@@ -15,9 +15,10 @@ export class RankingService {
   private readonly http = inject(HttpClient);
   private readonly rankingUrl = `${environment.apiBaseUrl}/ranking`;
 
-  getLeaderboard(period: RankPeriod, courseId?: number, page = 1, pageSize = 50): Observable<LeaderboardResponseApi> {
+  getLeaderboard(period: RankPeriod, courseId?: number, khoiHocId?: number, page = 1, pageSize = 50): Observable<LeaderboardResponseApi> {
     const params: Record<string, string> = { period, page: String(page), pageSize: String(pageSize) };
     if (courseId != null) params['courseId'] = String(courseId);
+    if (khoiHocId != null) params['khoiHocId'] = String(khoiHocId);
 
     return this.http.get<ApiResponse<LeaderboardResponseApi>>(this.rankingUrl, { params }).pipe(
       map((res) => res.data ?? EMPTY_RESPONSE),

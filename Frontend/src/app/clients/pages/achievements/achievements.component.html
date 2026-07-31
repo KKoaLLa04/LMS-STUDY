@@ -9,15 +9,17 @@
       <span class="oc-ach-summary__total">trên tổng số {{ totalBadges() }} huy hiệu</span>
     </div>
 
-    <div class="oc-ach-summary__latest">
-      <div class="oc-ach-summary__latest-icon">
-        <app-oc-icon name="trophy" [size]="26" color="#fff" [strokeWidth]="2.2"></app-oc-icon>
+    @if (latestBadge(); as latest) {
+      <div class="oc-ach-summary__latest">
+        <div class="oc-ach-summary__latest-icon">
+          <app-oc-icon name="trophy" [size]="26" color="#fff" [strokeWidth]="2.2"></app-oc-icon>
+        </div>
+        <div class="oc-ach-summary__latest-text">
+          <span class="oc-ach-summary__latest-label">Huy hiệu mới nhất</span>
+          <span class="oc-ach-summary__latest-name">{{ latest.name }}</span>
+        </div>
       </div>
-      <div class="oc-ach-summary__latest-text">
-        <span class="oc-ach-summary__latest-label">Huy hiệu mới nhất</span>
-        <span class="oc-ach-summary__latest-name">{{ latestBadge().name }}</span>
-      </div>
-    </div>
+    }
   </section>
 
   <div class="oc-seg">

@@ -1,22 +1,14 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { CoursePricePipe } from '../../pipes/course-price.pipe';
-import {
-  SubjectMeta,
-  TaughtCourse,
-  TeacherRecord,
-  TeacherReview,
-  bioOf,
-  buildTeacherRecord,
-  coursesOf,
-  degreeOf,
-  fullNameOf,
-  reviewsCountOf,
-  reviewsOf,
-  studentsCountOf,
-  subjectMeta,
-} from '../teachers/teachers.data';
+import { RelativeDatePipe } from '../../pipes/relative-date.pipe';
+import { Course } from '../../models/course.model';
+import { CourseReview } from '../../models/course-review.model';
+import { SubjectIconMeta, TeacherRecord, buildTeacherRecord, fullNameOf, subjectIcon } from '../teachers/teachers.data';
+import { ClientCourseService } from '../../services/client-course.service';
+import { CourseReviewService } from '../../services/course-review.service';
 import { PublicUserService } from '../../../shared/services/public-user.service';
 import { FollowService } from '../../../shared/services/follow.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -38,10 +30,16 @@ function initialsOf(name: string): string {
   return (first + last).toUpperCase();
 }
 
+// Chỉ lấy đánh giá thật từ vài khóa học đầu có đánh giá của giáo viên (đủ để hiển thị mẫu,
+// tránh gọi API cho toàn bộ khóa học nếu giáo viên dạy rất nhiều lớp).
+const MAX_COURSES_FOR_REVIEWS = 4;
+const REVIEWS_PER_COURSE = 3;
+const MAX_REVIEWS_SHOWN = 6;
+
 @Component({
   selector: 'app-teacher-detail',
   standalone: true,
-  imports: [RouterLink, CoursePricePipe, OcIconComponent],
+  imports: [RouterLink, CoursePricePipe, RelativeDatePipe, OcIconComponent],
   templateUrl: './teacher-detail.component.html',
   styleUrl: './teacher-detail.component.scss',
 })
@@ -50,6 +48,8 @@ export class TeacherDetailComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private readonly route = inject(ActivatedRoute);
   private readonly publicUserService = inject(PublicUserService);
+  private readonly courseService = inject(ClientCourseService);
+  private readonly reviewService = inject(CourseReviewService);
   private readonly followService = inject(FollowService);
   private readonly toast = inject(ToastService);
 
@@ -57,12 +57,10 @@ export class TeacherDetailComponent implements OnInit, AfterViewInit, OnDestroy 
   teacher: TeacherRecord | undefined;
 
   fullName = '';
-  subject: SubjectMeta | undefined;
+  subjectMeta: SubjectIconMeta = subjectIcon(null);
   bio = '';
-  degree = '';
-  courses: TaughtCourse[] = [];
-  reviews: TeacherReview[] = [];
-  reviewsCount = 0;
+  courses: Course[] = [];
+  reviews: CourseReview[] = [];
   initials = '';
   stats: StatCard[] = [];
 
@@ -77,25 +75,25 @@ export class TeacherDetailComponent implements OnInit, AfterViewInit, OnDestroy 
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.publicUserService.getById(id).subscribe({
-      next: (res) => {
-        if (!res.data) {
+    forkJoin({
+      teacherRes: this.publicUserService.getById(id),
+      courses: this.courseService.getCourses(),
+    }).subscribe({
+      next: ({ teacherRes, courses }) => {
+        if (!teacherRes.data) {
           this.loading = false;
           return;
         }
 
-        const teacher = buildTeacherRecord(res.data);
+        const teacher = buildTeacherRecord(teacherRes.data, courses);
         this.teacher = teacher;
         this.fullName = fullNameOf(teacher);
-        this.subject = subjectMeta(teacher.subjectKey);
-        this.bio = bioOf(teacher);
-        this.degree = degreeOf(teacher);
-        this.courses = coursesOf(teacher);
-        this.reviews = reviewsOf(teacher);
-        this.reviewsCount = reviewsCountOf(teacher);
+        this.subjectMeta = subjectIcon(teacher.subject);
+        this.bio = teacher.bio ?? 'Giáo viên chưa cập nhật phần giới thiệu.';
+        this.courses = courses.filter((c) => c.teacher === teacherRes.data!.fullName);
         this.initials = initialsOf(teacher.name);
         this.stats = [
-          { icon: 'users', target: studentsCountOf(teacher), decimals: 0, suffix: '+', label: 'Học viên', bg: 'var(--oc-accent-500)', display: '0' },
+          { icon: 'users', target: teacher.studentsCount, decimals: 0, suffix: '+', label: 'Học viên', bg: 'var(--oc-accent-500)', display: '0' },
           { icon: 'book-open', target: teacher.coursesCount, decimals: 0, suffix: '', label: 'Khoá học', bg: 'var(--oc-accent-2-500)', display: '0' },
           { icon: 'star', target: teacher.rating, decimals: 1, suffix: '', label: 'Đánh giá trung bình', bg: 'var(--oc-accent-600)', display: '0' },
         ];
@@ -104,10 +102,27 @@ export class TeacherDetailComponent implements OnInit, AfterViewInit, OnDestroy 
         this.dataReady = true;
         this.maybeStartObserving();
         this.loadFollowStatus(id);
+        this.loadReviews();
       },
       error: () => {
         this.loading = false;
       },
+    });
+  }
+
+  private loadReviews(): void {
+    const ratedCourseIds = this.courses
+      .filter((c) => c.ratingCount > 0)
+      .slice(0, MAX_COURSES_FOR_REVIEWS)
+      .map((c) => c.id);
+
+    if (ratedCourseIds.length === 0) return;
+
+    forkJoin(ratedCourseIds.map((id) => this.reviewService.getByCourse(id, 1, REVIEWS_PER_COURSE))).subscribe((responses) => {
+      const all = responses.flatMap((res) => res.data?.items ?? []);
+      this.reviews = all
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, MAX_REVIEWS_SHOWN);
     });
   }
 

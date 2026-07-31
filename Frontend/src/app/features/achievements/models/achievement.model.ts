@@ -19,8 +19,6 @@ export interface Achievement {
   groupName: string;
   iconKey: string;
   orderNumber: number;
-  isUnlocked: boolean;
-  progressPercent: number;
   points: number;
   conditions: AchievementCondition[];
 }

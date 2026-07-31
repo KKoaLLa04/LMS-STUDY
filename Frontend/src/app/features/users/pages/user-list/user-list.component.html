@@ -279,10 +279,39 @@
             </div>
           </div>
 
-          <div class="mb-1">
+          <div class="mb-3">
             <label class="form-label">Địa chỉ</label>
             <textarea class="form-control" rows="2" formControlName="address" placeholder="Địa chỉ liên hệ"></textarea>
           </div>
+
+          @if (role === 'Teacher') {
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Môn dạy</label>
+                <input type="text" class="form-control" formControlName="subject" placeholder="Vd. Toán, Vật Lý..." />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số năm kinh nghiệm</label>
+                <input type="number" min="0" class="form-control" formControlName="experienceYears" />
+              </div>
+            </div>
+            <div class="mb-1">
+              <label class="form-label">Giới thiệu</label>
+              <textarea class="form-control" rows="3" formControlName="bio" placeholder="Giới thiệu ngắn về giáo viên"></textarea>
+            </div>
+          }
+
+          @if (role === 'Student') {
+            <div class="mb-1">
+              <label class="form-label">Khối/lớp</label>
+              <select class="form-select" formControlName="khoiHocId">
+                <option value="">— Không chọn —</option>
+                @for (k of khoiHocs; track k.id) {
+                  <option [value]="k.id">{{ k.name }}</option>
+                }
+              </select>
+            </div>
+          }
         </div>
 
         <div class="modal-footer">

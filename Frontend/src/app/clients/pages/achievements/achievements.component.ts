@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, com
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { Badge, BadgeCategory } from '../../models/badge.model';
 import { AchievementService } from '../../services/achievement.service';
-import { MOCK_BADGES } from './achievements.data';
 
 type TabKey = 'all' | BadgeCategory;
 
@@ -28,9 +27,7 @@ export class AchievementsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly tabs = TABS;
   readonly activeTab = signal<TabKey>('all');
 
-  // Seeded with the mock list so the page paints immediately; ngOnInit()
-  // reconciles it with the real API response right after.
-  readonly badges = signal<Badge[]>(MOCK_BADGES);
+  readonly badges = signal<Badge[]>([]);
 
   readonly totalBadges = computed(() => this.badges().length);
   readonly unlockedCount = computed(() => this.badges().filter((b) => b.unlocked).length);

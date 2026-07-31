@@ -35,6 +35,7 @@ public class AppDbContext : DbContext
     public DbSet<AchievementCondition> AchievementConditions => Set<AchievementCondition>();
     public DbSet<Follow> Follows => Set<Follow>();
     public DbSet<DiscussionPostLike> DiscussionPostLikes => Set<DiscussionPostLike>();
+    public DbSet<CourseReview> CourseReviews => Set<CourseReview>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -195,6 +196,7 @@ public class AppDbContext : DbContext
             entity.Property(u => u.CreatedAt)
                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
                   .ValueGeneratedOnAdd();
+            entity.HasIndex(u => u.KhoiHocId);
         });
 
         modelBuilder.Entity<Achievement>(entity =>
@@ -293,6 +295,24 @@ public class AppDbContext : DbContext
                   .HasForeignKey(l => l.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(l => new { l.PostId, l.UserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<CourseReview>(entity =>
+        {
+            entity.ToTable("CourseReviews");
+            entity.Property(r => r.CreatedAt)
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                  .ValueGeneratedOnAdd();
+            entity.HasOne(r => r.Course)
+                  .WithMany()
+                  .HasForeignKey(r => r.CourseId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(r => r.User)
+                  .WithMany()
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            // Một học sinh chỉ có 1 đánh giá cho 1 khóa học (trong số bản ghi chưa xóa mềm).
+            entity.HasIndex(r => new { r.CourseId, r.UserId }).IsUnique().HasFilter("[IsDeleted] = 0");
         });
 
         modelBuilder.Entity<LessonProgress>(entity =>

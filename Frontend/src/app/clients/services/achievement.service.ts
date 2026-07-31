@@ -5,13 +5,11 @@ import { Badge } from '../models/badge.model';
 import { AchievementApi, MyAchievementApi } from '../models/achievement-api.model';
 import { ApiResponse } from '../models/course-api.model';
 import { mapAchievementDtoToBadge, mapMyAchievementDtoToBadge } from '../utils/map-achievement-dto.util';
-import { MOCK_BADGES } from '../pages/achievements/achievements.data';
 import { environment } from '../../../environments/environment';
 
 /**
  * Client-facing achievements catalogue — talks to the admin API
- * (Backend/Controllers/AchievementsController.cs). Falls back to the local
- * mock list if the API is unreachable, same pattern as ClientCourseService.
+ * (Backend/Controllers/AchievementsController.cs).
  */
 @Injectable({ providedIn: 'root' })
 export class AchievementService {
@@ -20,11 +18,8 @@ export class AchievementService {
 
   getAchievements(): Observable<Badge[]> {
     return this.http.get<ApiResponse<AchievementApi[]>>(this.achievementsUrl).pipe(
-      // An empty catalogue (fresh DB, nothing seeded yet) falls back to the
-      // mock list too, so the page never renders blank.
       map((res) => (res.data ?? []).map(mapAchievementDtoToBadge)),
-      map((list) => (list.length > 0 ? list : MOCK_BADGES)),
-      catchError(() => of(MOCK_BADGES))
+      catchError(() => of([]))
     );
   }
 
@@ -32,8 +27,7 @@ export class AchievementService {
   getMyAchievements(): Observable<Badge[]> {
     return this.http.get<ApiResponse<MyAchievementApi[]>>(`${this.achievementsUrl}/me`).pipe(
       map((res) => (res.data ?? []).map(mapMyAchievementDtoToBadge)),
-      map((list) => (list.length > 0 ? list : MOCK_BADGES)),
-      catchError(() => of(MOCK_BADGES))
+      catchError(() => of([]))
     );
   }
 }

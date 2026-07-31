@@ -128,11 +128,11 @@
         <div class="oc-detail__reviews">
           <div class="oc-card oc-elev-sm oc-detail__rating-summary">
             <div class="oc-detail__rating-score">
-              <span class="oc-detail__rating-number">{{ course.rating }}</span>
-              <span class="oc-text-muted">{{ course.ratingCount }} đánh giá</span>
+              <span class="oc-detail__rating-number">{{ ratingSummary().averageRating }}</span>
+              <span class="oc-text-muted">{{ ratingSummary().ratingCount }} đánh giá</span>
             </div>
             <div class="oc-detail__rating-breakdown">
-              @for (row of course.ratingBreakdown; track row.stars) {
+              @for (row of ratingSummary().breakdown; track row.stars) {
                 <div class="oc-detail__rating-row">
                   <span class="oc-text-muted oc-detail__rating-row-label">{{ row.stars }} sao</span>
                   <div class="oc-detail__rating-row-track">
@@ -143,10 +143,54 @@
             </div>
           </div>
 
-          @for (review of course.reviews; track review.id) {
+          @if (course.purchased) {
+            <div class="oc-card oc-elev-sm oc-detail__review-form">
+              <p class="oc-detail__review-form-title">{{ myReview() ? 'Chỉnh sửa đánh giá của bạn' : 'Viết đánh giá của bạn' }}</p>
+              <div class="oc-detail__review-form-stars">
+                @for (stars of [1, 2, 3, 4, 5]; track stars) {
+                  <button
+                    type="button"
+                    class="oc-detail__review-star-btn"
+                    [attr.aria-label]="stars + ' sao'"
+                    (click)="setReviewFormRating(stars)"
+                  >
+                    <app-oc-icon
+                      name="star"
+                      [size]="22"
+                      [color]="stars <= reviewFormRating() ? 'var(--oc-accent-700)' : 'var(--oc-divider)'"
+                    ></app-oc-icon>
+                  </button>
+                }
+              </div>
+              <textarea
+                class="oc-input oc-detail__review-form-textarea"
+                name="reviewComment"
+                rows="3"
+                placeholder="Chia sẻ cảm nhận của bạn về khóa học (không bắt buộc)"
+                [ngModel]="reviewFormComment()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="reviewFormComment.set($event)"
+              ></textarea>
+              <div class="oc-detail__review-form-actions">
+                @if (myReview()) {
+                  <button type="button" class="oc-btn oc-btn-ghost" (click)="deleteMyReview()">Xóa đánh giá</button>
+                }
+                <button
+                  type="button"
+                  class="oc-btn oc-btn-primary"
+                  [disabled]="reviewFormRating() < 1 || submittingReview()"
+                  (click)="submitReview()"
+                >
+                  {{ submittingReview() ? 'Đang gửi...' : myReview() ? 'Cập nhật' : 'Gửi đánh giá' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          @for (review of reviews(); track review.id) {
             <div class="oc-card oc-elev-sm oc-detail__review">
               <div class="oc-detail__review-header">
-                <span class="oc-detail__review-avatar">{{ review.initials }}</span>
+                <span class="oc-detail__review-avatar">{{ review.studentName.charAt(0) }}</span>
                 <div class="oc-detail__review-meta">
                   <span class="oc-detail__review-name">{{ review.studentName }}</span>
                   <span class="oc-text-muted oc-detail__review-date">{{ review.createdAt | ocRelativeDate }}</span>
@@ -156,8 +200,14 @@
                   {{ review.rating }}
                 </span>
               </div>
-              <p class="oc-detail__review-comment">{{ review.comment }}</p>
+              @if (review.comment) {
+                <p class="oc-detail__review-comment">{{ review.comment }}</p>
+              }
             </div>
+          } @empty {
+            @if (reviewsLoaded()) {
+              <p class="oc-text-muted oc-detail__reviews-empty">Chưa có đánh giá nào cho khóa học này.</p>
+            }
           }
         </div>
       }

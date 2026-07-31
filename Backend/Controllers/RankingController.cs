@@ -28,13 +28,14 @@ public class RankingController : ControllerBase
     public async Task<IActionResult> GetLeaderboard(
         [FromQuery] string period = "all",
         [FromQuery] int? courseId = null,
+        [FromQuery] int? khoiHocId = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
         if (!Enum.TryParse<RankPeriod>(period, ignoreCase: true, out var parsedPeriod))
             parsedPeriod = RankPeriod.All;
 
-        var result = await _rankingService.GetLeaderboardAsync(parsedPeriod, courseId, CurrentUserId, page, pageSize);
+        var result = await _rankingService.GetLeaderboardAsync(parsedPeriod, courseId, khoiHocId, CurrentUserId, page, pageSize);
         return StatusCode(result.HttpStatusCode, result);
     }
 }

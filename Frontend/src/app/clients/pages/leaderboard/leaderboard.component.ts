@@ -4,6 +4,7 @@ import { OcIconComponent } from '../../components/icon/icon.component';
 import { OcIconName } from '../../models/icon-name.type';
 import { RankingService } from '../../services/ranking.service';
 import { RankingEntryApi } from '../../models/ranking-api.model';
+import { KhoiHocService } from '../../services/khoi-hoc.service';
 import { FollowService } from '../../../shared/services/follow.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
@@ -13,7 +14,6 @@ interface LeaderboardEntry {
   rank: number;
   userId: number;
   name: string;
-  grade: string;
   subtitle: string;
   points: number;
   change: RankChange;
@@ -22,6 +22,14 @@ interface LeaderboardEntry {
   isFollowing: boolean;
   followBusy?: boolean;
 }
+
+interface GradeFilter {
+  /** undefined = "Tất cả khối" (no filter). */
+  khoiHocId?: number;
+  label: string;
+}
+
+const ALL_GRADES: GradeFilter = { label: 'Tất cả khối' };
 
 type LeaderboardPeriod = 'week' | 'month' | 'all';
 
@@ -47,26 +55,26 @@ const AVATAR_GRADIENTS = [
   'linear-gradient(135deg, var(--oc-accent-2-300), var(--oc-accent-2-600))',
 ];
 
-const GRADES = ['Tất cả khối', 'Khối 1', 'Khối 2', 'Khối 3', 'Khối 4', 'Khối 5'];
-
 const PERIODS: Array<{ key: LeaderboardPeriod; label: string }> = [
   { key: 'week', label: 'Tuần này' },
   { key: 'month', label: 'Tháng này' },
   { key: 'all', label: 'Toàn thời gian' },
 ];
 
-// Điểm số thật lấy từ GET /api/ranking. "change"/"delta" (biến động hạng so với kỳ trước)
-// và "grade"/"subtitle" (khối/lớp) chưa có nguồn dữ liệu ở backend nên tạm để mặc định.
+// Điểm số + hạng kỳ trước (previousRank) đều lấy thật từ GET /api/ranking — previousRank được
+// backend tính lại trực tiếp từ lịch sử PointTransactions (không cần bảng snapshot riêng).
+// change/delta suy ra từ so sánh rank hiện tại với previousRank ngay tại đây.
 function mapRankingEntry(e: RankingEntryApi): LeaderboardEntry {
+  const hasPrevious = e.previousRank != null;
+  const delta = hasPrevious ? e.previousRank! - e.rank : 0;
   return {
     rank: e.rank,
     userId: e.userId,
     name: e.fullName,
-    grade: '',
-    subtitle: '',
+    subtitle: e.gradeName ?? '',
     points: e.totalPoints,
-    change: 'same',
-    delta: 0,
+    change: delta > 0 ? 'up' : delta < 0 ? 'down' : 'same',
+    delta: Math.abs(delta),
     isMe: e.isMe,
     isFollowing: e.isFollowing,
   };
@@ -103,13 +111,15 @@ function initialsOf(name: string): string {
 })
 export class LeaderboardComponent {
   private readonly rankingService = inject(RankingService);
+  private readonly khoiHocService = inject(KhoiHocService);
   private readonly followService = inject(FollowService);
   private readonly toast = inject(ToastService);
 
-  readonly grades = GRADES;
   readonly periods = PERIODS;
 
-  readonly activeGrade = signal(GRADES[0]);
+  // Danh sách khối thật (Backend/Models/KhoiHoc.cs), "Tất cả khối" luôn đứng đầu.
+  readonly grades = signal<GradeFilter[]>([ALL_GRADES]);
+  readonly activeGrade = signal<GradeFilter>(ALL_GRADES);
   readonly activePeriod = signal<LeaderboardPeriod>('week');
 
   readonly entries = signal<LeaderboardEntry[]>([]);
@@ -125,11 +135,16 @@ export class LeaderboardComponent {
   readonly restList = computed(() => this.entries().filter((e) => e.rank > 3));
 
   constructor() {
-    // Tải lại bảng xếp hạng thật từ backend mỗi khi đổi mốc thời gian (tuần/tháng/toàn thời gian).
+    this.khoiHocService.getKhoiHocs().subscribe((khoiHocs) => {
+      this.grades.set([ALL_GRADES, ...khoiHocs.map((k) => ({ khoiHocId: k.id, label: k.name }))]);
+    });
+
+    // Tải lại bảng xếp hạng thật từ backend mỗi khi đổi mốc thời gian hoặc khối.
     effect(() => {
       const period = this.activePeriod();
+      const khoiHocId = this.activeGrade().khoiHocId;
       this.loading.set(true);
-      this.rankingService.getLeaderboard(period).subscribe((res) => {
+      this.rankingService.getLeaderboard(period, undefined, khoiHocId).subscribe((res) => {
         this.entries.set(res.items.items.map(mapRankingEntry));
         this.me.set(res.me ? mapRankingEntry(res.me) : undefined);
         this.loading.set(false);
@@ -137,7 +152,7 @@ export class LeaderboardComponent {
     });
   }
 
-  setGrade(grade: string): void {
+  setGrade(grade: GradeFilter): void {
     this.activeGrade.set(grade);
   }
 

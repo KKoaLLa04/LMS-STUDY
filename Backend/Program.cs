@@ -101,6 +101,8 @@ builder.Services.AddScoped<ILessonProgressService, LessonProgressService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuizQuestionService, QuizQuestionService>();
 builder.Services.AddScoped<IRankingService, RankingService>();
+builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
+builder.Services.AddScoped<IPlatformStatsService, PlatformStatsService>();
 
 // Kho Tài liệu chung / Quiz chung
 builder.Services.AddScoped<IDocumentService, DocumentService>();
@@ -215,8 +217,11 @@ using (var scope = app.Services.CreateScope())
 // ──────────────────────────────────────────────────────────────
 // 4. Cấu hình HTTP pipeline
 // ──────────────────────────────────────────────────────────────
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

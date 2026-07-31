@@ -84,6 +84,9 @@ public class CourseListItemDto
     public bool IsFeatured { get; set; }
     public int LessonsCount { get; set; }
     public int DurationMinutes { get; set; }
+    public int StudentsCount { get; set; }
+    public double Rating { get; set; }
+    public int RatingCount { get; set; }
 }
 
 public class CourseDetailDto
@@ -105,5 +108,8 @@ public class CourseDetailDto
     public string? PreviewVideoUrl { get; set; }
     public int LessonsCount { get; set; }
     public int DurationMinutes { get; set; }
+    public int StudentsCount { get; set; }
+    public double Rating { get; set; }
+    public int RatingCount { get; set; }
     public List<SectionDetailDto> Sections { get; set; } = new();
 }

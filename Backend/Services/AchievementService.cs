@@ -257,8 +257,6 @@ public class AchievementService : IAchievementService
         Category = group?.Code ?? string.Empty,
         IconKey = achievement.IconKey,
         OrderNumber = achievement.OrderNumber,
-        IsUnlocked = achievement.IsUnlocked,
-        ProgressPercent = achievement.ProgressPercent,
         Points = achievement.Points,
         Conditions = conditions.Select(c => new AchievementConditionDto
         {

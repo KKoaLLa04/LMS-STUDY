@@ -36,6 +36,16 @@ public class CreateUserDto
 
     public string? Address { get; set; }
 
+    // Chỉ có ý nghĩa khi Role = Teacher.
+    [MaxLength(100, ErrorMessage = "Môn dạy không vượt quá 100 ký tự")]
+    public string? Subject { get; set; }
+    public int? ExperienceYears { get; set; }
+    [MaxLength(1000, ErrorMessage = "Giới thiệu không vượt quá 1000 ký tự")]
+    public string? Bio { get; set; }
+
+    // Chỉ có ý nghĩa khi Role = Student.
+    public int? KhoiHocId { get; set; }
+
     [Required(ErrorMessage = "Vai trò không được để trống")]
     public UserRole Role { get; set; }
 }
@@ -72,6 +82,16 @@ public class UpdateUserDto
 
     public string? Address { get; set; }
 
+    // Chỉ có ý nghĩa khi Role = Teacher.
+    [MaxLength(100, ErrorMessage = "Môn dạy không vượt quá 100 ký tự")]
+    public string? Subject { get; set; }
+    public int? ExperienceYears { get; set; }
+    [MaxLength(1000, ErrorMessage = "Giới thiệu không vượt quá 1000 ký tự")]
+    public string? Bio { get; set; }
+
+    // Chỉ có ý nghĩa khi Role = Student.
+    public int? KhoiHocId { get; set; }
+
     [Required(ErrorMessage = "Vai trò không được để trống")]
     public UserRole Role { get; set; }
 }
@@ -88,12 +108,17 @@ public class UserDto
     public string? Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
     public string? Address { get; set; }
+    public string? Subject { get; set; }
+    public int? ExperienceYears { get; set; }
+    public string? Bio { get; set; }
+    public int? KhoiHocId { get; set; }
     public string Role { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 }
 
 // Thông tin công khai tối thiểu — dùng cho các trang hiển thị người dùng khác (vd. hồ sơ giáo viên),
 // không lộ email/số điện thoại/địa chỉ như UserDto đầy đủ (chỉ Admin mới xem được UserDto).
+// Subject/ExperienceYears/Bio chỉ có ý nghĩa khi Role = Teacher.
 public class PublicUserDto
 {
     public int Id { get; set; }
@@ -101,4 +126,7 @@ public class PublicUserDto
     public string? AvatarUrl { get; set; }
     public string Role { get; set; } = string.Empty;
     public string? Gender { get; set; }
+    public string? Subject { get; set; }
+    public int? ExperienceYears { get; set; }
+    public string? Bio { get; set; }
 }

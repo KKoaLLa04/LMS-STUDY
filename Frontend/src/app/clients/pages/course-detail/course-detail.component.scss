@@ -313,6 +313,46 @@
   background: var(--oc-accent);
 }
 
+.oc-detail__review-form {
+  gap: 12px;
+}
+
+.oc-detail__review-form-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.oc-detail__review-form-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.oc-detail__review-star-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.oc-detail__review-form-textarea {
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+}
+
+.oc-detail__review-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.oc-detail__reviews-empty {
+  text-align: center;
+  padding: 24px 0;
+}
+
 .oc-detail__review {
   gap: 8px;
 }

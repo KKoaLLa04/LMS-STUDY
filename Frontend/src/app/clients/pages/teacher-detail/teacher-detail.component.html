@@ -13,13 +13,14 @@
 
       <div class="oc-td-hero__info">
         <h1>{{ fullName }}</h1>
-        <div class="oc-td-hero__tags">
-          <span class="oc-tag oc-td-hero__tag">{{ subject?.name }}</span>
-          <span class="oc-tag oc-td-hero__tag">{{ subject?.specialty }}</span>
-        </div>
+        @if (teacher.subject) {
+          <div class="oc-td-hero__tags">
+            <span class="oc-tag oc-td-hero__tag">{{ teacher.subject }}</span>
+          </div>
+        }
         <div class="oc-td-hero__rating">
           <app-oc-icon name="star" [size]="16" color="#FFD700"></app-oc-icon>
-          {{ teacher.rating }} / 5 <span class="oc-td-hero__rating-count">({{ reviewsCount }} đánh giá)</span>
+          {{ teacher.rating }} / 5 <span class="oc-td-hero__rating-count">({{ teacher.ratingCount }} đánh giá)</span>
           <span class="oc-td-hero__rating-count">· {{ followersCount }} người theo dõi</span>
         </div>
         <div class="oc-td-hero__actions">
@@ -60,25 +61,27 @@
           </div>
           <div class="oc-td-about-item__text">
             <span class="oc-td-about-item__label">Kinh nghiệm</span>
-            <span class="oc-text-muted oc-td-about-item__value">{{ teacher.experienceYears }} năm giảng dạy {{ subject?.name }}</span>
+            <span class="oc-text-muted oc-td-about-item__value">
+              {{ teacher.experienceYears ? teacher.experienceYears + ' năm giảng dạy' : 'Chưa cập nhật' }}
+            </span>
           </div>
         </div>
         <div class="oc-card oc-elev-sm oc-td-about-item">
-          <div class="oc-td-about-item__icon" style="background: var(--oc-accent-2-500);">
-            <app-oc-icon name="graduation-cap" [size]="20" color="#fff"></app-oc-icon>
+          <div class="oc-td-about-item__icon" [style.background]="subjectMeta.bg">
+            <app-oc-icon [name]="subjectMeta.icon" [size]="20" color="#fff"></app-oc-icon>
           </div>
           <div class="oc-td-about-item__text">
-            <span class="oc-td-about-item__label">Bằng cấp</span>
-            <span class="oc-text-muted oc-td-about-item__value">{{ degree }}</span>
+            <span class="oc-td-about-item__label">Môn dạy</span>
+            <span class="oc-text-muted oc-td-about-item__value">{{ teacher.subject ?? 'Chưa cập nhật' }}</span>
           </div>
         </div>
         <div class="oc-card oc-elev-sm oc-td-about-item">
           <div class="oc-td-about-item__icon" style="background: var(--oc-accent-600);">
-            <app-oc-icon name="leaf" [size]="20" color="#fff"></app-oc-icon>
+            <app-oc-icon name="book-open" [size]="20" color="#fff"></app-oc-icon>
           </div>
           <div class="oc-td-about-item__text">
-            <span class="oc-td-about-item__label">Phong cách dạy</span>
-            <span class="oc-text-muted oc-td-about-item__value">{{ subject?.teachingStyle }}</span>
+            <span class="oc-td-about-item__label">Đang giảng dạy</span>
+            <span class="oc-text-muted oc-td-about-item__value">{{ courses.length }} khoá học</span>
           </div>
         </div>
       </div>
@@ -87,8 +90,8 @@
     <section id="teacher-courses" class="oc-td-section">
       <h2>Khoá học đang dạy</h2>
       <div class="oc-td-course-grid">
-        @for (course of courses; track course.title) {
-          <div class="oc-card oc-elev-sm oc-td-course-card">
+        @for (course of courses; track course.id) {
+          <a class="oc-card oc-elev-sm oc-td-course-card" [routerLink]="['/client/khoa-hoc', course.id]">
             <div class="oc-td-course-card__thumb">
               <app-oc-icon name="book-open" [size]="30" color="rgba(255,255,255,0.9)"></app-oc-icon>
             </div>
@@ -100,7 +103,9 @@
               </span>
               <span class="oc-td-course-card__price">{{ course.price | ocPrice }}</span>
             </div>
-          </div>
+          </a>
+        } @empty {
+          <p class="oc-text-muted">Giáo viên chưa có khóa học nào được công bố.</p>
         }
       </div>
     </section>
@@ -108,21 +113,25 @@
     <section class="oc-td-section">
       <h2>Đánh giá học viên</h2>
       <div class="oc-td-review-grid">
-        @for (review of reviews; track $index) {
+        @for (review of reviews; track review.id) {
           <div class="oc-card oc-elev-sm oc-td-review-card">
             <div class="oc-td-review-card__head">
-              <span class="oc-td-review-card__avatar">{{ review.name.charAt(0) }}</span>
+              <span class="oc-td-review-card__avatar">{{ review.studentName.charAt(0) }}</span>
               <div class="oc-td-review-card__author">
-                <span class="oc-td-review-card__name">{{ review.name }}</span>
-                <span class="oc-text-muted oc-td-review-card__date">{{ review.date }}</span>
+                <span class="oc-td-review-card__name">{{ review.studentName }}</span>
+                <span class="oc-text-muted oc-td-review-card__date">{{ review.createdAt | ocRelativeDate }}</span>
               </div>
               <span class="oc-td-review-card__rating">
                 <app-oc-icon name="star" [size]="12" color="var(--oc-accent-700)"></app-oc-icon>
                 {{ review.rating }}
               </span>
             </div>
-            <p class="oc-td-review-card__comment">{{ review.comment }}</p>
+            @if (review.comment) {
+              <p class="oc-td-review-card__comment">{{ review.comment }}</p>
+            }
           </div>
+        } @empty {
+          <p class="oc-text-muted">Chưa có đánh giá nào cho các khóa học của giáo viên này.</p>
         }
       </div>
     </section>

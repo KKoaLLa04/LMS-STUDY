@@ -9,23 +9,29 @@ function thumbnailVariantFor(id: number): ThumbnailVariant {
 }
 
 /** Maps the list endpoint's summary shape — no chapters/materials/reviews yet
- * (those need the detail call), and rating/enrollment fields aren't tracked
- * by the backend until Phase 2/3, so they default to zero/empty here. */
-export function mapCourseListItemToCourse(dto: CourseListItemApi): Course {
+ * (those need the detail call). rating/studentsCount come from the backend
+ * (real Enrollment/CourseReview counts); purchased is derived from the caller's
+ * own enrollment list since the courses endpoint is shared with Admin and has
+ * no per-user context. */
+export function mapCourseListItemToCourse(
+  dto: CourseListItemApi,
+  enrolledCourseIds: ReadonlySet<number> = new Set()
+): Course {
   return {
     id: dto.id,
     subject: dto.categoryName ?? 'Khác',
     title: dto.title,
     description: '',
+    status: dto.status,
     teacher: dto.teacher ?? 'Chưa cập nhật',
     teacherInitials: formatTeacherInitials(dto.teacher),
-    rating: 0,
-    ratingCount: 0,
-    studentsCount: 0,
+    rating: dto.rating,
+    ratingCount: dto.ratingCount,
+    studentsCount: dto.studentsCount,
     lessonsCount: dto.lessonsCount,
     durationMinutes: dto.durationMinutes,
     price: dto.price,
-    purchased: false,
+    purchased: enrolledCourseIds.has(dto.id),
     progressPercent: 0,
     featured: dto.isFeatured,
     thumbnailVariant: thumbnailVariantFor(dto.id),
@@ -61,19 +67,23 @@ function mapSectionToChapter(section: SectionDetailApi, purchased: boolean): Cha
   };
 }
 
-export function mapCourseDetailToCourse(dto: CourseDetailApi): Course {
-  const purchased = false;
+export function mapCourseDetailToCourse(
+  dto: CourseDetailApi,
+  enrolledCourseIds: ReadonlySet<number> = new Set()
+): Course {
+  const purchased = enrolledCourseIds.has(dto.id);
 
   return {
     id: dto.id,
     subject: dto.categoryName ?? 'Khác',
     title: dto.title,
     description: dto.description ?? '',
+    status: dto.status,
     teacher: dto.teacher ?? 'Chưa cập nhật',
     teacherInitials: formatTeacherInitials(dto.teacher),
-    rating: 0,
-    ratingCount: 0,
-    studentsCount: 0,
+    rating: dto.rating,
+    ratingCount: dto.ratingCount,
+    studentsCount: dto.studentsCount,
     lessonsCount: dto.lessonsCount,
     durationMinutes: dto.durationMinutes,
     price: dto.price,

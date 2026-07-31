@@ -70,14 +70,12 @@ public class AchievementDto
 
     public string IconKey { get; set; } = string.Empty;
     public int OrderNumber { get; set; }
-    public bool IsUnlocked { get; set; }
-    public int ProgressPercent { get; set; }
     public int Points { get; set; }
     public List<AchievementConditionDto> Conditions { get; set; } = new();
 }
 
-// Trạng thái mở khóa huy hiệu thật của MỘT học sinh cụ thể (qua bảng UserAchievement),
-// khác với AchievementDto.IsUnlocked/ProgressPercent vốn là cờ chung do Admin gán trên catalog.
+// Trạng thái mở khóa huy hiệu thật của MỘT học sinh cụ thể, qua bảng UserAchievement
+// (nguồn dữ liệu duy nhất — Achievement không còn cờ IsUnlocked/ProgressPercent chung nữa).
 public class MyAchievementDto
 {
     public int Id { get; set; }

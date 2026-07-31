@@ -82,6 +82,10 @@ public class UserService : IUserService
                 Gender = dto.Gender,
                 DateOfBirth = dto.DateOfBirth,
                 Address = string.IsNullOrWhiteSpace(dto.Address) ? null : dto.Address.Trim(),
+                Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim(),
+                ExperienceYears = dto.ExperienceYears,
+                Bio = string.IsNullOrWhiteSpace(dto.Bio) ? null : dto.Bio.Trim(),
+                KhoiHocId = dto.KhoiHocId,
                 Role = dto.Role,
                 CreatedAt = DateTime.UtcNow
             };
@@ -124,6 +128,10 @@ public class UserService : IUserService
             user.Gender = dto.Gender;
             user.DateOfBirth = dto.DateOfBirth;
             user.Address = string.IsNullOrWhiteSpace(dto.Address) ? null : dto.Address.Trim();
+            user.Subject = string.IsNullOrWhiteSpace(dto.Subject) ? null : dto.Subject.Trim();
+            user.ExperienceYears = dto.ExperienceYears;
+            user.Bio = string.IsNullOrWhiteSpace(dto.Bio) ? null : dto.Bio.Trim();
+            user.KhoiHocId = dto.KhoiHocId;
             user.Role = dto.Role;
             if (!string.IsNullOrWhiteSpace(dto.Password))
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -205,7 +213,10 @@ public class UserService : IUserService
         FullName = user.FullName,
         AvatarUrl = user.AvatarUrl,
         Role = user.Role.ToString(),
-        Gender = user.Gender?.ToString()
+        Gender = user.Gender?.ToString(),
+        Subject = user.Subject,
+        ExperienceYears = user.ExperienceYears,
+        Bio = user.Bio
     };
 
     private static UserDto MapToDto(User user) => new()
@@ -220,6 +231,10 @@ public class UserService : IUserService
         Gender = user.Gender?.ToString(),
         DateOfBirth = user.DateOfBirth,
         Address = user.Address,
+        Subject = user.Subject,
+        ExperienceYears = user.ExperienceYears,
+        Bio = user.Bio,
+        KhoiHocId = user.KhoiHocId,
         Role = user.Role.ToString(),
         CreatedAt = user.CreatedAt
     };

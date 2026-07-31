@@ -11,14 +11,14 @@
   </div>
 
   <div class="oc-lb-grade-tabs">
-    @for (grade of grades; track grade) {
+    @for (grade of grades(); track grade.khoiHocId ?? -1) {
       <button
         type="button"
         class="oc-lb-grade-chip"
         [class.is-active]="grade === activeGrade()"
         (click)="setGrade(grade)"
       >
-        {{ grade }}
+        {{ grade.label }}
       </button>
     }
   </div>

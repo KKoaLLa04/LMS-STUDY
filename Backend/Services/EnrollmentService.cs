@@ -54,13 +54,39 @@ public class EnrollmentService : IEnrollmentService
     {
         try
         {
-            var items = await _context.Enrollments
+            var enrollments = await _context.Enrollments
                 .Include(e => e.Course)
                 .Include(e => e.User)
                 .Where(e => e.UserId == userId)
                 .OrderByDescending(e => e.EnrolledAt)
-                .Select(e => MapToDto(e))
                 .ToListAsync();
+
+            var courseIds = enrollments.Select(e => e.CourseId).ToList();
+
+            // Cùng cách tính completed/total với AchievementEvaluationService.ComputeCompletedCourseCountAsync,
+            // nhưng theo từng khóa học riêng để tính % tiến độ thay vì chỉ đếm khóa đã hoàn thành 100%.
+            var totalLessonsByCourse = await _context.Lessons
+                .Where(l => courseIds.Contains(l.Section.CourseId))
+                .GroupBy(l => l.Section.CourseId)
+                .Select(g => new { CourseId = g.Key, Total = g.Count() })
+                .ToDictionaryAsync(x => x.CourseId, x => x.Total);
+
+            var completedLessonsByCourse = await _context.LessonProgresses
+                .Where(p => p.UserId == userId && p.IsCompleted && courseIds.Contains(p.Lesson.Section.CourseId))
+                .GroupBy(p => p.Lesson.Section.CourseId)
+                .Select(g => new { CourseId = g.Key, Completed = g.Count() })
+                .ToDictionaryAsync(x => x.CourseId, x => x.Completed);
+
+            var items = enrollments.Select(e =>
+            {
+                var dto = MapToDto(e);
+                var total = totalLessonsByCourse.GetValueOrDefault(e.CourseId, 0);
+                var completed = completedLessonsByCourse.GetValueOrDefault(e.CourseId, 0);
+                dto.TotalLessons = total;
+                dto.CompletedLessons = completed;
+                dto.ProgressPercent = total == 0 ? 0 : (int)Math.Round(completed * 100.0 / total);
+                return dto;
+            }).ToList();
 
             return ApiResponse<List<EnrollmentDto>>.Ok(items);
         }

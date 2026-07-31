@@ -64,7 +64,10 @@ public class CourseService : ICourseService
                     CategoryName = x.Category != null ? x.Category.Name : null,
                     IsFeatured = x.Course.IsFeatured,
                     LessonsCount = _context.Lessons.Count(l => l.Section.CourseId == x.Course.Id),
-                    DurationMinutes = _context.Lessons.Where(l => l.Section.CourseId == x.Course.Id).Sum(l => (int?)l.DurationMinutes) ?? 0
+                    DurationMinutes = _context.Lessons.Where(l => l.Section.CourseId == x.Course.Id).Sum(l => (int?)l.DurationMinutes) ?? 0,
+                    StudentsCount = _context.Enrollments.Count(e => e.CourseId == x.Course.Id),
+                    Rating = Math.Round(_context.CourseReviews.Where(r => r.CourseId == x.Course.Id).Select(r => (double?)r.Rating).Average() ?? 0, 1),
+                    RatingCount = _context.CourseReviews.Count(r => r.CourseId == x.Course.Id)
                 })
                 .ToListAsync();
 
@@ -117,6 +120,11 @@ public class CourseService : ICourseService
                 : null;
 
             var dto = MapToCourseDetailDto(course, khoiHocName, categoryName);
+            dto.StudentsCount = await _context.Enrollments.CountAsync(e => e.CourseId == id);
+            var ratings = await _context.CourseReviews.Where(r => r.CourseId == id).Select(r => r.Rating).ToListAsync();
+            dto.RatingCount = ratings.Count;
+            dto.Rating = ratings.Count == 0 ? 0 : Math.Round(ratings.Average(), 1);
+
             return ApiResponse<CourseDetailDto>.Ok(dto);
         }
         catch (Exception ex)

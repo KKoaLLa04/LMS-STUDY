@@ -1,89 +1,5 @@
 import { OcIconName } from '../../models/icon-name.type';
-
-export type SubjectKey = 'math' | 'physics' | 'chem' | 'lit' | 'eng' | 'bio';
-
-export interface SubjectMeta {
-  key: SubjectKey;
-  name: string;
-  icon: OcIconName;
-  iconBg: string;
-  /** Secondary hero tag shown next to the subject on the teacher's profile. */
-  specialty: string;
-  teachingStyle: string;
-  /** Short topic suffixes used to synthesize this teacher's course titles. */
-  courseTopics: [string, string];
-}
-
-export const SUBJECTS: SubjectMeta[] = [
-  {
-    key: 'math',
-    name: 'Toán',
-    icon: 'math',
-    iconBg: 'var(--oc-accent-500)',
-    specialty: 'Luyện thi HSG',
-    teachingStyle: 'Dễ hiểu, gần gũi, nhiều ví dụ thực tế',
-    courseTopics: ['Đại số & Hình học', 'Luyện thi học sinh giỏi'],
-  },
-  {
-    key: 'physics',
-    name: 'Vật Lý',
-    icon: 'atom',
-    iconBg: 'var(--oc-accent-2-500)',
-    specialty: 'Ôn thi THPT',
-    teachingStyle: 'Trực quan, gắn liền thí nghiệm thực tế',
-    courseTopics: ['Điện học & Từ trường', 'Cơ học nâng cao'],
-  },
-  {
-    key: 'chem',
-    name: 'Hóa Học',
-    icon: 'flask',
-    iconBg: 'var(--oc-accent-600)',
-    specialty: 'Thí nghiệm thực hành',
-    teachingStyle: 'Minh hoạ bằng thí nghiệm, dễ nhớ lâu',
-    courseTopics: ['Hoá học vô cơ', 'Hoá học hữu cơ'],
-  },
-  {
-    key: 'lit',
-    name: 'Ngữ Văn',
-    icon: 'book-open',
-    iconBg: 'var(--oc-accent-2-600)',
-    specialty: 'Luyện viết văn hay',
-    teachingStyle: 'Truyền cảm hứng, giàu cảm xúc',
-    courseTopics: ['Nghị luận xã hội', 'Cảm thụ văn học'],
-  },
-  {
-    key: 'eng',
-    name: 'Tiếng Anh',
-    icon: 'globe',
-    iconBg: 'var(--oc-accent-2-400)',
-    specialty: 'Giao tiếp tự nhiên',
-    teachingStyle: 'Tương tác nhiều, phát âm chuẩn',
-    courseTopics: ['Giao tiếp cơ bản', 'Luyện thi chứng chỉ quốc tế'],
-  },
-  {
-    key: 'bio',
-    name: 'Sinh Học',
-    icon: 'leaf',
-    iconBg: 'var(--oc-accent-400)',
-    specialty: 'Khám phá tự nhiên',
-    teachingStyle: 'Trực quan, liên hệ đời sống thực tế',
-    courseTopics: ['Tế bào & Di truyền', 'Sinh thái học'],
-  },
-];
-
-export function subjectMeta(key: SubjectKey): SubjectMeta {
-  return SUBJECTS.find((s) => s.key === key) ?? SUBJECTS[0];
-}
-
-export interface TeacherRecord {
-  id: number;
-  name: string;
-  honorific: 'Thầy' | 'Cô';
-  subjectKey: SubjectKey;
-  rating: number;
-  coursesCount: number;
-  experienceYears: number;
-}
+import { Course } from '../../models/course.model';
 
 /** Minimal shape returned by the real backend (Backend/DTOs/UserDto.cs → PublicUserDto). */
 export interface PublicTeacher {
@@ -91,81 +7,82 @@ export interface PublicTeacher {
   fullName: string;
   avatarUrl?: string;
   gender?: string;
+  /** Real fields, admin-entered via Edit User form — null until an admin fills them in. */
+  subject?: string;
+  experienceYears?: number;
+  bio?: string;
 }
 
-/** The backend only tracks name/avatar/gender for a teacher — rating, subject,
- * course count and years of experience aren't modeled yet. Derive a stable
- * "flavor" from the real id so the page still reads as a rich profile instead
- * of showing zeros everywhere, without inventing per-teacher mock identities. */
-export function buildTeacherRecord(pu: PublicTeacher): TeacherRecord {
-  const id = pu.id;
-  const honorific: 'Thầy' | 'Cô' = pu.gender === 'Male' ? 'Thầy' : pu.gender === 'Female' ? 'Cô' : (id % 2 === 0 ? 'Thầy' : 'Cô');
+export interface TeacherRecord {
+  id: number;
+  name: string;
+  honorific: 'Thầy' | 'Cô';
+  subject: string | null;
+  experienceYears: number | null;
+  bio: string | null;
+  /** Weighted average of this teacher's real Course.rating (by ratingCount), 0 if none rated yet. */
+  rating: number;
+  ratingCount: number;
+  coursesCount: number;
+  studentsCount: number;
+}
+
+export interface SubjectIconMeta {
+  icon: OcIconName;
+  bg: string;
+}
+
+// Icon/màu tra theo tên môn dạy thật (Subject là chuỗi tự do admin nhập, không phải enum) —
+// thuần là lựa chọn trình bày, môn chưa có trong bảng tra dùng icon mặc định.
+const SUBJECT_ICONS: Record<string, SubjectIconMeta> = {
+  'Toán': { icon: 'math', bg: 'var(--oc-accent-500)' },
+  'Vật Lý': { icon: 'atom', bg: 'var(--oc-accent-2-500)' },
+  'Hóa Học': { icon: 'flask', bg: 'var(--oc-accent-600)' },
+  'Ngữ Văn': { icon: 'book-open', bg: 'var(--oc-accent-2-600)' },
+  'Sinh Học': { icon: 'leaf', bg: 'var(--oc-accent-400)' },
+  'Tiếng Anh': { icon: 'globe', bg: 'var(--oc-accent-2-400)' },
+  'Lịch Sử': { icon: 'clock', bg: 'var(--oc-accent-700)' },
+  'Địa Lý': { icon: 'map-pin', bg: 'var(--oc-accent-2-700)' },
+};
+const DEFAULT_SUBJECT_ICON: SubjectIconMeta = { icon: 'graduation-cap', bg: 'var(--oc-neutral-500)' };
+
+export function subjectIcon(subject?: string | null): SubjectIconMeta {
+  return (subject ? SUBJECT_ICONS[subject] : undefined) ?? DEFAULT_SUBJECT_ICON;
+}
+
+/** Real courses taught by this teacher, matched by Course.Teacher === PublicTeacher.fullName
+ * (backend doesn't have a Course→Teacher foreign key, only the free-text name column). */
+export function coursesOfTeacher(fullName: string, courses: Course[]): Course[] {
+  return courses.filter((c) => c.teacher === fullName);
+}
+
+/** Builds a teacher profile from the real PublicUser fields plus real Course stats —
+ * rating/coursesCount/studentsCount are computed from the teacher's actual courses
+ * (already fetched via ClientCourseService), not derived/fabricated. */
+export function buildTeacherRecord(pu: PublicTeacher, courses: Course[]): TeacherRecord {
+  const honorific: 'Thầy' | 'Cô' =
+    pu.gender === 'Male' ? 'Thầy' : pu.gender === 'Female' ? 'Cô' : pu.id % 2 === 0 ? 'Thầy' : 'Cô';
+
+  const own = coursesOfTeacher(pu.fullName, courses);
+  const studentsCount = own.reduce((sum, c) => sum + c.studentsCount, 0);
+  const ratingCount = own.reduce((sum, c) => sum + c.ratingCount, 0);
+  const weightedSum = own.reduce((sum, c) => sum + c.rating * c.ratingCount, 0);
+  const rating = ratingCount > 0 ? Math.round((weightedSum / ratingCount) * 10) / 10 : 0;
+
   return {
-    id,
+    id: pu.id,
     name: pu.fullName,
     honorific,
-    subjectKey: SUBJECTS[id % SUBJECTS.length].key,
-    rating: Math.round((4.5 + ((id * 37) % 5) / 10) * 10) / 10,
-    coursesCount: 5 + ((id * 13) % 20),
-    experienceYears: 4 + ((id * 7) % 12),
+    subject: pu.subject ?? null,
+    experienceYears: pu.experienceYears ?? null,
+    bio: pu.bio ?? null,
+    rating,
+    ratingCount,
+    coursesCount: own.length,
+    studentsCount,
   };
-}
-
-/** Students and reviews aren't tracked by the backend yet, so these are
- * derived from rating/course count to stay roughly proportionate. */
-export function studentsCountOf(t: TeacherRecord): number {
-  return Math.round(t.coursesCount * 650 + t.rating * 200);
-}
-
-export function reviewsCountOf(t: TeacherRecord): number {
-  return Math.round(t.coursesCount * 19 + t.rating * 5);
 }
 
 export function fullNameOf(t: TeacherRecord): string {
   return `${t.honorific} ${t.name}`;
-}
-
-export function degreeOf(t: TeacherRecord): string {
-  return `Thạc sĩ Sư phạm ${subjectMeta(t.subjectKey).name}`;
-}
-
-export function bioOf(t: TeacherRecord): string {
-  const subject = subjectMeta(t.subjectKey);
-  return `${fullNameOf(t)} có hơn ${t.experienceYears} năm kinh nghiệm giảng dạy ${subject.name}, giúp hàng nghìn học sinh chinh phục các kỳ thi quan trọng với phương pháp học ${subject.teachingStyle.toLowerCase()}.`;
-}
-
-export interface TaughtCourse {
-  title: string;
-  rating: number;
-  price: number;
-}
-
-export function coursesOf(t: TeacherRecord): TaughtCourse[] {
-  const subject = subjectMeta(t.subjectKey);
-  const basePrice = 249000 + (t.id % 5) * 20000;
-  return subject.courseTopics.map((topic, i) => ({
-    title: `${subject.name} - ${topic}`,
-    rating: Math.min(5, Math.round((t.rating - i * 0.1) * 10) / 10),
-    price: basePrice + i * 50000,
-  }));
-}
-
-export interface TeacherReview {
-  name: string;
-  date: string;
-  rating: number;
-  comment: string;
-}
-
-const REVIEW_POOL: TeacherReview[] = [
-  { name: 'Minh Anh', date: '2 tuần trước', rating: 5, comment: 'Thầy/cô giảng rất dễ hiểu, em tiến bộ rõ rệt chỉ sau vài tuần học.' },
-  { name: 'Gia Bảo', date: '1 tháng trước', rating: 5, comment: 'Phương pháp dạy gần gũi, luôn kiên nhẫn giải đáp thắc mắc.' },
-  { name: 'Thảo Vy', date: '1 tháng trước', rating: 4, comment: 'Nội dung khoá học rất chất lượng, mong ra thêm nhiều bài tập.' },
-  { name: 'Đức Huy', date: '2 tháng trước', rating: 5, comment: 'Bài giảng sinh động, dễ theo dõi, không hề nhàm chán.' },
-  { name: 'Ngọc Hân', date: '3 tuần trước', rating: 5, comment: 'Em rất thích cách giảng dạy, học xong hiểu bài ngay.' },
-  { name: 'Quang Minh', date: '2 tháng trước', rating: 4, comment: 'Giảng viên nhiệt tình, tài liệu ôn tập rất đầy đủ.' },
-];
-
-export function reviewsOf(t: TeacherRecord): TeacherReview[] {
-  return [0, 1, 2].map((offset) => REVIEW_POOL[(t.id + offset) % REVIEW_POOL.length]);
 }

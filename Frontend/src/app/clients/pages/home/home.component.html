@@ -26,7 +26,7 @@
       <p class="oc-text-muted">Chọn môn học yêu thích và bắt đầu ngay hôm nay</p>
     </div>
     <div class="oc-category-grid">
-      @for (cat of categories; track cat.name) {
+      @for (cat of categories(); track cat.name) {
         <a class="oc-card oc-elev-sm oc-category-card" routerLink="/client/khoa-hoc">
           <div class="oc-category-card__icon" [style.background]="cat.bg">
             <app-oc-icon [name]="cat.icon" [size]="26" color="#fff"></app-oc-icon>
@@ -44,7 +44,7 @@
       <h2>Khoá học nổi bật</h2>
     </div>
     <div class="oc-course-grid">
-      @for (course of courses; track course.id; let i = $index) {
+      @for (course of courses(); track course.id; let i = $index) {
         <app-oc-course-card [course]="course" [animationDelay]="(i % 6) * 0.06"></app-oc-course-card>
       }
     </div>
@@ -52,7 +52,7 @@
 
   <section class="oc-stats" #statsSection>
     <div class="oc-stats__grid">
-      @for (stat of stats; track stat.label) {
+      @for (stat of stats(); track stat.label) {
         <div class="oc-stats__item">
           <div class="oc-stats__icon">
             <app-oc-icon [name]="stat.icon" [size]="22" color="#fff"></app-oc-icon>
@@ -70,7 +70,7 @@
       <p class="oc-text-muted">Đội ngũ giáo viên tận tâm, giàu kinh nghiệm</p>
     </div>
     <div class="oc-teacher-grid">
-      @for (teacher of teachers; track teacher.name) {
+      @for (teacher of teachers(); track teacher.name) {
         <div class="oc-card oc-elev-sm oc-teacher-card">
           <span class="oc-teacher-card__avatar">{{ teacher.initials }}</span>
           <span class="oc-teacher-card__name">{{ teacher.name }}</span>

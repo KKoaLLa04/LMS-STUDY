@@ -13,6 +13,12 @@ export interface AppUser {
   gender?: AppUserGender | null;
   dateOfBirth?: string | null;
   address?: string | null;
+  /** Only meaningful when role === 'Teacher'. */
+  subject?: string | null;
+  experienceYears?: number | null;
+  bio?: string | null;
+  /** Only meaningful when role === 'Student'. */
+  khoiHocId?: number | null;
   role: AppUserRole;
   createdAt: string;
 }
@@ -28,6 +34,10 @@ export interface CreateUserRequest {
   gender?: AppUserGender | null;
   dateOfBirth?: string | null;
   address?: string | null;
+  subject?: string | null;
+  experienceYears?: number | null;
+  bio?: string | null;
+  khoiHocId?: number | null;
   role: AppUserRole;
 }
 
@@ -42,6 +52,10 @@ export interface UpdateUserRequest {
   gender?: AppUserGender | null;
   dateOfBirth?: string | null;
   address?: string | null;
+  subject?: string | null;
+  experienceYears?: number | null;
+  bio?: string | null;
+  khoiHocId?: number | null;
   role: AppUserRole;
 }
 

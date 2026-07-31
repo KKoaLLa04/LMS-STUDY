@@ -30,6 +30,9 @@ export interface CourseListItemApi {
   isFeatured: boolean;
   lessonsCount: number;
   durationMinutes: number;
+  studentsCount: number;
+  rating: number;
+  ratingCount: number;
 }
 
 export interface LessonResponseApi {

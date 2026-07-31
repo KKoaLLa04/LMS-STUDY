@@ -49,6 +49,10 @@ export interface Course {
   subject: string;
   title: string;
   description: string;
+  /** Draft/Published/... — Admin nhận cả khóa Draft từ API, cần lọc theo trường này
+   * ở những nơi hiển thị mang tính "toàn nền tảng" (vd. Trang chủ) để không lẫn khóa
+   * chưa xuất bản vào số liệu vốn chỉ tính Published ở backend. */
+  status: string;
   teacher: string;
   teacherInitials: string;
   rating: number;

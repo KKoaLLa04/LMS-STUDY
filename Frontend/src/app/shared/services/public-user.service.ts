@@ -10,6 +10,10 @@ export interface PublicUser {
   avatarUrl?: string;
   role: string;
   gender?: string;
+  /** Only meaningful when role === 'Teacher'. */
+  subject?: string;
+  experienceYears?: number;
+  bio?: string;
 }
 
 @Injectable({ providedIn: 'root' })
