@@ -1,0 +1,253 @@
+@charset "UTF-8";
+:host {
+  --primary: #7c3aed;
+  --primary-light: #ede9fe;
+  --amber: #f59e0b;
+  --amber-light: #fef3c7;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+.ach-card {
+  border-radius: var(--radius);
+  border: 1px solid #eceef2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.ach-category-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 999px;
+}
+
+/* ── Toolbar: filter chips + search + "Thêm huy hiệu" trên cùng 1 dòng ── */
+.ach-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ach-filter-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ach-chip {
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  color: var(--muted, #6b7280);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 150ms;
+  white-space: nowrap;
+}
+.ach-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.ach-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.ach-chip-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-style: dashed;
+  color: var(--primary);
+}
+.ach-chip-add i {
+  font-size: 0.7rem;
+}
+
+.ach-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ach-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.ach-search i {
+  position: absolute;
+  left: 0.7rem;
+  color: var(--muted, #9ca3af);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.ach-search .form-control {
+  padding-left: 2rem;
+  width: 220px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Icon preview trong bảng + picker trong modal ── */
+.ach-icon-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  vertical-align: middle;
+}
+
+.ach-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+/* ── Điều kiện đạt được: dropdown loại + giá trị + nhóm + xóa, mỗi điều kiện 1 dòng ── */
+.ach-condition-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.ach-condition-row .form-select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ach-condition-row .ach-condition-value {
+  width: 90px;
+  flex: 0 0 auto;
+}
+.ach-condition-row .ach-condition-unit {
+  flex: 0 0 auto;
+  color: var(--muted, #6b7280);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.ach-condition-row .ach-condition-group {
+  width: 60px;
+  flex: 0 0 auto;
+}
+
+.ach-condition-summary {
+  cursor: help;
+}
+.ach-condition-summary i {
+  color: var(--primary);
+  font-size: 0.7rem;
+}
+
+.ach-icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.3rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--muted, #6b7280);
+  cursor: pointer;
+  transition: all 150ms;
+}
+.ach-icon-option span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  word-break: break-word;
+}
+.ach-icon-option:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.ach-icon-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.ach-status-unlocked {
+  background: var(--amber-light);
+  color: #b45309;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 999px;
+}
+
+.ach-progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Modal polish ── */
+.ach-modal .modal-content {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.ach-modal .modal-header {
+  border-bottom: 1px solid #f0f0f3;
+  padding: 1.1rem 1.5rem;
+}
+.ach-modal .modal-body {
+  padding: 1.5rem;
+}
+.ach-modal .modal-footer {
+  border-top: 1px solid #f0f0f3;
+  padding: 1rem 1.5rem;
+}
+.ach-modal .form-control,
+.ach-modal .form-select {
+  border-radius: var(--radius-sm);
+}
+.ach-modal .btn {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.ach-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ach-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+.ach-modal-icon.ach-modal-icon-danger {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.ach-modal-danger .btn-danger:disabled {
+  opacity: 0.5;
+}
+.ach-modal-danger .btn-danger:not(:disabled) {
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+}/*# sourceMappingURL=achievement-list.component.css.map */

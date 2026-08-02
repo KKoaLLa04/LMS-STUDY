@@ -1,4 +1,40 @@
 <div class="oc-disc">
+  @if (isLoggedIn()) {
+    <div class="oc-card oc-elev-sm oc-disc__composer">
+      <input
+        type="text"
+        class="oc-input oc-disc__composer-title"
+        placeholder="Tiêu đề chủ đề bạn muốn thảo luận..."
+        maxlength="255"
+        [ngModel]="newPostTitle()"
+        (ngModelChange)="newPostTitle.set($event)"
+      />
+      <textarea
+        class="oc-input oc-disc__composer-content"
+        rows="3"
+        placeholder="Chia sẻ câu hỏi hoặc ý kiến của bạn về khóa học này..."
+        [ngModel]="newPostContent()"
+        (ngModelChange)="newPostContent.set($event)"
+      ></textarea>
+      <div class="oc-disc__composer-actions">
+        <button
+          type="button"
+          class="oc-btn oc-btn-primary"
+          [disabled]="!newPostTitle().trim() || !newPostContent().trim() || submittingPost()"
+          (click)="submitPost()"
+        >
+          {{ submittingPost() ? 'Đang đăng...' : 'Đăng bài' }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="oc-card oc-elev-sm oc-disc__login-prompt">
+      <app-oc-icon name="message-circle" [size]="18"></app-oc-icon>
+      <span>Đăng nhập để đặt câu hỏi hoặc tham gia thảo luận.</span>
+      <button type="button" class="oc-btn oc-btn-ghost" (click)="goToLogin()">Đăng nhập</button>
+    </div>
+  }
+
   @if (loading()) {
     <div class="oc-disc__loading">
       <app-oc-icon name="loader" [size]="18" [strokeWidth]="3" class="oc-disc__spinner"></app-oc-icon>
@@ -7,7 +43,7 @@
   } @else if (posts().length === 0) {
     <div class="oc-disc__empty">
       <app-oc-icon name="message-circle" [size]="28"></app-oc-icon>
-      <span class="oc-text-muted">Chưa có bài viết thảo luận nào cho khóa học này.</span>
+      <span class="oc-text-muted">Chưa có bài viết thảo luận nào cho khóa học này. Hãy là người đầu tiên!</span>
     </div>
   } @else {
     <div class="oc-disc__list">
@@ -67,6 +103,30 @@
                     }
                   </div>
                 }
+
+                <div class="oc-disc__reply-composer" (click)="$event.stopPropagation()">
+                  @if (isLoggedIn()) {
+                    <textarea
+                      class="oc-input"
+                      rows="2"
+                      placeholder="Viết trả lời của bạn..."
+                      [ngModel]="replyContent()"
+                      (ngModelChange)="replyContent.set($event)"
+                    ></textarea>
+                    <button
+                      type="button"
+                      class="oc-btn oc-btn-ghost oc-disc__reply-submit"
+                      [disabled]="!replyContent().trim() || submittingReply()"
+                      (click)="submitReply()"
+                    >
+                      {{ submittingReply() ? 'Đang gửi...' : 'Gửi trả lời' }}
+                    </button>
+                  } @else {
+                    <button type="button" class="oc-btn oc-btn-ghost" (click)="goToLogin()">
+                      Đăng nhập để trả lời
+                    </button>
+                  }
+                </div>
               }
             </div>
           }

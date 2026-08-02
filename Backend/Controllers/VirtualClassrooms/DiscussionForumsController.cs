@@ -1,14 +1,20 @@
 using System.Security.Claims;
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.VirtualClassrooms.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers.VirtualClassrooms;
 
+// LƯU Ý: [Authorize] ở method KHÔNG ghi đè [Authorize(Roles = ...)] ở class — ASP.NET Core cộng
+// dồn (AND) mọi [Authorize] áp dụng cho 1 action, chỉ [AllowAnonymous] mới thực sự bỏ qua được.
+// Vì vậy class-level ở đây để trần [Authorize] (chỉ yêu cầu đăng nhập, không giới hạn role); việc
+// giới hạn role/quyền cho Update/Delete do [RequireTeacherPermission] tự đảm nhiệm độc lập bên dưới.
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class DiscussionForumsController : ControllerBase
 {
     private readonly IDiscussionForumService _service;
@@ -18,15 +24,14 @@ public class DiscussionForumsController : ControllerBase
         _service = service;
     }
 
-    // Người gọi hiện chỉ có thể là Admin (class-level [Authorize(Roles = "Admin")]) — vẫn lấy Id
-    // để gắn UserId lên bài viết, sẵn sàng cho khi luồng học sinh tự đăng bài được mở ra sau này.
+    // null nếu request ẩn danh (GetByCourse/GetById cho phép [AllowAnonymous]).
     private int? CurrentUserId =>
         int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
-    /// <summary>[User] Lấy danh sách bài viết thảo luận theo khóa học — mở cho mọi user đã đăng nhập
-    /// (chỉ xem, đăng bài vẫn giới hạn Admin), ghi đè [Authorize(Roles = "Admin")] ở cấp class.</summary>
+    /// <summary>[Public] Lấy danh sách bài viết thảo luận theo khóa học — thảo luận là khu vực bình
+    /// luận công khai nên cho phép xem kể cả chưa đăng nhập (đăng bài/trả lời mới cần đăng nhập).</summary>
     [HttpGet("by-course/{courseId}")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByCourse(
         int courseId,
         [FromQuery] int page = 1,
@@ -37,17 +42,19 @@ public class DiscussionForumsController : ControllerBase
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>[User] Lấy chi tiết bài viết kèm các replies — mở cho mọi user đã đăng nhập (xem thư trả lời).</summary>
+    /// <summary>[Public] Lấy chi tiết bài viết kèm các replies — công khai như GetByCourse ở trên.</summary>
     [HttpGet("{id}")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _service.GetPostByIdAsync(id, CurrentUserId);
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>Tạo bài viết thảo luận mới</summary>
+    /// <summary>[User] Tạo bài viết thảo luận mới — mở cho mọi user đã đăng nhập (dạng bình luận
+    /// công khai giữa học sinh/giáo viên/quản trị).</summary>
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateDiscussionPostDto dto)
     {
         var result = await _service.CreatePostAsync(dto, CurrentUserId);
@@ -56,14 +63,17 @@ public class DiscussionForumsController : ControllerBase
 
     /// <summary>Cập nhật bài viết thảo luận</summary>
     [HttpPut("{id}")]
+    [RequireTeacherPermission(PermissionModule.DiscussionForums, PermissionAction.Update)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDiscussionPostDto dto)
     {
         var result = await _service.UpdatePostAsync(id, dto);
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>Trả lời bài viết thảo luận</summary>
+    /// <summary>[User] Trả lời bài viết thảo luận — mở cho mọi user đã đăng nhập, cùng chính sách
+    /// với Create ở trên.</summary>
     [HttpPost("{parentPostId}/reply")]
+    [Authorize]
     public async Task<IActionResult> Reply(int parentPostId, [FromBody] CreateDiscussionPostDto dto)
     {
         var result = await _service.ReplyToPostAsync(parentPostId, dto, CurrentUserId);
@@ -72,15 +82,14 @@ public class DiscussionForumsController : ControllerBase
 
     /// <summary>Xóa bài viết thảo luận</summary>
     [HttpDelete("{id}")]
+    [RequireTeacherPermission(PermissionModule.DiscussionForums, PermissionAction.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _service.DeletePostAsync(id);
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>[User] Thích bài viết thảo luận — mở cho mọi user đã đăng nhập, ghi đè
-    /// [Authorize(Roles = "Admin")] ở cấp class (đăng bài vẫn đang giới hạn Admin, nhưng thích
-    /// bài viết thì không cần).</summary>
+    /// <summary>[User] Thích bài viết thảo luận — mở cho mọi user đã đăng nhập.</summary>
     [HttpPost("{id}/like")]
     [Authorize]
     public async Task<IActionResult> Like(int id)

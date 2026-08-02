@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.sd-root {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--sd-bg);
+  font-family: var(--sd-font);
+  color: var(--sd-text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sd-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 40;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.sd-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sd-content {
+  padding: 24px 28px 40px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}/*# sourceMappingURL=student-shell.component.css.map */

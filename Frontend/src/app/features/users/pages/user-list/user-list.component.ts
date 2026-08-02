@@ -3,13 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.service';
-import { AppUser, AppUserGender, AppUserRole, AppUserStatus } from '../../models/user.model';
+import { AppUser, AppUserGender, AppUserRole, AppUserStatus, TEACHER_PERMISSION_MODULES } from '../../models/user.model';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { AchievementService } from '../../../achievements/services/achievement.service';
 import { Achievement } from '../../../achievements/models/achievement.model';
 import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
 import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { PermissionModule, TeacherPermission } from '../../../../core/auth/models/auth.model';
+
+type PermissionFlags = Pick<TeacherPermission, 'canView' | 'canCreate' | 'canUpdate' | 'canDelete'>;
 
 declare const bootstrap: any;
 
@@ -59,6 +63,13 @@ export class UserListComponent implements OnInit, AfterViewInit {
   loading = false;
   errorMessage = '';
 
+  page = 1;
+  pageSize = 10;
+  totalCount = 0;
+  totalPages = 0;
+  searchInput = '';
+  keyword = '';
+
   form: FormGroup;
   modalMode: ModalMode = 'create';
   editingItem: AppUser | null = null;
@@ -79,6 +90,12 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
   khoiHocs: KhoiHoc[] = [];
 
+  // Lưới checkbox phân quyền module — chỉ có ý nghĩa khi role === 'Teacher'. Giữ tách khỏi
+  // FormGroup (không phải FormArray) vì đây là bảng khóa cố định theo module, không cần thêm/bớt
+  // dòng — checkbox bind trực tiếp qua ngModel vào permissionsMap[module].
+  readonly permissionModules = TEACHER_PERMISSION_MODULES;
+  permissionsMap: Record<PermissionModule, PermissionFlags> = this.buildEmptyPermissionsMap();
+
   private formModal: any;
   private deleteModal: any;
   private unlockModal: any;
@@ -90,7 +107,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
     private uploadService: UploadService,
     private achievementService: AchievementService,
     private khoiHocService: KhoiHocService,
-    private toast: ToastService
+    private toast: ToastService,
+    public auth: AuthService
   ) {
     this.form = this.fb.group({
       fullName: ['', [Validators.required, Validators.maxLength(255)]],
@@ -133,9 +151,11 @@ export class UserListComponent implements OnInit, AfterViewInit {
   loadUsers(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.userService.getUsers(this.role).subscribe({
+    this.userService.getUsersPaged(this.role, this.page, this.pageSize, this.keyword || undefined).subscribe({
       next: (res) => {
-        this.users = res.data ?? [];
+        this.users = res.data?.items ?? [];
+        this.totalCount = res.data?.totalCount ?? 0;
+        this.totalPages = res.data?.totalPages ?? 0;
         this.loading = false;
       },
       error: () => {
@@ -143,6 +163,33 @@ export class UserListComponent implements OnInit, AfterViewInit {
         this.loading = false;
       }
     });
+  }
+
+  onSearch(): void {
+    this.keyword = this.searchInput.trim();
+    this.page = 1;
+    this.loadUsers();
+  }
+
+  onPageChange(newPage: number): void {
+    if (newPage < 1 || newPage > this.totalPages) return;
+    this.page = newPage;
+    this.loadUsers();
+  }
+
+  get pageNumbers(): number[] {
+    const delta = 2;
+    const start = Math.max(1, this.page - delta);
+    const end = Math.min(this.totalPages, this.page + delta);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+  get startIndex(): number {
+    return (this.page - 1) * this.pageSize + 1;
+  }
+
+  get endIndex(): number {
+    return Math.min(this.page * this.pageSize, this.totalCount);
   }
 
   get modalTitle(): string {
@@ -178,6 +225,22 @@ export class UserListComponent implements OnInit, AfterViewInit {
     return name.charAt(0).toUpperCase() || '?';
   }
 
+  private buildEmptyPermissionsMap(): Record<PermissionModule, PermissionFlags> {
+    const map = {} as Record<PermissionModule, PermissionFlags>;
+    for (const { module } of TEACHER_PERMISSION_MODULES) {
+      map[module] = { canView: false, canCreate: false, canUpdate: false, canDelete: false };
+    }
+    return map;
+  }
+
+  private resetPermissions(source?: TeacherPermission[]): void {
+    const map = this.buildEmptyPermissionsMap();
+    for (const p of source ?? []) {
+      map[p.module] = { canView: p.canView, canCreate: p.canCreate, canUpdate: p.canUpdate, canDelete: p.canDelete };
+    }
+    this.permissionsMap = map;
+  }
+
   openCreateModal(): void {
     this.modalMode = 'create';
     this.editingItem = null;
@@ -200,6 +263,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
     this.avatarPreviewUrl = null;
     this.avatarError = false;
     this.avatarUploadState = { uploading: false };
+    this.resetPermissions();
     this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     this.form.get('password')?.updateValueAndValidity();
     this.formModal.show();
@@ -228,6 +292,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
     this.avatarPreviewUrl = item.avatarUrl ?? null;
     this.avatarError = false;
     this.avatarUploadState = { uploading: false };
+    this.resetPermissions(item.permissions);
     this.form.get('password')?.setValidators([Validators.minLength(6)]);
     this.form.get('password')?.updateValueAndValidity();
     this.formModal.show();
@@ -301,7 +366,13 @@ export class UserListComponent implements OnInit, AfterViewInit {
       experienceYears: this.role === 'Teacher' && v.experienceYears !== '' ? Number(v.experienceYears) : null,
       bio: this.role === 'Teacher' ? v.bio?.trim() || null : null,
       khoiHocId: this.role === 'Student' && v.khoiHocId !== '' ? Number(v.khoiHocId) : null,
-      role: this.role
+      role: this.role,
+      // Backend chỉ áp dụng trường này khi caller là Admin và role === 'Teacher' — gửi undefined
+      // ở các trường hợp khác cũng vô hại, nhưng tránh gửi thừa cho gọn payload.
+      permissions:
+        this.role === 'Teacher'
+          ? this.permissionModules.map(({ module }) => ({ module, ...this.permissionsMap[module] }))
+          : undefined
     };
 
     const request$ =
@@ -356,6 +427,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
         this.deleting = false;
         this.toast.success(`Đã xóa "${username}" thành công.`);
         this.closeDeleteModal();
+        if (this.users.length === 1 && this.page > 1) this.page--;
         this.loadUsers();
       },
       error: (err) => {

@@ -41,9 +41,11 @@
         </div>
 
         <!-- Add button -->
-        <button type="button" class="btn cl-btn-add ms-auto" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-1"></i>Thêm khóa học
-        </button>
+        @if (auth.hasPermission('Courses', 'create')) {
+          <button type="button" class="btn cl-btn-add ms-auto" (click)="openCreateModal()">
+            <i class="bi bi-plus-circle me-1"></i>Thêm khóa học
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -59,8 +61,10 @@
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
             @if (keyword) {
               Không tìm thấy khóa học nào với từ khóa "<strong>{{ keyword }}</strong>"
-            } @else {
+            } @else if (auth.hasPermission('Courses', 'create')) {
               Chưa có khóa học nào. <a href="javascript:void(0)" (click)="openCreateModal()">Thêm khóa học đầu tiên</a>
+            } @else {
+              Chưa có khóa học nào.
             }
           </div>
         } @else {
@@ -77,7 +81,7 @@
                   <th style="width: 160px">Giá</th>
                   <th style="width: 120px">Trạng thái</th>
                   <th style="width: 110px">Ngày tạo</th>
-                  <th class="text-center" style="width: 90px">Thao tác</th>
+                  <th class="text-center" style="width: 130px">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,24 +146,36 @@
                         </button>
                         <button
                           type="button"
-                          class="cl-action-btn cl-action-edit"
-                          title="Chỉnh sửa"
-                          (click)="openEditModal(course.id)"
+                          class="cl-action-btn cl-action-students"
+                          title="Gán học sinh"
+                          [routerLink]="['/courses', course.id, 'students']"
                         >
-                          <i class="bi bi-pencil"></i>
+                          <i class="bi bi-people"></i>
                         </button>
-                        <button
-                          class="cl-action-btn cl-action-delete"
-                          title="Xóa"
-                          [disabled]="deleting === course.id"
-                          (click)="openDeleteModal(course)"
-                        >
-                          @if (deleting === course.id) {
-                            <span class="spinner-border spinner-border-sm"></span>
-                          } @else {
-                            <i class="bi bi-trash"></i>
-                          }
-                        </button>
+                        @if (auth.hasPermission('Courses', 'update')) {
+                          <button
+                            type="button"
+                            class="cl-action-btn cl-action-edit"
+                            title="Chỉnh sửa"
+                            (click)="openEditModal(course.id)"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        }
+                        @if (auth.hasPermission('Courses', 'delete')) {
+                          <button
+                            class="cl-action-btn cl-action-delete"
+                            title="Xóa"
+                            [disabled]="deleting === course.id"
+                            (click)="openDeleteModal(course)"
+                          >
+                            @if (deleting === course.id) {
+                              <span class="spinner-border spinner-border-sm"></span>
+                            } @else {
+                              <i class="bi bi-trash"></i>
+                            }
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>

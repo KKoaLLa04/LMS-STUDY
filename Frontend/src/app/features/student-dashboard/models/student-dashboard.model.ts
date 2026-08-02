@@ -18,7 +18,8 @@ export type IconName =
   | 'tag'
   | 'users'
   | 'file-text'
-  | 'help-circle';
+  | 'help-circle'
+  | 'shield';
 
 export interface Student {
   name: string;

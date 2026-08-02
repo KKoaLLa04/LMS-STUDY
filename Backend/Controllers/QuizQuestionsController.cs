@@ -1,3 +1,4 @@
+using Backend.Authorization;
 using Backend.Common;
 using Backend.Data;
 using Backend.DTOs;
@@ -14,7 +15,7 @@ namespace Backend.Controllers;
 // chung). Soạn câu hỏi cho quiz đứng độc lập thì dùng QuizzesController (api/quizzes/{id}/questions).
 [ApiController]
 [Route("api/lessons/{lessonId:int}/quiz-questions")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Teacher")]
 public class QuizQuestionsController : ControllerBase
 {
     private readonly IQuizQuestionService _quizQuestionService;
@@ -39,8 +40,9 @@ public class QuizQuestionsController : ControllerBase
         return (lesson, null);
     }
 
-    /// <summary>[Admin] Lấy danh sách câu hỏi quiz của một bài học (kèm đáp án đúng)</summary>
+    /// <summary>[Admin/Teacher] Lấy danh sách câu hỏi quiz của một bài học (kèm đáp án đúng)</summary>
     [HttpGet]
+    [RequireTeacherPermission(PermissionModule.Quizzes, PermissionAction.View)]
     public async Task<IActionResult> GetQuestions(int lessonId)
     {
         var (lesson, error) = await ResolveQuizLessonAsync(lessonId);
@@ -50,8 +52,9 @@ public class QuizQuestionsController : ControllerBase
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>[Admin] Thay thế toàn bộ câu hỏi quiz của một bài học</summary>
+    /// <summary>[Admin/Teacher] Thay thế toàn bộ câu hỏi quiz của một bài học</summary>
     [HttpPut]
+    [RequireTeacherPermission(PermissionModule.Quizzes, PermissionAction.Update)]
     public async Task<IActionResult> ReplaceQuestions(int lessonId, [FromBody] ReplaceQuizQuestionsDto dto)
     {
         var (lesson, error) = await ResolveQuizLessonAsync(lessonId);

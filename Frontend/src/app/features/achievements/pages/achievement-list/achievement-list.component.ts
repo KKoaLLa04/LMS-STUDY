@@ -10,6 +10,7 @@ import { AchievementGroup } from '../../models/achievement-group.model';
 import { AchievementConditionType } from '../../models/achievement-condition-type.model';
 import { AchievementIconComponent, AchievementIconKey } from '../../components/achievement-icon/achievement-icon.component';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 declare const bootstrap: any;
 
@@ -67,7 +68,8 @@ export class AchievementListComponent implements OnInit, AfterViewInit {
     private achievementService: AchievementService,
     private achievementGroupService: AchievementGroupService,
     private achievementConditionService: AchievementConditionService,
-    private toast: ToastService
+    private toast: ToastService,
+    public auth: AuthService
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],

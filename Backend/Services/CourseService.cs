@@ -96,6 +96,7 @@ public class CourseService : ICourseService
             var course = await _context.Courses
                 .Include(c => c.Sections.OrderBy(s => s.Position))
                     .ThenInclude(s => s.Lessons.OrderBy(l => l.Position))
+                        .ThenInclude(l => l.Document)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
@@ -326,14 +327,17 @@ public class CourseService : ICourseService
             CourseId = s.CourseId,
             Title = s.Title,
             Position = s.Position,
+            // Bài học Document tạo qua kho dùng chung (chọn Document có sẵn) chỉ lưu DocumentId,
+            // không copy nội dung vào Content/DocumentUrl của Lesson — fallback sang Document liên
+            // kết để học viên vẫn xem/tải được (nếu không sẽ trống, isLessonPlayable coi là không mở được).
             Lessons = s.Lessons.Select(l => new LessonResponseDto
             {
                 Id = l.Id,
                 SectionId = l.SectionId,
                 Title = l.Title,
-                Content = l.Content,
+                Content = l.Content ?? l.Document?.Content,
                 VideoUrl = l.VideoUrl,
-                DocumentUrl = l.DocumentUrl,
+                DocumentUrl = l.DocumentUrl ?? l.Document?.FileUrl,
                 LessonType = l.LessonType.ToString(),
                 Position = l.Position,
                 DurationMinutes = l.DurationMinutes,

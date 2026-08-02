@@ -60,6 +60,12 @@
             <app-oc-icon name="key" [size]="16"></app-oc-icon>
             Đổi mật khẩu
           </a>
+          @if (isAdminOrTeacher()) {
+            <a class="oc-header__dropdown-item" routerLink="/dashboard" (click)="closeMenu()">
+              <app-oc-icon name="grid" [size]="16"></app-oc-icon>
+              Trang quản trị
+            </a>
+          }
           <button type="button" class="oc-header__dropdown-item oc-header__dropdown-item--danger" (click)="onLogout()">
             <app-oc-icon name="log-out" [size]="16"></app-oc-icon>
             Đăng xuất

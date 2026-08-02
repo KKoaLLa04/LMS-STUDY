@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +46,8 @@ public class AchievementsController : ControllerBase
     /// [Admin] Tạo mới huy hiệu thành tích
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.Achievements, PermissionAction.Create)]
     public async Task<IActionResult> CreateAchievement([FromBody] CreateAchievementDto dto)
     {
         var result = await _achievementService.CreateAsync(dto);
@@ -55,7 +58,8 @@ public class AchievementsController : ControllerBase
     /// [Admin] Cập nhật huy hiệu thành tích
     /// </summary>
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.Achievements, PermissionAction.Update)]
     public async Task<IActionResult> UpdateAchievement(int id, [FromBody] UpdateAchievementDto dto)
     {
         var result = await _achievementService.UpdateAsync(id, dto);
@@ -66,7 +70,8 @@ public class AchievementsController : ControllerBase
     /// [Admin] Xóa huy hiệu thành tích
     /// </summary>
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.Achievements, PermissionAction.Delete)]
     public async Task<IActionResult> DeleteAchievement(int id)
     {
         var result = await _achievementService.DeleteAsync(id);
@@ -87,7 +92,8 @@ public class AchievementsController : ControllerBase
     /// [Admin] Mở khóa một huy hiệu cho một học sinh cụ thể (cộng điểm thưởng tương ứng)
     /// </summary>
     [HttpPost("{id:int}/unlock/{userId:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.Achievements, PermissionAction.Create)]
     public async Task<IActionResult> UnlockForUser(int id, int userId)
     {
         var result = await _achievementService.UnlockForUserAsync(userId, id);

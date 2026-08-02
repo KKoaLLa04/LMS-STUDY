@@ -1,12 +1,36 @@
 <div class="oc-chips">
-  @for (category of categories; track category) {
+  @if (canScrollLeft()) {
     <button
       type="button"
-      class="oc-chips__chip"
-      [class.is-active]="category === activeCategory"
-      (click)="activeCategoryChange.emit(category)"
+      class="oc-chips__nav oc-chips__nav--left"
+      (click)="scrollByPage(-1)"
+      aria-label="Xem danh mục trước"
     >
-      {{ category }}
+      <app-oc-icon name="arrow-left" [size]="16"></app-oc-icon>
+    </button>
+  }
+
+  <div class="oc-chips__track" #track (scroll)="onTrackScroll()">
+    @for (category of categories; track category) {
+      <button
+        type="button"
+        class="oc-chips__chip"
+        [class.is-active]="category === activeCategory"
+        (click)="activeCategoryChange.emit(category)"
+      >
+        {{ category }}
+      </button>
+    }
+  </div>
+
+  @if (canScrollRight()) {
+    <button
+      type="button"
+      class="oc-chips__nav oc-chips__nav--right"
+      (click)="scrollByPage(1)"
+      aria-label="Xem danh mục tiếp theo"
+    >
+      <app-oc-icon name="arrow-right" [size]="16"></app-oc-icon>
     </button>
   }
 </div>

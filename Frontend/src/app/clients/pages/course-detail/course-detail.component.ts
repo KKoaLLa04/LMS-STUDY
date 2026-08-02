@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Course } from '../../models/course.model';
@@ -6,6 +6,7 @@ import { ClientCourseService } from '../../services/client-course.service';
 import { CourseReviewService } from '../../services/course-review.service';
 import { CourseRatingSummary, CourseReview } from '../../models/course-review.model';
 import { courseCtaLabel } from '../../utils/course-progress.util';
+import { findNextLesson } from '../../utils/chapters.util';
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { ChapterAccordionComponent } from '../../components/chapter-accordion/chapter-accordion.component';
 import { CoursePricePipe } from '../../pipes/course-price.pipe';
@@ -14,8 +15,12 @@ import { StudentsCountPipe } from '../../pipes/students-count.pipe';
 import { RelativeDatePipe } from '../../pipes/relative-date.pipe';
 import { DiscussionPanelComponent } from '../../components/discussion-panel/discussion-panel.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 type DetailTab = 'content' | 'materials' | 'reviews' | 'discussion';
+
+// Đăng ký khóa học hiện xử lý thủ công qua Facebook thay vì tự động ghi danh — theo yêu cầu chủ dự án.
+const ENROLLMENT_CONTACT_URL = 'https://www.facebook.com/kien.nguyenduy.169067';
 
 const EMPTY_RATING_SUMMARY: CourseRatingSummary = {
   averageRating: 0,
@@ -41,11 +46,14 @@ const EMPTY_RATING_SUMMARY: CourseRatingSummary = {
   styleUrl: './course-detail.component.scss',
 })
 export class CourseDetailComponent implements OnInit {
+  @ViewChild(ChapterAccordionComponent) private readonly chapterAccordion?: ChapterAccordionComponent;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly courseService = inject(ClientCourseService);
   private readonly reviewService = inject(CourseReviewService);
   private readonly toast = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   readonly course = signal<Course | undefined>(undefined);
   readonly notFound = signal(false);
@@ -66,7 +74,10 @@ export class CourseDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadCourse(Number(this.route.snapshot.paramMap.get('id')));
+  }
+
+  private loadCourse(id: number): void {
     this.courseService.getCourseById(id).subscribe((course) => {
       this.course.set(course);
       this.notFound.set(!course);
@@ -82,18 +93,24 @@ export class CourseDetailComponent implements OnInit {
     const course = this.course();
     if (!course) return;
 
-    this.reviewsLoaded.set(true);
+    // Chỉ đánh dấu "đã tải" SAU KHI request thực sự trả kết quả (kể cả lỗi) — trước đây set true
+    // ngay khi bắt đầu gọi API khiến một lần gọi lỗi (vd. 401 lúc chưa đăng nhập) làm mất luôn cơ
+    // hội tải lại: bấm lại tab "Đánh giá" sau khi đăng nhập vẫn không gọi lại API, cứ hiện 0 mãi.
     this.reviewService.getSummary(course.id).subscribe((res) => {
       if (res.data) this.ratingSummary.set(res.data);
     });
-    this.reviewService.getByCourse(course.id).subscribe((res) => {
-      const items = res.data?.items ?? [];
-      this.reviews.set(items);
-      const mine = items.find((r) => r.isMine);
-      if (mine) {
-        this.reviewFormRating.set(mine.rating);
-        this.reviewFormComment.set(mine.comment ?? '');
-      }
+    this.reviewService.getByCourse(course.id).subscribe({
+      next: (res) => {
+        const items = res.data?.items ?? [];
+        this.reviews.set(items);
+        const mine = items.find((r) => r.isMine);
+        if (mine) {
+          this.reviewFormRating.set(mine.rating);
+          this.reviewFormComment.set(mine.comment ?? '');
+        }
+        this.reviewsLoaded.set(true);
+      },
+      error: () => this.reviewsLoaded.set(true),
     });
   }
 
@@ -138,11 +155,52 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
+  /** Video giới thiệu là nội dung quảng bá công khai — xem được dù chưa đăng nhập/chưa đăng ký,
+   * khác với video bài học thật (bên trong chương trình học) vẫn yêu cầu đăng nhập. */
   playPreview(): void {
     if (this.course()?.previewVideoUrl) this.isPlayingPreview.set(true);
   }
 
+  onLessonVideoBlocked(): void {
+    this.requireLoginForVideo();
+  }
+
+  /** Backend vừa xác nhận một bài học đạt ngưỡng hoàn thành — tải lại khóa học để cập nhật
+   * % tiến độ, trạng thái "đã hoàn thành" (icon check) và nhãn nút "Tiếp tục: bài kế tiếp". */
+  onLessonCompleted(): void {
+    const course = this.course();
+    if (course) this.loadCourse(course.id);
+  }
+
+  /** Nút "Tiếp tục: bài ..." — chuyển sang tab Nội dung rồi mở đúng bài học kế tiếp
+   * (mở rộng chương chứa nó + tự phát, xử lý bởi ChapterAccordionComponent.openLesson). */
+  continueLearning(): void {
+    const course = this.course();
+    if (!course) return;
+
+    const nextLesson = findNextLesson(course.chapters);
+    if (!nextLesson) return;
+
+    this.activeTab.set('content');
+    setTimeout(() => this.chapterAccordion?.openLesson(nextLesson.id));
+  }
+
+  /** Không tự ghi danh nữa — đưa học viên sang Facebook để đăng ký thủ công. */
+  enrollNow(): void {
+    window.open(ENROLLMENT_CONTACT_URL, '_blank', 'noopener');
+  }
+
   goBack(): void {
     this.router.navigate(['/client/khoa-hoc']);
+  }
+
+  /** Video bài học (không phải video giới thiệu) yêu cầu đăng nhập — chặn tại đây thay vì route
+   * guard vì chỉ video bị hạn chế, các tab nội dung khác vẫn mở tự do cho khách chưa đăng nhập. */
+  private requireLoginForVideo(): boolean {
+    if (this.authService.isLoggedIn()) return true;
+
+    this.toast.info('Vui lòng đăng nhập để xem video');
+    this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+    return false;
   }
 }

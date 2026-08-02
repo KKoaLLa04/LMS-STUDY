@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { CourseCategoryService } from '../../services/course-category.service';
 import { CourseCategory } from '../../models/course-category.model';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 declare const bootstrap: any;
 
@@ -41,7 +42,8 @@ export class CourseCategoryListComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private categoryService: CourseCategoryService,
-    private toast: ToastService
+    private toast: ToastService,
+    public auth: AuthService
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(255)]],

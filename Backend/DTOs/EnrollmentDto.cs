@@ -1,5 +1,12 @@
 namespace Backend.DTOs;
 
+/// <summary>[Admin/Teacher] Ghi danh chỉ định một học sinh vào một khóa học (Backend/Controllers/EnrollmentsController.cs).</summary>
+public class AdminEnrollDto
+{
+    public int UserId { get; set; }
+    public int CourseId { get; set; }
+}
+
 public class EnrollmentDto
 {
     public int Id { get; set; }

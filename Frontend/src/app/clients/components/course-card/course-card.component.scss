@@ -1,6 +1,12 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .oc-course-card {
   display: flex;
   flex-direction: column;
+  height: 100%;
   gap: var(--oc-space-2);
   text-decoration: none;
   color: inherit;
@@ -16,6 +22,10 @@
   &--compact {
     flex: none;
     width: 280px;
+
+    .oc-course-card__progress-track {
+      margin-top: auto;
+    }
   }
 }
 
@@ -33,6 +43,12 @@
   &.oc-thumb--accent-2 {
     background: linear-gradient(135deg, var(--oc-accent-2-400), var(--oc-accent-2-700));
   }
+}
+
+.oc-course-card__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .oc-course-card__subject-tag {
@@ -60,6 +76,10 @@
 
 .oc-course-card__title {
   font-size: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .oc-course-card__teacher {
@@ -139,12 +159,16 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 .oc-course-card__buy {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 .oc-course-card__price {

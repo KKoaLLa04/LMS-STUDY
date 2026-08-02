@@ -3,12 +3,18 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { IconComponent } from '../icon/icon.component';
 import { IconName } from '../../models/student-dashboard.model';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { PermissionModule } from '../../../../core/auth/models/auth.model';
 
 interface NavItem {
   icon: IconName;
   label: string;
   link: boolean;
   route?: string;
+  /** Không có module = luôn hiện (vd. Tổng quan). Có module thì cần quyền Xem trên module đó. */
+  module?: PermissionModule;
+  /** Mục chỉ Admin mới thấy — không nằm trong hệ thống phân quyền module (vd. Danh sách giảng viên). */
+  adminOnly?: boolean;
 }
 
 @Component({
@@ -37,18 +43,33 @@ export class StudentSidebarComponent {
   @Input({ required: true }) grade!: string;
   @Input({ required: true }) level!: number;
 
-  readonly navItems: NavItem[] = [
+  constructor(private authService: AuthService) {}
+
+  private readonly allNavItems: NavItem[] = [
     { icon: 'home', label: 'Tổng quan', link: true, route: '/dashboard' },
-    { icon: 'award', label: 'Thành tích', link: true, route: '/achievements' },
-    { icon: 'layers', label: 'Khối học', link: true, route: '/khoi-hoc' },
-    { icon: 'tag', label: 'Danh mục khóa học', link: true, route: '/course-categories' },
-    { icon: 'book', label: 'Khóa học', link: true, route: '/courses' },
-    { icon: 'file-text', label: 'Tài liệu', link: true, route: '/documents' },
-    { icon: 'help-circle', label: 'Quiz', link: true, route: '/quizzes' },
-    { icon: 'graduation-cap', label: 'Danh sách giảng viên', link: true, route: '/teachers' },
-    { icon: 'users', label: 'Danh sách học sinh', link: true, route: '/students' },
-    { icon: 'message-circle', label: 'Thảo luận', link: true, route: '/discussion-forums' }
+    { icon: 'award', label: 'Thành tích', link: true, route: '/achievements', module: 'Achievements' },
+    { icon: 'layers', label: 'Khối học', link: true, route: '/khoi-hoc', module: 'KhoiHocs' },
+    { icon: 'tag', label: 'Danh mục khóa học', link: true, route: '/course-categories', module: 'CourseCategories' },
+    { icon: 'book', label: 'Khóa học', link: true, route: '/courses', module: 'Courses' },
+    { icon: 'file-text', label: 'Tài liệu', link: true, route: '/documents', module: 'Documents' },
+    { icon: 'help-circle', label: 'Quiz', link: true, route: '/quizzes', module: 'Quizzes' },
+    { icon: 'graduation-cap', label: 'Danh sách giảng viên', link: true, route: '/teachers', adminOnly: true },
+    { icon: 'users', label: 'Danh sách học sinh', link: true, route: '/students', module: 'Students' },
+    { icon: 'message-circle', label: 'Thảo luận', link: true, route: '/discussion-forums', module: 'DiscussionForums' },
+    { icon: 'shield', label: 'Phân quyền', link: true, route: '/permissions', adminOnly: true }
   ];
+
+  // Admin luôn thấy toàn bộ menu; Teacher chỉ thấy mục không yêu cầu module (Tổng quan) và mục
+  // có quyền Xem — ẩn hẳn "Danh sách giảng viên" (adminOnly) khỏi Teacher thay vì để bấm vào rồi
+  // bị điều hướng ngược lại bởi adminOnlyGuard.
+  get navItems(): NavItem[] {
+    const isAdmin = this.authService.getRole()?.toLowerCase() === 'admin';
+    return this.allNavItems.filter((item) => {
+      if (item.adminOnly) return isAdmin;
+      if (!item.module) return true;
+      return isAdmin || this.authService.hasPermission(item.module, 'view');
+    });
+  }
 
   get showLabels(): boolean {
     // On mobile the sidebar is either fully off-screen or fully open at 250px —

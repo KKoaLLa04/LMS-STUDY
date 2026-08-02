@@ -25,10 +25,25 @@
     }
 
     <div class="card usr-card">
-      <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
-        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-1"></i>{{ createLabel }}
-        </button>
+      <div class="card-header d-flex align-items-center flex-wrap gap-2">
+        <div class="input-group usr-search">
+          <input
+            type="text"
+            class="form-control"
+            [placeholder]="'Tìm kiếm ' + entityLabel + '...'"
+            [(ngModel)]="searchInput"
+            (keyup.enter)="onSearch()"
+          />
+          <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+
+        @if (auth.hasPermission('Students', 'create')) {
+          <button type="button" class="btn btn-primary ms-auto" (click)="openCreateModal()">
+            <i class="bi bi-plus-circle me-1"></i>{{ createLabel }}
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -42,8 +57,14 @@
         } @else if (users.length === 0) {
           <div class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            Chưa có {{ entityLabel }} nào.
-            <a href="javascript:void(0)" (click)="openCreateModal()">{{ createLabel }}</a>
+            @if (keyword) {
+              Không tìm thấy {{ entityLabel }} nào với từ khóa "<strong>{{ keyword }}</strong>"
+            } @else if (auth.hasPermission('Students', 'create')) {
+              Chưa có {{ entityLabel }} nào.
+              <a href="javascript:void(0)" (click)="openCreateModal()">{{ createLabel }}</a>
+            } @else {
+              Chưa có {{ entityLabel }} nào.
+            }
           </div>
         } @else {
           <div class="table-responsive">
@@ -62,7 +83,7 @@
               <tbody>
                 @for (item of users; track item.id; let i = $index) {
                   <tr>
-                    <td class="text-center align-middle text-muted">{{ i + 1 }}</td>
+                    <td class="text-center align-middle text-muted">{{ startIndex + i }}</td>
                     <td class="align-middle">
                       <div class="d-flex align-items-center gap-2">
                         @if (item.avatarUrl) {
@@ -84,7 +105,7 @@
                     <td class="align-middle text-muted">{{ item.createdAt | date: 'dd/MM/yyyy' }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
-                        @if (role === 'Student') {
+                        @if (role === 'Student' && auth.hasPermission('Students', 'update')) {
                           <button
                             type="button"
                             class="btn btn-sm btn-outline-success"
@@ -94,22 +115,26 @@
                             <i class="bi bi-award"></i>
                           </button>
                         }
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-primary"
-                          title="Chỉnh sửa"
-                          (click)="openEditModal(item)"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Xóa"
-                          (click)="openDeleteModal(item)"
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
+                        @if (auth.hasPermission('Students', 'update')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Chỉnh sửa"
+                            (click)="openEditModal(item)"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        }
+                        @if (auth.hasPermission('Students', 'delete')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Xóa"
+                            (click)="openDeleteModal(item)"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>
@@ -119,6 +144,54 @@
           </div>
         }
       </div>
+
+      @if (!loading && totalCount > 0) {
+        <div class="card-footer d-flex align-items-center flex-wrap gap-2">
+          <div class="text-muted small">
+            Hiển thị {{ startIndex }}–{{ endIndex }} trong tổng số {{ totalCount }} {{ entityLabel }}
+          </div>
+
+          <nav class="ms-auto">
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="page === 1">
+                <button class="page-link" (click)="onPageChange(page - 1)">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+              </li>
+
+              @if (pageNumbers[0] > 1) {
+                <li class="page-item">
+                  <button class="page-link" (click)="onPageChange(1)">1</button>
+                </li>
+                @if (pageNumbers[0] > 2) {
+                  <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+              }
+
+              @for (p of pageNumbers; track p) {
+                <li class="page-item" [class.active]="p === page">
+                  <button class="page-link" (click)="onPageChange(p)">{{ p }}</button>
+                </li>
+              }
+
+              @if (pageNumbers[pageNumbers.length - 1] < totalPages) {
+                @if (pageNumbers[pageNumbers.length - 1] < totalPages - 1) {
+                  <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="onPageChange(totalPages)">{{ totalPages }}</button>
+                </li>
+              }
+
+              <li class="page-item" [class.disabled]="page === totalPages">
+                <button class="page-link" (click)="onPageChange(page + 1)">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
     </div>
 
   </div>
@@ -295,9 +368,76 @@
                 <input type="number" min="0" class="form-control" formControlName="experienceYears" />
               </div>
             </div>
-            <div class="mb-1">
+            <div class="mb-3">
               <label class="form-label">Giới thiệu</label>
               <textarea class="form-control" rows="3" formControlName="bio" placeholder="Giới thiệu ngắn về giáo viên"></textarea>
+            </div>
+
+            <div class="mb-1">
+              <label class="form-label">Phân quyền module</label>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Module</th>
+                      <th class="text-center" style="width: 70px">Xem</th>
+                      <th class="text-center" style="width: 70px">Tạo</th>
+                      <th class="text-center" style="width: 70px">Sửa</th>
+                      <th class="text-center" style="width: 70px">Xóa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (m of permissionModules; track m.module) {
+                      <tr>
+                        <td>{{ m.label }}</td>
+                        <td class="text-center">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [(ngModel)]="permissionsMap[m.module].canView"
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                        <td class="text-center">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [(ngModel)]="permissionsMap[m.module].canCreate"
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                        <td class="text-center">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [(ngModel)]="permissionsMap[m.module].canUpdate"
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                        <td class="text-center">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [(ngModel)]="permissionsMap[m.module].canDelete"
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="form-text">
+                Ngoài quyền riêng ở trên, giáo viên còn được cộng gộp quyền từ nhóm quyền đang tham gia
+                (quản lý ở trang "Phân quyền").
+                @if (modalMode === 'edit') {
+                  @if (editingItem?.permissionGroupNames?.length) {
+                    Đang thuộc nhóm: <strong>{{ editingItem?.permissionGroupNames?.join(', ') }}</strong>.
+                  } @else {
+                    Hiện chưa thuộc nhóm quyền nào.
+                  }
+                }
+              </div>
             </div>
           }
 

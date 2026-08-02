@@ -29,9 +29,11 @@
         <span class="text-muted small">
           Kho tài liệu dùng chung — độc lập với khóa học, học viên xem trực tiếp hoặc gắn vào nhiều bài học.
         </span>
-        <button type="button" class="btn btn-primary btn-sm" (click)="openCreateModal()">
-          <i class="bi bi-plus-lg me-1"></i>Thêm tài liệu
-        </button>
+        @if (auth.hasPermission('Documents', 'create')) {
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateModal()">
+            <i class="bi bi-plus-lg me-1"></i>Thêm tài liệu
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -83,12 +85,16 @@
                       </span>
                     </td>
                     <td class="text-center align-middle">
-                      <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Chỉnh sửa" (click)="openEditModal(item)">
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="deleteItem(item)">
-                        <i class="bi bi-trash"></i>
-                      </button>
+                      @if (auth.hasPermission('Documents', 'update')) {
+                        <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Chỉnh sửa" (click)="openEditModal(item)">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                      }
+                      @if (auth.hasPermission('Documents', 'delete')) {
+                        <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="deleteItem(item)">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      }
                     </td>
                   </tr>
                 }

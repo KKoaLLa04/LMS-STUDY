@@ -1,0 +1,117 @@
+.oc-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oc-accordion__chapter {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.oc-accordion__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--oc-space-3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.oc-accordion__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oc-accordion__title {
+  font-size: 15px;
+}
+
+.oc-accordion__meta {
+  font-size: 11px;
+}
+
+.oc-accordion__chevron {
+  display: flex;
+  flex: none;
+  transition: transform 0.3s ease;
+}
+.oc-accordion__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.oc-accordion__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-accordion__lesson {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px var(--oc-space-3);
+  border: none;
+  border-top: 1px solid var(--oc-divider);
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: default;
+}
+.oc-accordion__lesson.is-highlighted {
+  background: var(--oc-accent-100);
+}
+.oc-accordion__lesson.is-playable {
+  cursor: pointer;
+}
+.oc-accordion__lesson.is-playable:hover {
+  background: color-mix(in srgb, var(--oc-text) 4%, transparent);
+}
+
+.oc-accordion__lesson-video {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  background: #000;
+  border-top: 1px solid var(--oc-divider);
+}
+
+.oc-accordion__lesson-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.oc-accordion__lesson-icon.is-done {
+  background: var(--oc-accent);
+}
+.oc-accordion__lesson-icon.is-locked {
+  background: var(--oc-neutral-200);
+}
+.oc-accordion__lesson-icon.is-current {
+  background: var(--oc-accent-2-200);
+  padding-left: 1px;
+}
+
+.oc-accordion__lesson-title {
+  flex: 1;
+  font-size: 13px;
+}
+.oc-accordion__lesson-title.is-locked {
+  opacity: 0.45;
+}
+
+.oc-accordion__lesson-duration {
+  font-size: 11px;
+}/*# sourceMappingURL=chapter-accordion.component.css.map */

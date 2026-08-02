@@ -1,4 +1,6 @@
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +33,8 @@ public class AchievementGroupsController : ControllerBase
     /// [Admin] Tạo mới nhóm huy hiệu
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.Achievements, PermissionAction.Create)]
     public async Task<IActionResult> CreateGroup([FromBody] CreateAchievementGroupDto dto)
     {
         var result = await _groupService.CreateAsync(dto);

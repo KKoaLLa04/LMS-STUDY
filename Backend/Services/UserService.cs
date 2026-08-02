@@ -10,11 +10,13 @@ namespace Backend.Services;
 public class UserService : IUserService
 {
     private readonly AppDbContext _context;
+    private readonly ITeacherPermissionService _teacherPermissionService;
     private readonly ILogger<UserService> _logger;
 
-    public UserService(AppDbContext context, ILogger<UserService> logger)
+    public UserService(AppDbContext context, ITeacherPermissionService teacherPermissionService, ILogger<UserService> logger)
     {
         _context = context;
+        _teacherPermissionService = teacherPermissionService;
         _logger = logger;
     }
 
@@ -26,10 +28,11 @@ public class UserService : IUserService
             if (role.HasValue)
                 query = query.Where(u => u.Role == role.Value);
 
-            var items = await query
+            var users = await query
                 .OrderByDescending(u => u.CreatedAt)
-                .Select(u => MapToDto(u))
                 .ToListAsync();
+
+            var items = await MapToDtosAsync(users);
 
             return ApiResponse<List<UserDto>>.Ok(items);
         }
@@ -37,6 +40,50 @@ public class UserService : IUserService
         {
             _logger.LogError(ex, "Lỗi khi lấy danh sách người dùng");
             return ApiResponse<List<UserDto>>.Error("Đã xảy ra lỗi khi lấy danh sách người dùng");
+        }
+    }
+
+    public async Task<ApiResponse<PagedResultDto<UserDto>>> GetPagedAsync(UserRole? role, int page, int pageSize, string? keyword)
+    {
+        try
+        {
+            var query = _context.Users.AsQueryable();
+            if (role.HasValue)
+                query = query.Where(u => u.Role == role.Value);
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var kw = keyword.Trim();
+                query = query.Where(u =>
+                    u.FullName.Contains(kw) ||
+                    u.Email.Contains(kw) ||
+                    u.Username.Contains(kw) ||
+                    u.Phone.Contains(kw));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var items = await MapToDtosAsync(users);
+
+            return ApiResponse<PagedResultDto<UserDto>>.Ok(new PagedResultDto<UserDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi lấy danh sách người dùng (phân trang)");
+            return ApiResponse<PagedResultDto<UserDto>>.Error("Đã xảy ra lỗi khi lấy danh sách người dùng");
         }
     }
 
@@ -48,7 +95,7 @@ public class UserService : IUserService
             if (user == null)
                 return ApiResponse<UserDto>.NotFound("Không tìm thấy người dùng");
 
-            return ApiResponse<UserDto>.Ok(MapToDto(user));
+            return ApiResponse<UserDto>.Ok(await MapToDtoAsync(user));
         }
         catch (Exception ex)
         {
@@ -57,7 +104,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<ApiResponse<UserDto>> CreateAsync(CreateUserDto dto)
+    public async Task<ApiResponse<UserDto>> CreateAsync(CreateUserDto dto, bool callerIsAdmin)
     {
         try
         {
@@ -93,7 +140,11 @@ public class UserService : IUserService
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return ApiResponse<UserDto>.Ok(MapToDto(user), "Tạo tài khoản thành công");
+            // Chỉ Admin mới được đặt quyền module, và chỉ có ý nghĩa với tài khoản Teacher.
+            if (callerIsAdmin && dto.Role == UserRole.Teacher && dto.Permissions != null)
+                await _teacherPermissionService.SetForUserAsync(user.Id, dto.Permissions);
+
+            return ApiResponse<UserDto>.Ok(await MapToDtoAsync(user), "Tạo tài khoản thành công");
         }
         catch (Exception ex)
         {
@@ -102,7 +153,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<ApiResponse<UserDto>> UpdateAsync(int id, UpdateUserDto dto)
+    public async Task<ApiResponse<UserDto>> UpdateAsync(int id, UpdateUserDto dto, bool callerIsAdmin)
     {
         try
         {
@@ -138,7 +189,11 @@ public class UserService : IUserService
 
             await _context.SaveChangesAsync();
 
-            return ApiResponse<UserDto>.Ok(MapToDto(user), "Cập nhật tài khoản thành công");
+            // Chỉ Admin mới được đặt quyền module, và chỉ có ý nghĩa với tài khoản Teacher.
+            if (callerIsAdmin && dto.Role == UserRole.Teacher && dto.Permissions != null)
+                await _teacherPermissionService.SetForUserAsync(user.Id, dto.Permissions);
+
+            return ApiResponse<UserDto>.Ok(await MapToDtoAsync(user), "Cập nhật tài khoản thành công");
         }
         catch (Exception ex)
         {
@@ -219,7 +274,7 @@ public class UserService : IUserService
         Bio = user.Bio
     };
 
-    private static UserDto MapToDto(User user) => new()
+    private static UserDto MapToDto(User user, List<TeacherPermissionDto> permissions, List<string> groupNames) => new()
     {
         Id = user.Id,
         Username = user.Username,
@@ -236,6 +291,66 @@ public class UserService : IUserService
         Bio = user.Bio,
         KhoiHocId = user.KhoiHocId,
         Role = user.Role.ToString(),
-        CreatedAt = user.CreatedAt
+        CreatedAt = user.CreatedAt,
+        Permissions = permissions,
+        PermissionGroupNames = groupNames
     };
+
+    private async Task<UserDto> MapToDtoAsync(User user)
+    {
+        if (user.Role != UserRole.Teacher)
+            return MapToDto(user, [], []);
+
+        var permissions = await _teacherPermissionService.GetForUserAsync(user.Id);
+        var groupNames = await (
+            from ug in _context.UserPermissionGroups.AsNoTracking()
+            join g in _context.PermissionGroups.AsNoTracking() on ug.GroupId equals g.Id
+            where ug.UserId == user.Id
+            select g.Name
+        ).ToListAsync();
+
+        return MapToDto(user, permissions, groupNames);
+    }
+
+    // Nạp quyền + nhóm quyền cho toàn bộ giáo viên trong danh sách bằng vài truy vấn duy nhất
+    // (tránh N+1) rồi gộp lại theo UserId — số lượng giáo viên trong một trường thường nhỏ nên
+    // gộp trong bộ nhớ là đủ.
+    private async Task<List<UserDto>> MapToDtosAsync(List<User> users)
+    {
+        var teacherIds = users.Where(u => u.Role == UserRole.Teacher).Select(u => u.Id).ToList();
+
+        var permissionsByUser = teacherIds.Count == 0
+            ? new Dictionary<int, List<TeacherPermissionDto>>()
+            : (await _context.TeacherModulePermissions
+                .AsNoTracking()
+                .Where(p => teacherIds.Contains(p.UserId))
+                .ToListAsync())
+              .GroupBy(p => p.UserId)
+              .ToDictionary(g => g.Key, g => g.Select(p => new TeacherPermissionDto
+              {
+                  Module = p.Module,
+                  CanView = p.CanView,
+                  CanCreate = p.CanCreate,
+                  CanUpdate = p.CanUpdate,
+                  CanDelete = p.CanDelete
+              }).ToList());
+
+        var groupNamesByUser = teacherIds.Count == 0
+            ? new Dictionary<int, List<string>>()
+            : (await (
+                from ug in _context.UserPermissionGroups.AsNoTracking()
+                join g in _context.PermissionGroups.AsNoTracking() on ug.GroupId equals g.Id
+                where teacherIds.Contains(ug.UserId)
+                select new { ug.UserId, g.Name }
+              ).ToListAsync())
+              .GroupBy(x => x.UserId)
+              .ToDictionary(g => g.Key, g => g.Select(x => x.Name).ToList());
+
+        return users
+            .Select(u => MapToDto(
+                u,
+                permissionsByUser.TryGetValue(u.Id, out var perms) ? perms : [],
+                groupNamesByUser.TryGetValue(u.Id, out var names) ? names : []))
+            .ToList();
+    }
 }

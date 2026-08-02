@@ -147,6 +147,22 @@ public class DiscussionForumService : IDiscussionForumService
         return ids;
     }
 
+    // Giờ mọi user đã đăng nhập (kể cả học sinh) đều tự đăng được bài — không thể tin thẳng
+    // AuthorName do client gửi lên nữa (dễ bị mạo danh người khác), phải lấy tên thật từ tài
+    // khoản đang đăng nhập. Chỉ fallback về dto.AuthorName cho trường hợp không xác định được
+    // currentUserId (không nên xảy ra vì action đã yêu cầu [Authorize]).
+    private async Task<string> ResolveAuthorNameAsync(int? currentUserId, string fallback)
+    {
+        if (currentUserId is null) return fallback;
+
+        var fullName = await _context.Users
+            .Where(u => u.Id == currentUserId)
+            .Select(u => u.FullName)
+            .FirstOrDefaultAsync();
+
+        return string.IsNullOrWhiteSpace(fullName) ? fallback : fullName;
+    }
+
     public async Task<ApiResponse<DiscussionPostResponseDto>> CreatePostAsync(CreateDiscussionPostDto dto, int? currentUserId)
     {
         try
@@ -159,7 +175,7 @@ public class DiscussionForumService : IDiscussionForumService
             {
                 Title = dto.Title,
                 Content = dto.Content,
-                AuthorName = dto.AuthorName,
+                AuthorName = await ResolveAuthorNameAsync(currentUserId, dto.AuthorName),
                 UserId = currentUserId,
                 CourseId = dto.CourseId,
                 ParentPostId = null
@@ -263,7 +279,7 @@ public class DiscussionForumService : IDiscussionForumService
             {
                 Title = dto.Title,
                 Content = dto.Content,
-                AuthorName = dto.AuthorName,
+                AuthorName = await ResolveAuthorNameAsync(currentUserId, dto.AuthorName),
                 UserId = currentUserId,
                 CourseId = parentPost.CourseId,
                 ParentPostId = parentPostId

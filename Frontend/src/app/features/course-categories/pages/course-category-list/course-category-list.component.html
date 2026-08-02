@@ -26,9 +26,11 @@
 
     <div class="card kh-card">
       <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
-        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-1"></i>Thêm danh mục
-        </button>
+        @if (auth.hasPermission('CourseCategories', 'create')) {
+          <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+            <i class="bi bi-plus-circle me-1"></i>Thêm danh mục
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -42,8 +44,12 @@
         } @else if (categories.length === 0) {
           <div class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            Chưa có danh mục nào.
-            <a href="javascript:void(0)" (click)="openCreateModal()">Thêm danh mục đầu tiên</a>
+            @if (auth.hasPermission('CourseCategories', 'create')) {
+              Chưa có danh mục nào.
+              <a href="javascript:void(0)" (click)="openCreateModal()">Thêm danh mục đầu tiên</a>
+            } @else {
+              Chưa có danh mục nào.
+            }
           </div>
         } @else {
           <div class="table-responsive">
@@ -68,22 +74,26 @@
                     <td class="align-middle">{{ category.orderNumber }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-primary"
-                          title="Chỉnh sửa"
-                          (click)="openEditModal(category)"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Xóa"
-                          (click)="openDeleteModal(category)"
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
+                        @if (auth.hasPermission('CourseCategories', 'update')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Chỉnh sửa"
+                            (click)="openEditModal(category)"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        }
+                        @if (auth.hasPermission('CourseCategories', 'delete')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Xóa"
+                            (click)="openDeleteModal(category)"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>

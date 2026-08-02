@@ -1,0 +1,329 @@
+@charset "UTF-8";
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --oc-bg: #f5ead8;
+  --oc-surface: #ebddc5;
+  --oc-text: #201e1d;
+  --oc-accent: #c67139;
+  --oc-accent-2: #7a8a5e;
+  --oc-divider: color-mix(in srgb, #201e1d 16%, transparent);
+  --oc-neutral-100: #f9f4ed;
+  --oc-neutral-200: #eee7db;
+  --oc-neutral-300: #dcd3c4;
+  --oc-neutral-400: #c0b6a5;
+  --oc-neutral-500: #a19786;
+  --oc-neutral-600: #82796a;
+  --oc-neutral-700: #645c50;
+  --oc-neutral-800: #474238;
+  --oc-neutral-900: #2e2b25;
+  --oc-accent-100: #fff2eb;
+  --oc-accent-200: #ffe1d0;
+  --oc-accent-300: #ffc6a5;
+  --oc-accent-400: #f6a06b;
+  --oc-accent-500: #d67f48;
+  --oc-accent-600: #b2622d;
+  --oc-accent-700: #8c491a;
+  --oc-accent-800: #643312;
+  --oc-accent-900: #402310;
+  --oc-accent-2-100: #f0fae1;
+  --oc-accent-2-200: #e1eecc;
+  --oc-accent-2-300: #ccdbb2;
+  --oc-accent-2-400: #aebf92;
+  --oc-accent-2-500: #8fa073;
+  --oc-accent-2-600: #728157;
+  --oc-accent-2-700: #56633f;
+  --oc-accent-2-800: #3d472b;
+  --oc-accent-2-900: #272e1b;
+  --oc-font-heading: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --oc-font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --oc-space-1: 4px;
+  --oc-space-2: 8px;
+  --oc-space-3: 13px;
+  --oc-space-4: 18px;
+  --oc-space-6: 26px;
+  --oc-space-8: 35px;
+  --oc-radius-sm: 8px;
+  --oc-radius-md: 16px;
+  --oc-radius-lg: 28px;
+  --oc-shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+  --oc-shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+  --oc-shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
+}
+
+@keyframes ocFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ocFloatSlow {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+.oc-root {
+  min-height: 100vh;
+  background: var(--oc-bg);
+  color: var(--oc-text);
+  font-family: var(--oc-font-body);
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-root h1, .oc-root h2, .oc-root h3, .oc-root h4 {
+  font-family: var(--oc-font-heading);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.oc-text-muted {
+  color: color-mix(in srgb, var(--oc-text) 55%, transparent);
+}
+
+.oc-hr {
+  height: 1px;
+  border: 0;
+  margin: var(--oc-space-4) 0;
+  background: var(--oc-divider);
+}
+
+.oc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--oc-font-heading);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--oc-text);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: var(--oc-space-2) calc(var(--oc-space-3) * 1.2);
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.oc-btn svg {
+  display: block;
+}
+
+.oc-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.oc-btn-primary {
+  background: var(--oc-accent);
+  color: var(--oc-bg);
+}
+
+.oc-btn-primary:hover {
+  background: var(--oc-accent-600);
+}
+
+.oc-btn-primary:active {
+  background: var(--oc-accent-700);
+}
+
+.oc-btn-secondary {
+  border-color: var(--oc-divider);
+}
+
+.oc-btn-secondary:hover {
+  background: color-mix(in srgb, var(--oc-text) 7%, transparent);
+}
+
+.oc-btn-ghost {
+  color: var(--oc-accent);
+  padding-inline: var(--oc-space-1);
+}
+
+.oc-btn-ghost:hover {
+  background: color-mix(in srgb, var(--oc-accent) 10%, transparent);
+}
+
+.oc-btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.oc-btn-block {
+  width: 100%;
+  margin-top: var(--oc-space-2);
+}
+
+.oc-input {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--oc-text);
+  caret-color: var(--oc-accent);
+  background: var(--oc-surface);
+  border: 1px solid var(--oc-divider);
+  border-radius: 999px;
+}
+
+.oc-input:hover {
+  border-color: color-mix(in srgb, var(--oc-text) 45%, transparent);
+}
+
+.oc-input:focus-visible {
+  border-color: var(--oc-accent);
+  outline: none;
+}
+
+.oc-seg {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--oc-divider);
+  border-radius: 999px;
+}
+
+.oc-seg-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--oc-divider);
+  color: var(--oc-text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.oc-seg-opt:first-child {
+  border-left: none;
+}
+
+.oc-seg-opt.is-active {
+  background: var(--oc-accent);
+  color: var(--oc-bg);
+}
+
+.oc-seg-opt:not(.is-active):hover {
+  background: color-mix(in srgb, var(--oc-text) 7%, transparent);
+}
+
+.oc-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oc-space-2);
+  padding: var(--oc-space-3);
+  border-radius: calc(var(--oc-radius-lg) * 1.15);
+  background: var(--oc-surface);
+}
+
+.oc-card-title {
+  font-family: var(--oc-font-heading);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.oc-elev-sm {
+  box-shadow: var(--oc-shadow-sm);
+}
+
+.oc-elev-md {
+  box-shadow: var(--oc-shadow-md);
+}
+
+.oc-elev-lg {
+  box-shadow: var(--oc-shadow-lg);
+}
+
+.oc-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.oc-tag-accent {
+  background: var(--oc-accent-100);
+  color: var(--oc-accent-800);
+}
+
+.oc-tag-accent-2 {
+  background: var(--oc-accent-2-100);
+  color: var(--oc-accent-2-800);
+}
+
+app-root {
+  display: contents;
+}
+
+/* Light, translucent modal backdrop — content behind the modal stays visible.
+   Set opacity directly (not just via --bs-backdrop-opacity) so it wins
+   regardless of how the browser resolves the custom property here. */
+.modal-backdrop {
+  background-color: #64748B !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5 !important;
+}
+
+/* Chiều cao mặc định cho vùng soạn thảo CKEditor (app-rich-text-editor) — CKEditor gắn
+   DOM ngoài phạm vi encapsulation của Angular nên style phải đặt ở global. */
+.ck-editor__editable_inline {
+  min-height: 200px;
+}
+
+/* Student dashboard design tokens — prefixed --sd- so nothing collides with
+   Bootstrap/AdminLTE's own --bs-* variables used by the admin pages. */
+:root {
+  --sd-bg: #F8FAFC;
+  --sd-text: #1E293B;
+  --sd-heading: #1E1B4B;
+  --sd-muted: #64748B;
+  --sd-subtle: #94A3B8;
+  --sd-indigo: #6366F1;
+  --sd-indigo-light: #818CF8;
+  --sd-violet: #A78BFA;
+  --sd-cyan-from: #67E8F9;
+  --sd-cyan-to: #0891B2;
+  --sd-emerald-from: #6EE7B7;
+  --sd-emerald-to: #059669;
+  --sd-amber-from: #FDBA74;
+  --sd-amber-to: #EA580C;
+  --sd-coral: #F43F5E;
+  --sd-sidebar-bg: #1E1B4B;
+  --sd-sidebar-active: #312E81;
+  --sd-sidebar-text: #C7D2FE;
+  --sd-sidebar-text-muted: #A5B4FC;
+  --sd-radius-card: 20px;
+  --sd-radius-sm: 14px;
+  --sd-radius-pill: 999px;
+  --sd-shadow-card: 0 4px 16px rgba(15, 23, 42, 0.04);
+  --sd-shadow-stat: 0 8px 24px rgba(99, 102, 241, 0.08);
+  --sd-font: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.card-header::after {
+  content: none !important;
+}/*# sourceMappingURL=styles.css.map */

@@ -17,6 +17,8 @@ public class LoginResponseDto
     public DateTime ExpiresAt { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    // Chỉ có dữ liệu khi Role = Teacher — rỗng với Admin (được full quyền ngầm định)/Student.
+    public List<TeacherPermissionDto> Permissions { get; set; } = [];
 }
 
 public class CurrentUserDto
@@ -27,6 +29,8 @@ public class CurrentUserDto
     public string? AvatarUrl { get; set; }
     public string Role { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    // Chỉ có dữ liệu khi Role = Teacher — rỗng với Admin (được full quyền ngầm định)/Student.
+    public List<TeacherPermissionDto> Permissions { get; set; } = [];
 }
 
 public class ChangePasswordDto

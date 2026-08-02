@@ -26,6 +26,39 @@
   }
 }
 
+.oc-disc__composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.oc-disc__composer-title {
+  font-weight: 600;
+}
+
+.oc-disc__composer-content {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.oc-disc__composer-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.oc-disc__login-prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+
+  span {
+    flex: 1;
+  }
+}
+
 .oc-disc__list {
   display: flex;
   flex-direction: column;
@@ -152,4 +185,23 @@
   line-height: 1.5;
   margin: 0 0 6px;
   white-space: pre-wrap;
+}
+
+.oc-disc__reply-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--oc-divider);
+
+  textarea {
+    resize: vertical;
+    font-family: inherit;
+    font-size: 13px;
+  }
+}
+
+.oc-disc__reply-submit {
+  align-self: flex-end;
 }

@@ -1,0 +1,184 @@
+@charset "UTF-8";
+:host {
+  display: contents;
+}
+
+/* ── Greeting row ── */
+.sd-greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sd-greeting-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--sd-heading);
+}
+
+.sd-greeting-sub {
+  margin: 6px 0 0 0;
+  font-size: 14.5px;
+  color: var(--sd-muted);
+  font-weight: 500;
+}
+
+.sd-level-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 10px 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.sd-level-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--sd-violet), var(--sd-indigo));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sd-level-label {
+  font-size: 12px;
+  color: var(--sd-muted);
+  font-weight: 600;
+}
+
+.sd-xp-track {
+  width: 120px;
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: var(--sd-radius-pill);
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sd-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sd-indigo), var(--sd-violet));
+  border-radius: var(--sd-radius-pill);
+}
+
+/* ── Stats grid ── */
+.sd-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+/* ── Two-column content ── */
+.sd-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .sd-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sd-card {
+  background: #fff;
+  border: 1px solid #EEF0F4;
+  border-radius: var(--sd-radius-card);
+  box-shadow: var(--sd-shadow-card);
+}
+
+.sd-courses-card {
+  overflow: hidden;
+}
+.sd-courses-card .sd-card-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #F1F5F9;
+}
+.sd-courses-card h2 {
+  font-size: 17px;
+}
+
+.sd-deadlines-card,
+.sd-activity-card {
+  padding: 20px 22px;
+}
+.sd-deadlines-card h2,
+.sd-activity-card h2 {
+  font-size: 16px;
+}
+
+.sd-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sd-card-header-tight {
+  margin-bottom: 16px;
+}
+
+.sd-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sd-card-header h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--sd-heading);
+}
+
+.sd-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sd-card-icon.sd-card-icon-indigo {
+  background: #EEF2FF;
+}
+.sd-card-icon.sd-card-icon-rose {
+  background: #FEF2F2;
+}
+.sd-card-icon.sd-card-icon-cyan {
+  background: #ECFEFF;
+}
+
+.sd-see-all {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--sd-indigo);
+  text-decoration: none;
+}
+.sd-see-all:hover {
+  text-decoration: underline;
+}
+
+.sd-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sd-deadline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sd-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}/*# sourceMappingURL=student-dashboard.component.css.map */

@@ -29,9 +29,11 @@
         <span class="text-muted small">
           Kho quiz dùng chung — độc lập với khóa học, học viên làm trực tiếp hoặc gắn vào nhiều bài học.
         </span>
-        <button type="button" class="btn btn-primary btn-sm" (click)="openCreateModal()">
-          <i class="bi bi-plus-lg me-1"></i>Thêm quiz
-        </button>
+        @if (auth.hasPermission('Quizzes', 'create')) {
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateModal()">
+            <i class="bi bi-plus-lg me-1"></i>Thêm quiz
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -75,15 +77,19 @@
                       </span>
                     </td>
                     <td class="text-center align-middle">
-                      <button type="button" class="btn btn-sm btn-outline-primary me-1" (click)="openQuestionsModal(item)">
-                        <i class="bi bi-list-check me-1"></i>Câu hỏi
-                      </button>
-                      <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Sửa thông tin" (click)="openEditInfoModal(item)">
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="deleteItem(item)">
-                        <i class="bi bi-trash"></i>
-                      </button>
+                      @if (auth.hasPermission('Quizzes', 'update')) {
+                        <button type="button" class="btn btn-sm btn-outline-primary me-1" (click)="openQuestionsModal(item)">
+                          <i class="bi bi-list-check me-1"></i>Câu hỏi
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Sửa thông tin" (click)="openEditInfoModal(item)">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                      }
+                      @if (auth.hasPermission('Quizzes', 'delete')) {
+                        <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="deleteItem(item)">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      }
                     </td>
                   </tr>
                 }

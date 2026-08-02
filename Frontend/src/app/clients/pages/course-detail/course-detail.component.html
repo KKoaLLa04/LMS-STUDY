@@ -7,7 +7,15 @@
   @if (course(); as course) {
     <div class="oc-detail__hero">
       @if (isPlayingPreview() && course.previewVideoUrl) {
-        <video class="oc-detail__video oc-detail__video--player" [src]="course.previewVideoUrl" controls autoplay></video>
+        <video
+          class="oc-detail__video oc-detail__video--player"
+          [src]="course.previewVideoUrl"
+          controls
+          autoplay
+          controlsList="nodownload noremoteplayback"
+          disablePictureInPicture
+          (contextmenu)="$event.preventDefault()"
+        ></video>
       } @else {
         <div
           class="oc-detail__video"
@@ -75,10 +83,12 @@
               <div class="oc-detail__progress-fill" [style.width.%]="course.progressPercent"></div>
             </div>
           </div>
-          <button type="button" class="oc-btn oc-btn-primary oc-btn-block">{{ ctaLabel() }}</button>
+          <button type="button" class="oc-btn oc-btn-primary oc-btn-block" (click)="continueLearning()">{{ ctaLabel() }}</button>
         } @else {
           <div class="oc-detail__price">{{ course.price | ocPrice }}</div>
-          <button type="button" class="oc-btn oc-btn-primary oc-btn-block">Đăng ký khóa học</button>
+          <button type="button" class="oc-btn oc-btn-primary oc-btn-block" (click)="enrollNow()">
+            Đăng ký khóa học
+          </button>
         }
       </div>
     </div>
@@ -104,7 +114,11 @@
 
     @switch (activeTab()) {
       @case ('content') {
-        <app-oc-chapter-accordion [chapters]="course.chapters"></app-oc-chapter-accordion>
+        <app-oc-chapter-accordion
+          [chapters]="course.chapters"
+          (videoBlocked)="onLessonVideoBlocked()"
+          (lessonCompleted)="onLessonCompleted()"
+        ></app-oc-chapter-accordion>
       }
       @case ('materials') {
         <div class="oc-detail__materials">

@@ -90,6 +90,8 @@ builder.Services.AddScoped<IAchievementConditionService, AchievementConditionSer
 builder.Services.AddScoped<IAchievementEvaluationService, AchievementEvaluationService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITeacherPermissionService, TeacherPermissionService>();
+builder.Services.AddScoped<IPermissionGroupService, PermissionGroupService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

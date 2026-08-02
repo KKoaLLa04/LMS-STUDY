@@ -23,6 +23,9 @@ public class ApiResponse<T>
     public static ApiResponse<T> Unauthorized(string message) =>
         new() { Success = false, Message = message, HttpStatusCode = 401 };
 
+    public static ApiResponse<T> Forbidden(string message) =>
+        new() { Success = false, Message = message, HttpStatusCode = 403 };
+
     public static ApiResponse<T> Error(string message) =>
         new() { Success = false, Message = message, HttpStatusCode = 500 };
 }

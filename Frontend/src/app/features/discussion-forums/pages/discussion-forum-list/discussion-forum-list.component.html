@@ -43,9 +43,11 @@
             <i class="bi bi-search"></i>
           </button>
         </div>
-        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-1"></i>Tạo bài viết
-        </button>
+        @if (auth.hasPermission('DiscussionForums', 'create')) {
+          <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+            <i class="bi bi-plus-circle me-1"></i>Tạo bài viết
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -89,12 +91,16 @@
                         <button type="button" class="btn btn-sm btn-outline-secondary" title="Xem & trả lời" (click)="openViewModal(item)">
                           <i class="bi bi-eye"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa" (click)="openEditModal(item)">
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="openDeleteModal(item)">
-                          <i class="bi bi-trash"></i>
-                        </button>
+                        @if (auth.hasPermission('DiscussionForums', 'update')) {
+                          <button type="button" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa" (click)="openEditModal(item)">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        }
+                        @if (auth.hasPermission('DiscussionForums', 'delete')) {
+                          <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa" (click)="openDeleteModal(item)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>
@@ -232,9 +238,11 @@
                       <span class="fw-semibold small">{{ reply.authorName }}</span>
                       <span class="text-muted small ms-1">{{ reply.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa trả lời" (click)="deleteReply(reply)">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    @if (auth.hasPermission('DiscussionForums', 'delete')) {
+                      <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa trả lời" (click)="deleteReply(reply)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    }
                   </div>
                   <p class="mb-0 small">{{ reply.content }}</p>
                 </div>
@@ -242,25 +250,27 @@
             </div>
           }
 
-          <hr />
-          <h6 class="small text-muted mb-2">Trả lời bài viết</h6>
-          <form [formGroup]="replyForm" (ngSubmit)="submitReply()">
-            <div class="mb-2">
-              <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Tiêu đề trả lời..." />
-            </div>
-            <div class="mb-2">
-              <textarea class="form-control form-control-sm" rows="2" formControlName="content" placeholder="Nội dung trả lời..."></textarea>
-            </div>
-            <div class="mb-2">
-              <input type="text" class="form-control form-control-sm" formControlName="authorName" placeholder="Tên tác giả trả lời..." />
-            </div>
-            <button type="submit" class="btn btn-sm btn-primary" [disabled]="replySubmitting">
-              @if (replySubmitting) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              Gửi trả lời
-            </button>
-          </form>
+          @if (auth.hasPermission('DiscussionForums', 'create')) {
+            <hr />
+            <h6 class="small text-muted mb-2">Trả lời bài viết</h6>
+            <form [formGroup]="replyForm" (ngSubmit)="submitReply()">
+              <div class="mb-2">
+                <input type="text" class="form-control form-control-sm" formControlName="title" placeholder="Tiêu đề trả lời..." />
+              </div>
+              <div class="mb-2">
+                <textarea class="form-control form-control-sm" rows="2" formControlName="content" placeholder="Nội dung trả lời..."></textarea>
+              </div>
+              <div class="mb-2">
+                <input type="text" class="form-control form-control-sm" formControlName="authorName" placeholder="Tên tác giả trả lời..." />
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary" [disabled]="replySubmitting">
+                @if (replySubmitting) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                Gửi trả lời
+              </button>
+            </form>
+          }
         }
       </div>
 

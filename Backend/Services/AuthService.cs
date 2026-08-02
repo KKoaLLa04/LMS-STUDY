@@ -13,6 +13,7 @@ public class AuthService : IAuthService
     private readonly ITokenService _tokenService;
     private readonly IPointService _pointService;
     private readonly IAchievementEvaluationService _achievementEvaluationService;
+    private readonly ITeacherPermissionService _teacherPermissionService;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
@@ -20,12 +21,14 @@ public class AuthService : IAuthService
         ITokenService tokenService,
         IPointService pointService,
         IAchievementEvaluationService achievementEvaluationService,
+        ITeacherPermissionService teacherPermissionService,
         ILogger<AuthService> logger)
     {
         _context = context;
         _tokenService = tokenService;
         _pointService = pointService;
         _achievementEvaluationService = achievementEvaluationService;
+        _teacherPermissionService = teacherPermissionService;
         _logger = logger;
     }
 
@@ -47,12 +50,17 @@ public class AuthService : IAuthService
 
             var (token, expiresAt) = _tokenService.GenerateToken(user);
 
+            var permissions = user.Role == UserRole.Teacher
+                ? await _teacherPermissionService.GetEffectivePermissionsAsync(user.Id)
+                : [];
+
             var result = new LoginResponseDto
             {
                 Token = token,
                 ExpiresAt = expiresAt,
                 Username = user.Username,
-                Role = user.Role.ToString()
+                Role = user.Role.ToString(),
+                Permissions = permissions
             };
 
             return ApiResponse<LoginResponseDto>.Ok(result, "Đăng nhập thành công");
@@ -95,6 +103,10 @@ public class AuthService : IAuthService
             if (user == null)
                 return ApiResponse<CurrentUserDto>.NotFound("Không tìm thấy người dùng");
 
+            var permissions = user.Role == UserRole.Teacher
+                ? await _teacherPermissionService.GetEffectivePermissionsAsync(user.Id)
+                : [];
+
             var result = new CurrentUserDto
             {
                 Id = user.Id,
@@ -102,7 +114,8 @@ public class AuthService : IAuthService
                 FullName = user.FullName,
                 AvatarUrl = user.AvatarUrl,
                 Role = user.Role.ToString(),
-                CreatedAt = user.CreatedAt
+                CreatedAt = user.CreatedAt,
+                Permissions = permissions
             };
 
             return ApiResponse<CurrentUserDto>.Ok(result);

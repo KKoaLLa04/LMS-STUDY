@@ -1,0 +1,34 @@
+.activity-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.activity-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-text {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.activity-time {
+  font-size: 11.5px;
+  color: var(--sd-subtle);
+  font-weight: 600;
+  margin-top: 3px;
+}/*# sourceMappingURL=activity-item.component.css.map */

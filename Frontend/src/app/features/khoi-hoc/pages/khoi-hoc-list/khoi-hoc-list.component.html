@@ -26,9 +26,11 @@
 
     <div class="card kh-card">
       <div class="card-header d-flex justify-content-end align-items-center flex-wrap gap-2">
-        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-1"></i>Thêm khối học
-        </button>
+        @if (auth.hasPermission('KhoiHocs', 'create')) {
+          <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+            <i class="bi bi-plus-circle me-1"></i>Thêm khối học
+          </button>
+        }
       </div>
 
       <div class="card-body p-0">
@@ -42,8 +44,12 @@
         } @else if (khoiHocs.length === 0) {
           <div class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            Chưa có khối học nào.
-            <a href="javascript:void(0)" (click)="openCreateModal()">Thêm khối học đầu tiên</a>
+            @if (auth.hasPermission('KhoiHocs', 'create')) {
+              Chưa có khối học nào.
+              <a href="javascript:void(0)" (click)="openCreateModal()">Thêm khối học đầu tiên</a>
+            } @else {
+              Chưa có khối học nào.
+            }
           </div>
         } @else {
           <div class="table-responsive">
@@ -68,22 +74,26 @@
                     <td class="align-middle">{{ khoiHoc.orderNumber }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-primary"
-                          title="Chỉnh sửa"
-                          (click)="openEditModal(khoiHoc)"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Xóa"
-                          (click)="openDeleteModal(khoiHoc)"
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
+                        @if (auth.hasPermission('KhoiHocs', 'update')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Chỉnh sửa"
+                            (click)="openEditModal(khoiHoc)"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        }
+                        @if (auth.hasPermission('KhoiHocs', 'delete')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Xóa"
+                            (click)="openDeleteModal(khoiHoc)"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>

@@ -14,5 +14,12 @@ export const coursesRoutes: Routes = [
       import('./pages/course-preview/course-preview.component').then(
         (m) => m.CoursePreviewComponent
       )
+  },
+  {
+    path: ':id/students',
+    loadComponent: () =>
+      import('./pages/course-students/course-students.component').then(
+        (m) => m.CourseStudentsComponent
+      )
   }
 ];

@@ -1,4 +1,6 @@
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +20,10 @@ public class CourseCategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin/User] Lấy danh sách danh mục khóa học
+    /// [Public] Lấy danh sách danh mục khóa học
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetCategories()
     {
         var result = await _categoryService.GetAllAsync();
@@ -28,9 +31,10 @@ public class CourseCategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin/User] Lấy chi tiết danh mục khóa học
+    /// [Public] Lấy chi tiết danh mục khóa học
     /// </summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetCategory(int id)
     {
         var result = await _categoryService.GetByIdAsync(id);
@@ -41,7 +45,8 @@ public class CourseCategoriesController : ControllerBase
     /// [Admin] Tạo mới danh mục khóa học
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.CourseCategories, PermissionAction.Create)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCourseCategoryDto dto)
     {
         var result = await _categoryService.CreateAsync(dto);
@@ -52,7 +57,8 @@ public class CourseCategoriesController : ControllerBase
     /// [Admin] Cập nhật danh mục khóa học
     /// </summary>
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.CourseCategories, PermissionAction.Update)]
     public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCourseCategoryDto dto)
     {
         var result = await _categoryService.UpdateAsync(id, dto);
@@ -63,7 +69,8 @@ public class CourseCategoriesController : ControllerBase
     /// [Admin] Xóa danh mục khóa học
     /// </summary>
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.CourseCategories, PermissionAction.Delete)]
     public async Task<IActionResult> DeleteCategory(int id)
     {
         var result = await _categoryService.DeleteAsync(id);

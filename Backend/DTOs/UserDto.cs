@@ -48,6 +48,10 @@ public class CreateUserDto
 
     [Required(ErrorMessage = "Vai trò không được để trống")]
     public UserRole Role { get; set; }
+
+    // Chỉ có ý nghĩa khi Role = Teacher, và chỉ Admin mới được đặt (UsersController chặn Teacher
+    // gửi trường này khi tự quản lý Students — xem RequireTeacherPermission(Students, ...)).
+    public List<TeacherPermissionDto>? Permissions { get; set; }
 }
 
 public class UpdateUserDto
@@ -94,6 +98,10 @@ public class UpdateUserDto
 
     [Required(ErrorMessage = "Vai trò không được để trống")]
     public UserRole Role { get; set; }
+
+    // Chỉ có ý nghĩa khi Role = Teacher, và chỉ Admin mới được đặt (UsersController chặn Teacher
+    // gửi trường này khi tự quản lý Students — xem RequireTeacherPermission(Students, ...)).
+    public List<TeacherPermissionDto>? Permissions { get; set; }
 }
 
 public class UserDto
@@ -114,6 +122,12 @@ public class UserDto
     public int? KhoiHocId { get; set; }
     public string Role { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    // Chỉ có dữ liệu khi Role = Teacher. Đây là override riêng (không gộp quyền từ nhóm) — dùng
+    // để hiển thị lại lưới checkbox trong form Edit Teacher.
+    public List<TeacherPermissionDto> Permissions { get; set; } = [];
+    // Tên các nhóm quyền giáo viên đang là thành viên — chỉ để hiển thị tham khảo (readonly),
+    // việc gán/gỡ nhóm thực hiện ở trang Phân quyền, không phải form Edit Teacher.
+    public List<string> PermissionGroupNames { get; set; } = [];
 }
 
 // Thông tin công khai tối thiểu — dùng cho các trang hiển thị người dùng khác (vd. hồ sơ giáo viên),

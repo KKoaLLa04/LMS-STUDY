@@ -20,19 +20,28 @@ public class CourseReviewsController : ControllerBase
 
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    /// <summary>[User] Tổng hợp điểm đánh giá trung bình + phân bố theo số sao của một khóa học</summary>
+    // Dùng riêng cho 2 endpoint AllowAnonymous bên dưới — khách chưa đăng nhập không có claim
+    // NameIdentifier, CurrentUserId (non-null) sẽ ném lỗi nếu gọi thẳng trong trường hợp đó.
+    private int? CurrentUserIdOrNull =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+
+    /// <summary>[Public] Tổng hợp điểm đánh giá trung bình + phân bố theo số sao của một khóa học —
+    /// mở cho khách chưa đăng nhập xem, cùng chính sách với trang chi tiết khóa học.</summary>
     [HttpGet("summary/{courseId:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetSummary(int courseId)
     {
         var result = await _service.GetSummaryAsync(courseId);
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>[User] Danh sách đánh giá của một khóa học (phân trang)</summary>
+    /// <summary>[Public] Danh sách đánh giá của một khóa học (phân trang) — mở cho khách chưa đăng
+    /// nhập xem; IsMine chỉ true khi có đăng nhập và đúng là đánh giá của người gọi.</summary>
     [HttpGet("by-course/{courseId:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByCourse(int courseId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var result = await _service.GetByCourseAsync(courseId, page, pageSize, CurrentUserId);
+        var result = await _service.GetByCourseAsync(courseId, page, pageSize, CurrentUserIdOrNull);
         return StatusCode(result.HttpStatusCode, result);
     }
 

@@ -1,4 +1,6 @@
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.VirtualClassrooms.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +9,7 @@ namespace Backend.Controllers.VirtualClassrooms;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Teacher")]
 public class VirtualClassroomsController : ControllerBase
 {
     private readonly IVirtualClassroomService _service;
@@ -19,6 +21,7 @@ public class VirtualClassroomsController : ControllerBase
 
     /// <summary>Lấy danh sách phòng học theo khóa học</summary>
     [HttpGet("by-course/{courseId}")]
+    [RequireTeacherPermission(PermissionModule.VirtualClassrooms, PermissionAction.View)]
     public async Task<IActionResult> GetByCourse(
         int courseId,
         [FromQuery] int page = 1,
@@ -30,6 +33,7 @@ public class VirtualClassroomsController : ControllerBase
 
     /// <summary>Lấy chi tiết phòng học theo ID</summary>
     [HttpGet("{id}")]
+    [RequireTeacherPermission(PermissionModule.VirtualClassrooms, PermissionAction.View)]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _service.GetClassroomByIdAsync(id);
@@ -38,6 +42,7 @@ public class VirtualClassroomsController : ControllerBase
 
     /// <summary>Tạo phòng học trực tuyến mới</summary>
     [HttpPost]
+    [RequireTeacherPermission(PermissionModule.VirtualClassrooms, PermissionAction.Create)]
     public async Task<IActionResult> Create([FromBody] CreateVirtualClassroomDto dto)
     {
         var result = await _service.CreateClassroomAsync(dto);
@@ -46,6 +51,7 @@ public class VirtualClassroomsController : ControllerBase
 
     /// <summary>Cập nhật thông tin phòng học</summary>
     [HttpPut("{id}")]
+    [RequireTeacherPermission(PermissionModule.VirtualClassrooms, PermissionAction.Update)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateVirtualClassroomDto dto)
     {
         var result = await _service.UpdateClassroomAsync(id, dto);
@@ -54,6 +60,7 @@ public class VirtualClassroomsController : ControllerBase
 
     /// <summary>Cập nhật trạng thái phòng học (Scheduled, Active, Ended, Cancelled)</summary>
     [HttpPatch("{id}/status")]
+    [RequireTeacherPermission(PermissionModule.VirtualClassrooms, PermissionAction.Update)]
     public async Task<IActionResult> UpdateStatus(int id, [FromQuery] string status)
     {
         var result = await _service.UpdateStatusAsync(id, status);
@@ -62,6 +69,7 @@ public class VirtualClassroomsController : ControllerBase
 
     /// <summary>Xóa phòng học</summary>
     [HttpDelete("{id}")]
+    [RequireTeacherPermission(PermissionModule.VirtualClassrooms, PermissionAction.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _service.DeleteClassroomAsync(id);

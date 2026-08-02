@@ -1,0 +1,59 @@
+.oc-quiz-detail {
+  padding: 28px 32px 80px;
+  max-width: 840px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oc-quiz-detail-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 0;
+  justify-content: center;
+}
+
+.oc-quiz-detail-spinner {
+  animation: oc-spin 0.9s linear infinite;
+}
+
+@keyframes oc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.oc-quiz-detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+}
+
+.oc-quiz-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--oc-text);
+  text-decoration: none;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+.oc-quiz-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+}
+
+.oc-quiz-detail-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+}/*# sourceMappingURL=quiz-detail.component.css.map */

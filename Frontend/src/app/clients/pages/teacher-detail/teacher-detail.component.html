@@ -91,7 +91,7 @@
       <h2>Khoá học đang dạy</h2>
       <div class="oc-td-course-grid">
         @for (course of courses; track course.id) {
-          <a class="oc-card oc-elev-sm oc-td-course-card" [routerLink]="['/client/khoa-hoc', course.id]">
+          <a class="oc-card oc-elev-sm oc-td-course-card" [routerLink]="['/client', course.id]">
             <div class="oc-td-course-card__thumb">
               <app-oc-icon name="book-open" [size]="30" color="rgba(255,255,255,0.9)"></app-oc-icon>
             </div>

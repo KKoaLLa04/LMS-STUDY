@@ -1,0 +1,73 @@
+.oc-quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--oc-bg-subtle, rgba(0, 0, 0, 0.02));
+  border-radius: 12px;
+}
+
+.oc-quiz__loading,
+.oc-quiz__empty {
+  color: var(--oc-text-muted);
+  font-size: 14px;
+}
+
+.oc-quiz__result {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-weight: 600;
+  font-size: 14px;
+}
+.oc-quiz__result-points {
+  color: #16a34a;
+}
+.oc-quiz__result-best {
+  color: var(--oc-text-muted);
+  font-weight: 400;
+}
+
+.oc-quiz__question {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oc-quiz__question-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.oc-quiz__options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.oc-quiz__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--oc-border, rgba(0, 0, 0, 0.1));
+  cursor: pointer;
+  font-size: 13px;
+}
+.oc-quiz__option.is-selected {
+  border-color: var(--oc-accent, #6366f1);
+}
+.oc-quiz__option.is-correct {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+}
+.oc-quiz__option.is-incorrect {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+
+.oc-quiz__actions {
+  display: flex;
+  justify-content: flex-end;
+}/*# sourceMappingURL=quiz-player.component.css.map */

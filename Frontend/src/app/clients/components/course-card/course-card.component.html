@@ -1,11 +1,15 @@
 @if (variant === 'compact') {
   <a
     class="oc-card oc-elev-sm oc-course-card oc-course-card--compact"
-    [routerLink]="[course.id]"
+    [routerLink]="['/client', course.id]"
     [style.animation-delay.s]="animationDelay"
   >
     <div class="oc-course-card__thumb" [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'">
-      <app-oc-icon name="book-open" [size]="30" color="rgba(255,255,255,0.9)"></app-oc-icon>
+      @if (course.thumbnail) {
+        <img class="oc-course-card__thumb-img" [src]="course.thumbnail" alt="" />
+      } @else {
+        <app-oc-icon name="book-open" [size]="30" color="rgba(255,255,255,0.9)"></app-oc-icon>
+      }
     </div>
     <div class="oc-card-title oc-course-card__title">{{ course.title }}</div>
     <div class="oc-course-card__progress-track">
@@ -19,11 +23,15 @@
 } @else {
   <a
     class="oc-card oc-elev-sm oc-course-card"
-    [routerLink]="[course.id]"
+    [routerLink]="['/client', course.id]"
     [style.animation-delay.s]="animationDelay"
   >
     <div class="oc-course-card__thumb" [class.oc-thumb--accent-2]="course.thumbnailVariant === 'accent-2'">
-      <app-oc-icon name="book-open" [size]="34" color="rgba(255,255,255,0.92)"></app-oc-icon>
+      @if (course.thumbnail) {
+        <img class="oc-course-card__thumb-img" [src]="course.thumbnail" alt="" />
+      } @else {
+        <app-oc-icon name="book-open" [size]="34" color="rgba(255,255,255,0.92)"></app-oc-icon>
+      }
       <span class="oc-course-card__subject-tag">{{ course.subject }}</span>
       <span class="oc-course-card__duration-tag">{{ course.durationMinutes | ocDuration }}</span>
     </div>

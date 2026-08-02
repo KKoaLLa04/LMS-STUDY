@@ -1,0 +1,210 @@
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3 class="mb-0">Gán học sinh vào khóa học</h3>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Trang chủ</a></li>
+          <li class="breadcrumb-item"><a routerLink="/courses">Khóa học</a></li>
+          <li class="breadcrumb-item active">Học viên</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    <div class="mb-3">
+      <a routerLink="/courses" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+      </a>
+    </div>
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <div class="mt-2 text-muted">Đang tải dữ liệu khóa học...</div>
+      </div>
+    } @else if (errorMessage) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+      </div>
+    } @else if (course) {
+
+      <!-- ── Header: thông tin khóa học ── -->
+      <div class="cs-course-banner">
+        @if (course.thumbnail) {
+          <img [src]="course.thumbnail" class="cs-course-thumb" alt="" />
+        } @else {
+          <div class="cs-course-thumb cs-course-thumb-placeholder">{{ emoji }}</div>
+        }
+        <div class="flex-grow-1">
+          <h4 class="mb-1">{{ course.title }}</h4>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            @if (course.khoiHocName) {
+              <span class="cs-pill cs-pill-khoi">{{ course.khoiHocName }}</span>
+            }
+            <span class="cs-price">{{ formatPrice(course.price) }}</span>
+          </div>
+        </div>
+        <div class="cs-course-count">
+          <span class="cs-course-count-number">{{ enrolledStudents().length }}</span>
+          <span class="text-muted small">học viên</span>
+        </div>
+      </div>
+
+      <!-- ── Transfer list 50/50 ── -->
+      <div class="cs-transfer">
+
+        <!-- LEFT: đã ghi danh -->
+        <div class="cs-panel">
+          <div class="cs-panel-header">
+            <label class="cs-panel-checkall">
+              <input
+                type="checkbox"
+                [checked]="allLeftSelected()"
+                [disabled]="leftFiltered().length === 0"
+                (change)="toggleSelectAllLeft()"
+              />
+              <span>Đã ghi danh <strong>({{ enrolledStudents().length }})</strong></span>
+            </label>
+            @if (selectedLeftIds().size > 0) {
+              <span class="cs-panel-selected-count">{{ selectedLeftIds().size }} đã chọn</span>
+            }
+          </div>
+          <div class="cs-panel-search">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Tìm trong danh sách đã ghi danh..."
+              [ngModel]="leftSearch()"
+              (ngModelChange)="leftSearch.set($event)"
+            />
+          </div>
+          <div class="cs-panel-list">
+            @if (studentsLoading()) {
+              <div class="text-center py-5">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              </div>
+            } @else if (leftFiltered().length === 0) {
+              <div class="cs-panel-empty">
+                <i class="bi bi-people fs-2 d-block mb-2"></i>
+                @if (leftSearch().trim()) {
+                  Không tìm thấy học viên phù hợp.
+                } @else {
+                  Chưa có học viên nào ghi danh khóa học này.
+                }
+              </div>
+            } @else {
+              @for (enrollment of leftFiltered(); track enrollment.id) {
+                <label class="cs-panel-item" [class.is-selected]="isLeftSelected(enrollment.userId)">
+                  <input
+                    type="checkbox"
+                    [checked]="isLeftSelected(enrollment.userId)"
+                    (change)="toggleLeftSelect(enrollment.userId)"
+                  />
+                  <span class="cs-panel-item-avatar">{{ enrollment.studentName.charAt(0) }}</span>
+                  <span class="cs-panel-item-body">
+                    <span class="cs-panel-item-name">{{ enrollment.studentName }}</span>
+                    <span class="cs-panel-item-meta text-muted">
+                      {{ enrollment.progressPercent }}% hoàn thành · ghi danh {{ formatDate(enrollment.enrolledAt) }}
+                    </span>
+                  </span>
+                </label>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- MIDDLE: nút chuyển qua lại -->
+        <div class="cs-transfer-controls">
+          <button
+            type="button"
+            class="btn btn-primary cs-transfer-btn"
+            title="Gán vào khóa học"
+            [disabled]="selectedRightIds().size === 0 || moving()"
+            (click)="moveToEnrolled()"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary cs-transfer-btn"
+            title="Hủy ghi danh"
+            [disabled]="selectedLeftIds().size === 0 || moving()"
+            (click)="moveToNotEnrolled()"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- RIGHT: chưa ghi danh -->
+        <div class="cs-panel">
+          <div class="cs-panel-header">
+            <label class="cs-panel-checkall">
+              <input
+                type="checkbox"
+                [checked]="allRightSelected()"
+                [disabled]="rightFiltered().length === 0"
+                (change)="toggleSelectAllRight()"
+              />
+              <span>Chưa ghi danh <strong>({{ notEnrolledStudents().length }})</strong></span>
+            </label>
+            @if (selectedRightIds().size > 0) {
+              <span class="cs-panel-selected-count">{{ selectedRightIds().size }} đã chọn</span>
+            }
+          </div>
+          <div class="cs-panel-search">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Tìm học sinh theo tên, email..."
+              [ngModel]="rightSearch()"
+              (ngModelChange)="rightSearch.set($event)"
+            />
+          </div>
+          <div class="cs-panel-list">
+            @if (allStudentsLoading()) {
+              <div class="text-center py-5">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              </div>
+            } @else if (rightFiltered().length === 0) {
+              <div class="cs-panel-empty">
+                <i class="bi bi-person-check fs-2 d-block mb-2"></i>
+                @if (rightSearch().trim()) {
+                  Không tìm thấy học sinh phù hợp.
+                } @else {
+                  Tất cả học sinh đã được ghi danh.
+                }
+              </div>
+            } @else {
+              @for (student of rightFiltered(); track student.id) {
+                <label class="cs-panel-item" [class.is-selected]="isRightSelected(student.id)">
+                  <input
+                    type="checkbox"
+                    [checked]="isRightSelected(student.id)"
+                    (change)="toggleRightSelect(student.id)"
+                  />
+                  <span class="cs-panel-item-avatar">{{ student.fullName.charAt(0) }}</span>
+                  <span class="cs-panel-item-body">
+                    <span class="cs-panel-item-name">{{ student.fullName }}</span>
+                    <span class="cs-panel-item-meta text-muted">{{ student.email }}</span>
+                  </span>
+                </label>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

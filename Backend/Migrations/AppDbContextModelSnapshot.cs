@@ -682,6 +682,62 @@ namespace Backend.Migrations
                     b.ToTable("LessonProgresses", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.PermissionGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PermissionGroups", (string)null);
+                });
+
+            modelBuilder.Entity("Backend.Models.PermissionGroupModulePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("CanCreate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanUpdate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanView")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId", "Module")
+                        .IsUnique();
+
+                    b.ToTable("PermissionGroupModulePermissions", (string)null);
+                });
+
             modelBuilder.Entity("Backend.Models.PointTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -881,6 +937,42 @@ namespace Backend.Migrations
                     b.ToTable("Sections", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.TeacherModulePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("CanCreate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanUpdate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanView")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Module")
+                        .IsUnique();
+
+                    b.ToTable("TeacherModulePermissions", (string)null);
+                });
+
             modelBuilder.Entity("Backend.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -1010,6 +1102,30 @@ namespace Backend.Migrations
                         .IsUnique();
 
                     b.ToTable("UserAchievements", (string)null);
+                });
+
+            modelBuilder.Entity("Backend.Models.UserPermissionGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId", "GroupId")
+                        .IsUnique();
+
+                    b.ToTable("UserPermissionGroups", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Models.VirtualClassroom", b =>
@@ -1255,6 +1371,15 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Backend.Models.PermissionGroupModulePermission", b =>
+                {
+                    b.HasOne("Backend.Models.PermissionGroup", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Backend.Models.PointTransaction", b =>
                 {
                     b.HasOne("Backend.Models.User", "User")
@@ -1317,6 +1442,15 @@ namespace Backend.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("Backend.Models.TeacherModulePermission", b =>
+                {
+                    b.HasOne("Backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Backend.Models.UserAchievement", b =>
                 {
                     b.HasOne("Backend.Models.Achievement", "Achievement")
@@ -1334,6 +1468,21 @@ namespace Backend.Migrations
                     b.Navigation("Achievement");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Backend.Models.UserPermissionGroup", b =>
+                {
+                    b.HasOne("Backend.Models.PermissionGroup", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Backend.Models.VirtualClassroom", b =>

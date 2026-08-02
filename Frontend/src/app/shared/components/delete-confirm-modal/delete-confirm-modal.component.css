@@ -1,0 +1,58 @@
+.dcm-modal .modal-content {
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+.dcm-modal .modal-body {
+  padding: 32px 28px 8px;
+  text-align: center;
+}
+.dcm-modal .modal-footer {
+  border-top: none;
+  padding: 8px 28px 28px;
+  justify-content: center;
+  gap: 10px;
+}
+.dcm-modal .modal-footer .btn {
+  flex: 1;
+  max-width: 160px;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+.dcm-modal .modal-footer .btn-danger {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+.dcm-modal .modal-footer .btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.dcm-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.dcm-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.dcm-body {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+.dcm-body strong {
+  color: #111827;
+}/*# sourceMappingURL=delete-confirm-modal.component.css.map */

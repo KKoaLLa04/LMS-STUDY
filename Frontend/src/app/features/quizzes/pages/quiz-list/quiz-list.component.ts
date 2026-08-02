@@ -8,6 +8,7 @@ import { QuizItem } from '../../models/quiz.model';
 import { QuizQuestionAdmin } from '../../../courses/models/course.model';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { RichTextEditorComponent } from '../../../../shared/components/rich-text-editor/rich-text-editor.component';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 declare const bootstrap: any;
 
@@ -46,7 +47,8 @@ export class QuizListComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private quizService: QuizLibraryService,
-    private toast: ToastService
+    private toast: ToastService,
+    public auth: AuthService
   ) {
     this.infoForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255)]],

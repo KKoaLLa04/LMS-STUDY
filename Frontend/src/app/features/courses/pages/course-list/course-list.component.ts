@@ -7,6 +7,7 @@ import { CourseListItem } from '../../models/course.model';
 import { CourseWizardModalComponent } from '../../components/course-wizard-modal/course-wizard-modal.component';
 import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal.component';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 const SUBJECT_BG_PALETTE = ['#EEF2FF', '#FEF3C7', '#ECFDF5', '#FEE2E2', '#ECFEFF', '#F3E8FF'];
 const DEFAULT_EMOJI = '📘';
@@ -39,7 +40,8 @@ export class CourseListComponent implements OnInit {
     private courseService: CourseService,
     private route: ActivatedRoute,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    public auth: AuthService
   ) {}
 
   ngOnInit(): void {

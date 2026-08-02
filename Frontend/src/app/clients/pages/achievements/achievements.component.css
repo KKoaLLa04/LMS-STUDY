@@ -1,0 +1,209 @@
+.oc-achievements {
+  padding: 28px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.oc-ach-summary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--oc-accent-600), var(--oc-accent-2-600));
+  border-radius: var(--oc-radius-lg);
+  padding: 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: var(--oc-shadow-lg);
+}
+
+.oc-ach-summary__deco {
+  position: absolute;
+  right: 26px;
+  top: -8px;
+  animation: ocFloatSlow 6s ease-in-out infinite;
+}
+
+.oc-ach-summary__count {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #fff;
+}
+
+.oc-ach-summary__label {
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.oc-ach-summary__number {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  font-family: var(--oc-font-heading);
+}
+
+.oc-ach-summary__total {
+  font-size: 13px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.oc-ach-summary__latest {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--oc-radius-lg);
+  padding: 16px 22px;
+  color: #fff;
+}
+
+.oc-ach-summary__latest-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd76a, #ff9d4d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
+}
+
+.oc-ach-summary__latest-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-ach-summary__latest-label {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 700;
+}
+
+.oc-ach-summary__latest-name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.oc-ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.oc-ach-card {
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  animation: ocFadeInUp 0.5s ease both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.oc-ach-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--oc-shadow-md);
+}
+
+.oc-ach-card__shine {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  pointer-events: none;
+  transition: left 0.9s ease;
+}
+
+.oc-ach-card:hover .oc-ach-card__shine {
+  left: 100%;
+}
+
+.oc-ach-card__medal {
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.oc-ach-card__medal--locked {
+  filter: grayscale(0.6);
+}
+
+.oc-ach-card:hover .oc-ach-card__medal:not(.oc-ach-card__medal--locked) {
+  transform: scale(1.1);
+}
+
+.oc-ach-card__lock {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--oc-neutral-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--oc-bg);
+}
+
+.oc-ach-card__name {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.oc-ach-card__desc {
+  font-size: 11px;
+  font-weight: 600;
+  min-height: 28px;
+}
+
+.oc-ach-card__progress {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.oc-ach-card__progress-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--oc-neutral-200);
+  overflow: hidden;
+}
+
+.oc-ach-card__progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--oc-accent);
+  transition: width 1s ease 0.2s;
+}
+
+.oc-ach-card__progress-label {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.oc-ach-card__badge-tag {
+  background: linear-gradient(135deg, #ffd76a, #ff9d4d);
+  color: #7a4a00;
+  font-weight: 800;
+  width: -moz-fit-content;
+  width: fit-content;
+}/*# sourceMappingURL=achievements.component.css.map */

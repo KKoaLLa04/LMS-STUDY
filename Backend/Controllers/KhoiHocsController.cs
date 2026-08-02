@@ -1,4 +1,6 @@
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +43,8 @@ public class KhoiHocsController : ControllerBase
     /// [Admin] Tạo mới khối học
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.KhoiHocs, PermissionAction.Create)]
     public async Task<IActionResult> CreateKhoiHoc([FromBody] CreateKhoiHocDto dto)
     {
         var result = await _khoiHocService.CreateAsync(dto);
@@ -52,7 +55,8 @@ public class KhoiHocsController : ControllerBase
     /// [Admin] Cập nhật khối học
     /// </summary>
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.KhoiHocs, PermissionAction.Update)]
     public async Task<IActionResult> UpdateKhoiHoc(int id, [FromBody] UpdateKhoiHocDto dto)
     {
         var result = await _khoiHocService.UpdateAsync(id, dto);
@@ -63,7 +67,8 @@ public class KhoiHocsController : ControllerBase
     /// [Admin] Xóa khối học
     /// </summary>
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Teacher")]
+    [RequireTeacherPermission(PermissionModule.KhoiHocs, PermissionAction.Delete)]
     public async Task<IActionResult> DeleteKhoiHoc(int id)
     {
         var result = await _khoiHocService.DeleteAsync(id);

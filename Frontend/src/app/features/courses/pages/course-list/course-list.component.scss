@@ -189,6 +189,13 @@
   &:hover { background: #e2e8f0; }
 }
 
+.cl-action-students {
+  background: #ECFDF5;
+  color: #047857;
+
+  &:hover { background: #d1fae5; }
+}
+
 .cl-action-edit {
   background: var(--primary-light);
   color: var(--primary-dark);

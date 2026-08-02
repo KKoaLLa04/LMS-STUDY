@@ -1,15 +1,18 @@
+using Backend.Authorization;
 using Backend.DTOs;
+using Backend.Models;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
-/// <summary>[Admin] Quản lý kho Tài liệu dùng chung — độc lập với khóa học, có thể được gắn
-/// vào nhiều bài học (Lesson.DocumentId) hoặc học viên xem trực tiếp qua trang "Tài liệu chung".</summary>
+/// <summary>[Admin/Teacher] Quản lý kho Tài liệu dùng chung — độc lập với khóa học, có thể được
+/// gắn vào nhiều bài học (Lesson.DocumentId) hoặc học viên xem trực tiếp qua trang "Tài liệu
+/// chung". Teacher cần quyền module Documents (xem RequireTeacherPermission).</summary>
 [ApiController]
 [Route("api/documents")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Teacher")]
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentService _documentService;
@@ -20,6 +23,7 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpGet]
+    [RequireTeacherPermission(PermissionModule.Documents, PermissionAction.View)]
     public async Task<IActionResult> GetAll()
     {
         var result = await _documentService.GetAllAsync();
@@ -27,6 +31,7 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [RequireTeacherPermission(PermissionModule.Documents, PermissionAction.View)]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _documentService.GetByIdAsync(id);
@@ -34,6 +39,7 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpPost]
+    [RequireTeacherPermission(PermissionModule.Documents, PermissionAction.Create)]
     public async Task<IActionResult> Create([FromBody] CreateDocumentDto dto)
     {
         var result = await _documentService.CreateAsync(dto);
@@ -41,6 +47,7 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [RequireTeacherPermission(PermissionModule.Documents, PermissionAction.Update)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDocumentDto dto)
     {
         var result = await _documentService.UpdateAsync(id, dto);
@@ -48,6 +55,7 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [RequireTeacherPermission(PermissionModule.Documents, PermissionAction.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _documentService.DeleteAsync(id);

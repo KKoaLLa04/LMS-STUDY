@@ -66,6 +66,7 @@ export interface Course {
   progressPercent: number;
   featured: boolean;
   thumbnailVariant: ThumbnailVariant;
+  thumbnail?: string;
   previewVideoUrl?: string;
   chapters: Chapter[];
   materials: CourseMaterial[];

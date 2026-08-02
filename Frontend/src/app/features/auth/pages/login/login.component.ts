@@ -38,8 +38,15 @@ export class LoginComponent {
       next: (res) => {
         this.loading = false;
         this.toast.success(res.message || 'Đăng nhập thành công');
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
-        this.router.navigateByUrl(returnUrl);
+
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        if (returnUrl) {
+          this.router.navigateByUrl(returnUrl);
+          return;
+        }
+
+        const role = res.data?.role?.toLowerCase();
+        this.router.navigateByUrl(role === 'admin' || role === 'teacher' ? '/dashboard' : '/');
       },
       error: (err) => {
         this.loading = false;

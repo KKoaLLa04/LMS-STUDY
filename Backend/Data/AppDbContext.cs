@@ -36,6 +36,10 @@ public class AppDbContext : DbContext
     public DbSet<Follow> Follows => Set<Follow>();
     public DbSet<DiscussionPostLike> DiscussionPostLikes => Set<DiscussionPostLike>();
     public DbSet<CourseReview> CourseReviews => Set<CourseReview>();
+    public DbSet<TeacherModulePermission> TeacherModulePermissions => Set<TeacherModulePermission>();
+    public DbSet<PermissionGroup> PermissionGroups => Set<PermissionGroup>();
+    public DbSet<PermissionGroupModulePermission> PermissionGroupModulePermissions => Set<PermissionGroupModulePermission>();
+    public DbSet<UserPermissionGroup> UserPermissionGroups => Set<UserPermissionGroup>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -313,6 +317,51 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
             // Một học sinh chỉ có 1 đánh giá cho 1 khóa học (trong số bản ghi chưa xóa mềm).
             entity.HasIndex(r => new { r.CourseId, r.UserId }).IsUnique().HasFilter("[IsDeleted] = 0");
+        });
+
+        modelBuilder.Entity<TeacherModulePermission>(entity =>
+        {
+            entity.ToTable("TeacherModulePermissions");
+            entity.Property(p => p.Module)
+                  .HasConversion<string>()
+                  .HasMaxLength(30);
+            entity.HasOne<User>()
+                  .WithMany()
+                  .HasForeignKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(p => new { p.UserId, p.Module }).IsUnique();
+        });
+
+        modelBuilder.Entity<PermissionGroup>(entity =>
+        {
+            entity.ToTable("PermissionGroups");
+        });
+
+        modelBuilder.Entity<PermissionGroupModulePermission>(entity =>
+        {
+            entity.ToTable("PermissionGroupModulePermissions");
+            entity.Property(p => p.Module)
+                  .HasConversion<string>()
+                  .HasMaxLength(30);
+            entity.HasOne<PermissionGroup>()
+                  .WithMany()
+                  .HasForeignKey(p => p.GroupId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(p => new { p.GroupId, p.Module }).IsUnique();
+        });
+
+        modelBuilder.Entity<UserPermissionGroup>(entity =>
+        {
+            entity.ToTable("UserPermissionGroups");
+            entity.HasOne<User>()
+                  .WithMany()
+                  .HasForeignKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<PermissionGroup>()
+                  .WithMany()
+                  .HasForeignKey(p => p.GroupId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(p => new { p.UserId, p.GroupId }).IsUnique();
         });
 
         modelBuilder.Entity<LessonProgress>(entity =>

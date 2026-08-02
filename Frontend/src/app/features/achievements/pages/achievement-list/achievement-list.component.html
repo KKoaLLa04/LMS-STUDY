@@ -45,9 +45,11 @@
               {{ g.name }}
             </button>
           }
-          <button type="button" class="ach-chip ach-chip-add" (click)="openCreateGroupModal()" title="Thêm nhóm huy hiệu">
-            <i class="bi bi-plus-lg"></i>Nhóm
-          </button>
+          @if (auth.hasPermission('Achievements', 'create')) {
+            <button type="button" class="ach-chip ach-chip-add" (click)="openCreateGroupModal()" title="Thêm nhóm huy hiệu">
+              <i class="bi bi-plus-lg"></i>Nhóm
+            </button>
+          }
         </div>
 
         <div class="ach-toolbar-actions">
@@ -61,9 +63,11 @@
               [ngModelOptions]="{ standalone: true }"
             />
           </div>
-          <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-            <i class="bi bi-plus-circle me-1"></i>Thêm huy hiệu
-          </button>
+          @if (auth.hasPermission('Achievements', 'create')) {
+            <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+              <i class="bi bi-plus-circle me-1"></i>Thêm huy hiệu
+            </button>
+          }
         </div>
       </div>
 
@@ -78,8 +82,12 @@
         } @else if (achievements.length === 0) {
           <div class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-            Chưa có huy hiệu nào.
-            <a href="javascript:void(0)" (click)="openCreateModal()">Thêm huy hiệu đầu tiên</a>
+            @if (auth.hasPermission('Achievements', 'create')) {
+              Chưa có huy hiệu nào.
+              <a href="javascript:void(0)" (click)="openCreateModal()">Thêm huy hiệu đầu tiên</a>
+            } @else {
+              Chưa có huy hiệu nào.
+            }
           </div>
         } @else if (filteredAchievements.length === 0) {
           <div class="text-center py-5 text-muted">
@@ -122,22 +130,26 @@
                     <td class="align-middle">{{ item.orderNumber }}</td>
                     <td class="text-center align-middle">
                       <div class="d-flex gap-1 justify-content-center">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-primary"
-                          title="Chỉnh sửa"
-                          (click)="openEditModal(item)"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Xóa"
-                          (click)="openDeleteModal(item)"
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
+                        @if (auth.hasPermission('Achievements', 'update')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Chỉnh sửa"
+                            (click)="openEditModal(item)"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        }
+                        @if (auth.hasPermission('Achievements', 'delete')) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Xóa"
+                            (click)="openDeleteModal(item)"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        }
                       </div>
                     </td>
                   </tr>

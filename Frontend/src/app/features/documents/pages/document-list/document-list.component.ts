@@ -7,6 +7,7 @@ import { DocumentItem } from '../../models/document.model';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { RichTextEditorComponent } from '../../../../shared/components/rich-text-editor/rich-text-editor.component';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 declare const bootstrap: any;
 
@@ -39,7 +40,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private documentService: DocumentService,
     private uploadService: UploadService,
-    private toast: ToastService
+    private toast: ToastService,
+    public auth: AuthService
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255)]],

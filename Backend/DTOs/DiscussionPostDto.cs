@@ -11,7 +11,8 @@ public class CreateDiscussionPostDto
     [Required(ErrorMessage = "Nội dung không được để trống")]
     public string Content { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Tên tác giả không được để trống")]
+    // Không [Required]: server luôn tự lấy tên thật từ tài khoản đang đăng nhập
+    // (xem DiscussionForumService.ResolveAuthorNameAsync), giá trị này chỉ còn là fallback.
     [MaxLength(100)]
     public string AuthorName { get; set; } = string.Empty;
 

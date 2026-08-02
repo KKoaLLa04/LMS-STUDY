@@ -21,10 +21,13 @@ export class ClientHeaderComponent implements OnInit {
   readonly isLoggedIn = signal(false);
   readonly currentUser = signal<CurrentUser | null>(null);
   readonly menuOpen = signal(false);
+  readonly isAdminOrTeacher = signal(false);
 
   ngOnInit(): void {
     this.isLoggedIn.set(this.authService.isLoggedIn());
     if (this.isLoggedIn()) {
+      const role = this.authService.getRole()?.toLowerCase();
+      this.isAdminOrTeacher.set(role === 'admin' || role === 'teacher');
       this.authService.getCurrentUser().subscribe((user) => this.currentUser.set(user));
     }
   }

@@ -72,7 +72,8 @@ export class DiscussionForumListComponent implements OnInit, AfterViewInit {
     private discussionService: DiscussionForumService,
     private courseService: CourseService,
     private toast: ToastService,
-    private authService: AuthService
+    private authService: AuthService,
+    public auth: AuthService
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255)]],

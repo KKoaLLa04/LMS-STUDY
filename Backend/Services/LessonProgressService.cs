@@ -57,6 +57,7 @@ public class LessonProgressService : ILessonProgressService
             // Cao điểm không giảm — bỏ qua việc tua lùi để không mất điểm đã tích lũy,
             // đồng thời chặn farm điểm bằng cách gửi lại tiến độ thấp rồi tăng dần lại.
             var newWatched = Math.Max(oldWatched, dto.WatchedSeconds);
+            var justCompleted = false;
 
             if (durationSeconds > 0)
             {
@@ -70,6 +71,7 @@ public class LessonProgressService : ILessonProgressService
                 {
                     progress.IsCompleted = true;
                     progress.CompletedAt = DateTime.UtcNow;
+                    justCompleted = true;
                     await _pointService.AwardAsync(userId, LessonCompletedBonus, PointSourceType.LessonCompleted, lessonId, courseId);
                 }
             }
@@ -78,8 +80,16 @@ public class LessonProgressService : ILessonProgressService
             progress.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
+            // RecordHomeworkStreakAsync tự early-return nếu hôm nay đã tính rồi (1 query rẻ) nên
+            // gọi mỗi lần ping vẫn ổn — giữ đúng ngữ nghĩa "có hoạt động học trong ngày" kể cả khi
+            // học sinh chưa xem hết bài. EvaluateAsync thì tốn kém hơn nhiều (nhiều query chấm điều
+            // kiện huy hiệu) và không có điều kiện huy hiệu nào liên quan tới luồng này thay đổi giá
+            // trị ngoại trừ lúc một bài học/khóa học VỪA hoàn thành — nên chỉ chấm lại đúng lúc đó,
+            // thay vì mỗi 5 giây xem thêm lại chấm lại toàn bộ (tốn cho hàng trăm/nghìn người xem
+            // video cùng lúc mà 99% số lần chấm không có gì thay đổi).
             await _pointService.RecordHomeworkStreakAsync(userId);
-            await _achievementEvaluationService.EvaluateAsync(userId);
+            if (justCompleted)
+                await _achievementEvaluationService.EvaluateAsync(userId);
 
             return ApiResponse<LessonProgressDto>.Ok(MapToDto(progress, lesson.Title));
         }
