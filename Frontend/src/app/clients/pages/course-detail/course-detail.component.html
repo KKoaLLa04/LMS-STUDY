@@ -121,22 +121,17 @@
         ></app-oc-chapter-accordion>
       }
       @case ('materials') {
-        <div class="oc-detail__materials">
-          @for (material of course.materials; track material.id) {
-            <div class="oc-card oc-elev-sm oc-detail__material">
-              <div class="oc-detail__material-icon">
-                <app-oc-icon name="file-text" [size]="17" color="var(--oc-accent-700)"></app-oc-icon>
-              </div>
-              <div class="oc-detail__material-meta">
-                <span class="oc-detail__material-name">{{ material.name }}</span>
-                <span class="oc-text-muted oc-detail__material-size">{{ material.sizeLabel }}</span>
-              </div>
-              <button type="button" class="oc-btn oc-btn-ghost" aria-label="Tải xuống">
-                <app-oc-icon name="download" [size]="15"></app-oc-icon>
-              </button>
-            </div>
-          }
-        </div>
+        @if (documentChapters().length > 0) {
+          <app-oc-chapter-accordion
+            [chapters]="documentChapters()"
+            (videoBlocked)="onLessonVideoBlocked()"
+            (lessonCompleted)="onLessonCompleted()"
+          ></app-oc-chapter-accordion>
+        } @else {
+          <div class="oc-list__empty">
+            <span>Khóa học này chưa có bài học dạng tài liệu.</span>
+          </div>
+        }
       }
       @case ('reviews') {
         <div class="oc-detail__reviews">

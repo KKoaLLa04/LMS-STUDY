@@ -22,10 +22,16 @@ public class AchievementsController : ControllerBase
 
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+    // Dùng riêng cho các endpoint AllowAnonymous — khách chưa đăng nhập không có claim
+    // NameIdentifier, CurrentUserId (non-null) sẽ ném lỗi nếu gọi thẳng trong trường hợp đó.
+    private int? CurrentUserIdOrNull =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+
     /// <summary>
-    /// [Admin/User] Lấy danh sách huy hiệu thành tích
+    /// [Public] Lấy danh sách huy hiệu thành tích
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAchievements()
     {
         var result = await _achievementService.GetAllAsync();
@@ -33,9 +39,10 @@ public class AchievementsController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin/User] Lấy chi tiết huy hiệu thành tích
+    /// [Public] Lấy chi tiết huy hiệu thành tích
     /// </summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAchievement(int id)
     {
         var result = await _achievementService.GetByIdAsync(id);
@@ -79,12 +86,14 @@ public class AchievementsController : ControllerBase
     }
 
     /// <summary>
-    /// [User] Danh sách huy hiệu kèm trạng thái mở khóa thật của bản thân
+    /// [Public] Danh sách huy hiệu kèm trạng thái mở khóa thật của bản thân — khách chưa đăng
+    /// nhập vẫn xem được catalogue, chỉ khác là mọi huy hiệu hiển thị ở trạng thái chưa mở khóa.
     /// </summary>
     [HttpGet("me")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetMyAchievements()
     {
-        var result = await _achievementService.GetMyAchievementsAsync(CurrentUserId);
+        var result = await _achievementService.GetMyAchievementsAsync(CurrentUserIdOrNull);
         return StatusCode(result.HttpStatusCode, result);
     }
 

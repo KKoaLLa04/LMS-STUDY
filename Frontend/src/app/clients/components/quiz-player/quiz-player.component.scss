@@ -1,3 +1,12 @@
+// Custom element <app-oc-quiz-player> mặc định display:inline (chưa định nghĩa) — không thực
+// sự giãn hết chiều rộng card cha dù cha là flex/grid stretch, khiến lưới 2 cột bên trong tính
+// sai bề rộng khả dụng và tràn ra ngoài. Ép block + full width ngay tại host để cắt đứt gốc rễ.
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .oc-quiz {
   display: flex;
   flex-direction: column;
@@ -5,6 +14,8 @@
   padding: 16px;
   background: var(--oc-bg-subtle, rgba(0, 0, 0, 0.02));
   border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .oc-quiz__loading,
@@ -30,15 +41,118 @@
   }
 }
 
+.oc-quiz__history {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--oc-text-muted);
+}
+
+.oc-quiz__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oc-quiz__body--split {
+  display: grid;
+  // minmax(0, ...) trên cả 2 track — track "1fr"/độ rộng cố định mặc định không co dưới
+  // min-content của nội dung bên trong (câu hỏi/đáp án dài không ngắt dòng được sẽ đẩy cả
+  // lưới rộng ra, tràn ra ngoài card) nếu không ép min-width về 0 ở đây.
+  grid-template-columns: minmax(0, 1fr) minmax(0, 200px);
+  align-items: start;
+  gap: 24px;
+  width: 100%;
+
+  @media (max-width: 760px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.oc-quiz__main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.oc-quiz__nav {
+  position: sticky;
+  top: 78px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--oc-border, rgba(0, 0, 0, 0.1));
+  background: var(--oc-surface, #fff);
+  min-width: 0;
+  box-sizing: border-box;
+
+  @media (max-width: 760px) {
+    position: static;
+  }
+}
+
+.oc-quiz__nav-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--oc-text-muted);
+}
+
+.oc-quiz__nav-grid {
+  display: grid;
+  // 5 cột co giãn theo đúng bề rộng khả dụng của panel — KHÔNG đặt cứng kích thước nút (trước
+  // đây nút width:32px cố định trong khi 5×32px + 4×gap thừa ra so với bề rộng thật của panel
+  // sau khi trừ padding, khiến nút tràn ra ngoài viền). aspect-ratio trên nút giữ hình vuông.
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: 760px) {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}
+
+.oc-quiz__nav-item {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--oc-border, rgba(0, 0, 0, 0.1));
+  background: var(--oc-bg, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--oc-text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+
+  &.is-answered {
+    background: #16a34a;
+    border-color: #16a34a;
+  }
+
+  &.is-active {
+    border-color: var(--oc-accent, #6366f1);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--oc-accent, #6366f1) 30%, transparent);
+  }
+}
+
 .oc-quiz__question {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  scroll-margin-top: 96px;
 }
 
 .oc-quiz__question-title {
   font-weight: 600;
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .oc-quiz__options {
@@ -56,6 +170,11 @@
   border: 1px solid var(--oc-border, rgba(0, 0, 0, 0.1));
   cursor: pointer;
   font-size: 13px;
+
+  span {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
 
   &.is-selected {
     border-color: var(--oc-accent, #6366f1);

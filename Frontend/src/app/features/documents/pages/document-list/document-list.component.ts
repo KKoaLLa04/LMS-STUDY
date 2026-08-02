@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DocumentService } from '../../services/document.service';
-import { DocumentItem } from '../../models/document.model';
+import { DocumentItem, DocumentStatus, DOCUMENT_STATUS_LABELS } from '../../models/document.model';
 import { UploadService } from '../../../../shared/services/upload.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { RichTextEditorComponent } from '../../../../shared/components/rich-text-editor/rich-text-editor.component';
@@ -22,6 +22,10 @@ const MAX_DOCUMENT_SIZE = 50 * 1024 * 1024; // 50MB
 })
 export class DocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild('editModal') editModalEl!: ElementRef<HTMLElement>;
+
+  readonly DocumentStatus = DocumentStatus;
+  readonly statusLabels = DOCUMENT_STATUS_LABELS;
+  readonly statusOptions = [DocumentStatus.Shared, DocumentStatus.ForLesson, DocumentStatus.SharedAndForLesson];
 
   items: DocumentItem[] = [];
   loading = false;
@@ -46,7 +50,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255)]],
       content: [''],
-      fileUrl: ['']
+      fileUrl: [''],
+      status: [DocumentStatus.SharedAndForLesson]
     });
   }
 
@@ -77,7 +82,7 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     this.mode = 'add';
     this.editingItem = null;
     this.uploadedFileName = '';
-    this.form.reset({ title: '', content: '', fileUrl: '' });
+    this.form.reset({ title: '', content: '', fileUrl: '', status: DocumentStatus.SharedAndForLesson });
     this.editModal.show();
   }
 
@@ -88,7 +93,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     this.form.reset({
       title: item.title,
       content: item.content ?? '',
-      fileUrl: item.fileUrl ?? ''
+      fileUrl: item.fileUrl ?? '',
+      status: item.status
     });
     this.editModal.show();
   }
@@ -145,7 +151,8 @@ export class DocumentListComponent implements OnInit, AfterViewInit {
     const payload = {
       title: v.title,
       content: v.content || undefined,
-      fileUrl: v.fileUrl || undefined
+      fileUrl: v.fileUrl || undefined,
+      status: v.status
     };
 
     const req$ = this.mode === 'edit' && this.editingItem

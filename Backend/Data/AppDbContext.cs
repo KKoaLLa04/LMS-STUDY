@@ -27,6 +27,7 @@ public class AppDbContext : DbContext
     public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
     public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
+    public DbSet<QuizAttemptAnswerOption> QuizAttemptAnswerOptions => Set<QuizAttemptAnswerOption>();
     public DbSet<PointTransaction> PointTransactions => Set<PointTransaction>();
     public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
     public DbSet<QuizOption> QuizOptions => Set<QuizOption>();
@@ -105,6 +106,8 @@ public class AppDbContext : DbContext
             entity.Property(d => d.CreatedAt)
                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
                   .ValueGeneratedOnAdd();
+            entity.Property(d => d.Status)
+                  .HasConversion<string>();
         });
 
         modelBuilder.Entity<Quiz>(entity =>
@@ -396,6 +399,17 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(qa => qa.QuizId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<QuizAttemptAnswerOption>(entity =>
+        {
+            entity.ToTable("QuizAttemptAnswerOptions");
+            // Xóa attempt thì xóa luôn chi tiết đáp án đã chọn của attempt đó.
+            entity.HasOne(a => a.QuizAttempt)
+                  .WithMany()
+                  .HasForeignKey(a => a.QuizAttemptId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(a => a.QuizAttemptId);
         });
 
         modelBuilder.Entity<PointTransaction>(entity =>

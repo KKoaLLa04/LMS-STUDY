@@ -216,44 +216,6 @@
   width: fit-content;
 }
 
-.oc-detail__materials {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.oc-detail__material {
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-}
-
-.oc-detail__material-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--oc-radius-sm);
-  background: var(--oc-accent-100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-}
-
-.oc-detail__material-meta {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.oc-detail__material-name {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.oc-detail__material-size {
-  font-size: 11px;
-}
-
 .oc-detail__reviews {
   display: flex;
   flex-direction: column;

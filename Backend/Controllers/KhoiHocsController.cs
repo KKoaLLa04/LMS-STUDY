@@ -20,9 +20,11 @@ public class KhoiHocsController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin/User] Lấy danh sách khối học
+    /// [Public] Lấy danh sách khối học — mở cho khách chưa đăng nhập xem (dùng làm bộ lọc khối
+    /// trên trang bảng xếp hạng công khai).
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetKhoiHocs()
     {
         var result = await _khoiHocService.GetAllAsync();
@@ -30,9 +32,10 @@ public class KhoiHocsController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin/User] Lấy chi tiết khối học
+    /// [Public] Lấy chi tiết khối học
     /// </summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetKhoiHoc(int id)
     {
         var result = await _khoiHocService.GetByIdAsync(id);

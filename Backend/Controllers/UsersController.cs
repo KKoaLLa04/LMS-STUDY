@@ -14,7 +14,7 @@ namespace Backend.Controllers;
 // tự chặn (403/400) nếu người gọi là Teacher nhưng đối tượng/role mục tiêu không phải Student.
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,Teacher")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -24,20 +24,20 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    /// <summary>[User] Danh sách công khai giáo viên (tên/avatar) — dùng cho trang giáo viên phía học sinh,
-    /// mở cho mọi user đã đăng nhập, ghi đè [Authorize(Roles = "Admin,Teacher")] ở cấp class.</summary>
+    /// <summary>[Public] Danh sách công khai giáo viên (tên/avatar) — dùng cho trang giáo viên phía học sinh,
+    /// mở cho cả khách chưa đăng nhập.</summary>
     [HttpGet("teachers/public")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPublicTeachers()
     {
         var result = await _userService.GetPublicTeachersAsync();
         return StatusCode(result.HttpStatusCode, result);
     }
 
-    /// <summary>[User] Thông tin công khai tối thiểu của một người dùng (tên/avatar) — dùng cho trang hồ sơ
-    /// giáo viên/học sinh phía học sinh, mở cho mọi user đã đăng nhập.</summary>
+    /// <summary>[Public] Thông tin công khai tối thiểu của một người dùng (tên/avatar) — dùng cho trang hồ sơ
+    /// giáo viên/học sinh phía học sinh, mở cho cả khách chưa đăng nhập.</summary>
     [HttpGet("public/{id:int}")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPublicUser(int id)
     {
         var result = await _userService.GetPublicByIdAsync(id);
@@ -49,6 +49,7 @@ public class UsersController : ControllerBase
     /// [Teacher] Chỉ được xem danh sách Student — role query bị ép về Student bất kể giá trị gửi lên.
     /// </summary>
     [HttpGet]
+    [Authorize(Roles = "Admin,Teacher")]
     [RequireTeacherPermission(PermissionModule.Students, PermissionAction.View)]
     public async Task<IActionResult> GetUsers([FromQuery] UserRole? role)
     {
@@ -62,6 +63,7 @@ public class UsersController : ControllerBase
     /// [Teacher] Chỉ được xem danh sách Student — role query bị ép về Student bất kể giá trị gửi lên.
     /// </summary>
     [HttpGet("paged")]
+    [Authorize(Roles = "Admin,Teacher")]
     [RequireTeacherPermission(PermissionModule.Students, PermissionAction.View)]
     public async Task<IActionResult> GetUsersPaged(
         [FromQuery] UserRole? role,
@@ -81,6 +83,7 @@ public class UsersController : ControllerBase
     /// [Admin] Lấy chi tiết người dùng. [Teacher] Chỉ được xem user Role = Student.
     /// </summary>
     [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin,Teacher")]
     [RequireTeacherPermission(PermissionModule.Students, PermissionAction.View)]
     public async Task<IActionResult> GetUser(int id)
     {
@@ -96,6 +99,7 @@ public class UsersController : ControllerBase
     /// [Teacher] Chỉ được tạo tài khoản Role = Student, không được đặt Permissions.
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Admin,Teacher")]
     [RequireTeacherPermission(PermissionModule.Students, PermissionAction.Create)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
     {
@@ -112,6 +116,7 @@ public class UsersController : ControllerBase
     /// Role = Student, không được đặt Permissions.
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Teacher")]
     [RequireTeacherPermission(PermissionModule.Students, PermissionAction.Update)]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
     {
@@ -134,6 +139,7 @@ public class UsersController : ControllerBase
     /// [Admin] Xóa tài khoản. [Teacher] Chỉ được xóa user Role = Student.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,Teacher")]
     [RequireTeacherPermission(PermissionModule.Students, PermissionAction.Delete)]
     public async Task<IActionResult> DeleteUser(int id)
     {

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { OcIconComponent } from '../../components/icon/icon.component';
 import { OcIconName } from '../../models/icon-name.type';
@@ -109,11 +109,13 @@ function initialsOf(name: string): string {
   styleUrl: './leaderboard.component.scss',
   animations: [listStagger],
 })
-export class LeaderboardComponent {
+export class LeaderboardComponent implements AfterViewInit {
   private readonly rankingService = inject(RankingService);
   private readonly khoiHocService = inject(KhoiHocService);
   private readonly followService = inject(FollowService);
   private readonly toast = inject(ToastService);
+
+  @ViewChild('gradeTabs') private gradeTabsRef?: ElementRef<HTMLDivElement>;
 
   readonly periods = PERIODS;
 
@@ -121,6 +123,11 @@ export class LeaderboardComponent {
   readonly grades = signal<GradeFilter[]>([ALL_GRADES]);
   readonly activeGrade = signal<GradeFilter>(ALL_GRADES);
   readonly activePeriod = signal<LeaderboardPeriod>('week');
+
+  // Ẩn thanh cuộn ngang của dãy chip khối, thay bằng nút mũi tên đầu/cuối dòng —
+  // mỗi nút chỉ hiện khi còn chip bị che ở phía tương ứng.
+  readonly canScrollGrades = signal(false);
+  readonly canScrollGradesBack = signal(false);
 
   readonly entries = signal<LeaderboardEntry[]>([]);
   readonly me = signal<LeaderboardEntry | undefined>(undefined);
@@ -137,6 +144,8 @@ export class LeaderboardComponent {
   constructor() {
     this.khoiHocService.getKhoiHocs().subscribe((khoiHocs) => {
       this.grades.set([ALL_GRADES, ...khoiHocs.map((k) => ({ khoiHocId: k.id, label: k.name }))]);
+      // Chờ DOM render xong danh sách chip mới rồi mới đo được có tràn khung hay không.
+      setTimeout(() => this.updateGradeScrollState());
     });
 
     // Tải lại bảng xếp hạng thật từ backend mỗi khi đổi mốc thời gian hoặc khối.
@@ -149,11 +158,38 @@ export class LeaderboardComponent {
         this.me.set(res.me ? mapRankingEntry(res.me) : undefined);
         this.loading.set(false);
       });
-    });
+    }, { allowSignalWrites: true });
+  }
+
+  ngAfterViewInit(): void {
+    this.updateGradeScrollState();
   }
 
   setGrade(grade: GradeFilter): void {
     this.activeGrade.set(grade);
+  }
+
+  gradeTrackId(grade: GradeFilter): number {
+    return grade.khoiHocId ?? -1;
+  }
+
+  onGradeTabsScroll(): void {
+    this.updateGradeScrollState();
+  }
+
+  scrollGradesForward(): void {
+    this.gradeTabsRef?.nativeElement.scrollBy({ left: 220, behavior: 'smooth' });
+  }
+
+  scrollGradesBackward(): void {
+    this.gradeTabsRef?.nativeElement.scrollBy({ left: -220, behavior: 'smooth' });
+  }
+
+  private updateGradeScrollState(): void {
+    const el = this.gradeTabsRef?.nativeElement;
+    if (!el) return;
+    this.canScrollGrades.set(el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
+    this.canScrollGradesBack.set(el.scrollLeft > 4);
   }
 
   setPeriod(period: LeaderboardPeriod): void {

@@ -57,6 +57,7 @@
                   <th>Tiêu đề</th>
                   <th class="text-center">Nội dung</th>
                   <th class="text-center">File đính kèm</th>
+                  <th class="text-center">Trạng thái</th>
                   <th class="text-center">Đang dùng ở</th>
                   <th class="text-center" style="width: 12%">Thao tác</th>
                 </tr>
@@ -78,6 +79,14 @@
                       } @else {
                         <i class="bi bi-dash-circle text-muted"></i>
                       }
+                    </td>
+                    <td class="align-middle text-center">
+                      <span class="badge"
+                        [class.text-bg-success]="item.status === DocumentStatus.Shared"
+                        [class.text-bg-warning]="item.status === DocumentStatus.ForLesson"
+                        [class.text-bg-info]="item.status === DocumentStatus.SharedAndForLesson">
+                        {{ statusLabels[item.status] }}
+                      </span>
                     </td>
                     <td class="align-middle text-center">
                       <span class="badge" [class.text-bg-secondary]="item.linkedLessonCount === 0" [class.text-bg-info]="item.linkedLessonCount > 0">
@@ -128,6 +137,18 @@
               [class.is-invalid]="form.get('title')?.invalid && form.get('title')?.touched"
               placeholder="Nhập tiêu đề tài liệu..."
             />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="status">
+              @for (opt of statusOptions; track opt) {
+                <option [value]="opt">{{ statusLabels[opt] }}</option>
+              }
+            </select>
+            <div class="form-text">
+              "Chia sẻ" hiển thị công khai ở trang Tài liệu chung của học viên. "Dùng cho bài giảng" chỉ dùng để gắn vào bài học, không public.
+            </div>
           </div>
 
           <div class="mb-3">

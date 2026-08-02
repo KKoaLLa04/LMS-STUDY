@@ -32,17 +32,27 @@ public class StudentQuizzesController : ControllerBase
 
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+    // Dùng riêng cho 2 endpoint AllowAnonymous bên dưới — khách chưa đăng nhập không có claim
+    // NameIdentifier, CurrentUserId (non-null) sẽ ném lỗi nếu gọi thẳng trong trường hợp đó.
+    private int? CurrentUserIdOrNull =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+
+    /// <summary>[Public] Danh sách quiz chung — mở cho khách chưa đăng nhập xem; HasAttempted/
+    /// BestScorePercent chỉ có ý nghĩa khi đã đăng nhập.</summary>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _quizLibraryService.GetAllForStudentAsync();
+        var result = await _quizLibraryService.GetAllForStudentAsync(CurrentUserIdOrNull);
         return StatusCode(result.HttpStatusCode, result);
     }
 
+    /// <summary>[Public] Chi tiết một quiz chung — mở cho khách chưa đăng nhập xem.</summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _quizLibraryService.GetForStudentAsync(id);
+        var result = await _quizLibraryService.GetForStudentAsync(id, CurrentUserIdOrNull);
         return StatusCode(result.HttpStatusCode, result);
     }
 
@@ -67,6 +77,15 @@ public class StudentQuizzesController : ControllerBase
     public async Task<IActionResult> GetMyAttempts(int id)
     {
         var result = await _quizService.GetMyAttemptsAsync(CurrentUserId, id);
+        return StatusCode(result.HttpStatusCode, result);
+    }
+
+    /// <summary>[User] Chi tiết đáp án đã chọn + đúng/sai từng câu của một lần làm cụ thể — dùng
+    /// để khôi phục lại đúng màn hình kết quả khi học sinh tải lại trang.</summary>
+    [HttpGet("{id:int}/attempts/{attemptId:int}")]
+    public async Task<IActionResult> GetAttemptDetail(int id, int attemptId)
+    {
+        var result = await _quizService.GetAttemptDetailAsync(CurrentUserId, attemptId);
         return StatusCode(result.HttpStatusCode, result);
     }
 }

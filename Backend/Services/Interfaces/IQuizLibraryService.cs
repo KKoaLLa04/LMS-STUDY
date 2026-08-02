@@ -13,7 +13,9 @@ public interface IQuizLibraryService
     Task<ApiResponse<QuizResponseDto>> UpdateAsync(int id, UpdateQuizDto dto);
     Task<ApiResponse<object?>> DeleteAsync(int id);
 
-    // Dành cho học viên xem trực tiếp ở trang "Quiz chung" (không cần qua khóa học).
-    Task<ApiResponse<List<StudentQuizDto>>> GetAllForStudentAsync();
-    Task<ApiResponse<StudentQuizDto>> GetForStudentAsync(int id);
+    // Dành cho học viên xem trực tiếp ở trang "Quiz chung" (không cần qua khóa học). userId dùng
+    // để tính HasAttempted/BestScorePercent riêng cho từng người xem; null => khách chưa đăng
+    // nhập xem danh sách công khai, HasAttempted/BestScorePercent luôn về mặc định (false/null).
+    Task<ApiResponse<List<StudentQuizDto>>> GetAllForStudentAsync(int? userId);
+    Task<ApiResponse<StudentQuizDto>> GetForStudentAsync(int id, int? userId);
 }

@@ -10,6 +10,8 @@ import { AchievementService } from '../../../achievements/services/achievement.s
 import { Achievement } from '../../../achievements/models/achievement.model';
 import { KhoiHocService } from '../../../khoi-hoc/services/khoi-hoc.service';
 import { KhoiHoc } from '../../../khoi-hoc/models/khoi-hoc.model';
+import { CourseCategoryService } from '../../../course-categories/services/course-category.service';
+import { CourseCategory } from '../../../course-categories/models/course-category.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { PermissionModule, TeacherPermission } from '../../../../core/auth/models/auth.model';
 
@@ -89,6 +91,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   unlocking = false;
 
   khoiHocs: KhoiHoc[] = [];
+  courseCategories: CourseCategory[] = [];
 
   // Lưới checkbox phân quyền module — chỉ có ý nghĩa khi role === 'Teacher'. Giữ tách khỏi
   // FormGroup (không phải FormArray) vì đây là bảng khóa cố định theo module, không cần thêm/bớt
@@ -107,6 +110,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
     private uploadService: UploadService,
     private achievementService: AchievementService,
     private khoiHocService: KhoiHocService,
+    private courseCategoryService: CourseCategoryService,
     private toast: ToastService,
     public auth: AuthService
   ) {
@@ -137,6 +141,10 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
     if (this.role === 'Student') {
       this.khoiHocService.getKhoiHocs().subscribe((res) => (this.khoiHocs = res.data ?? []));
+    }
+
+    if (this.role === 'Teacher') {
+      this.courseCategoryService.getCategories().subscribe((res) => (this.courseCategories = res.data ?? []));
     }
 
     this.loadUsers();

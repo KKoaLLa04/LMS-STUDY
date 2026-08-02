@@ -18,13 +18,19 @@ public class RankingController : ControllerBase
         _rankingService = rankingService;
     }
 
-    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    // Dùng riêng cho endpoint AllowAnonymous bên dưới — khách chưa đăng nhập không có claim
+    // NameIdentifier, CurrentUserId (non-null) sẽ ném lỗi nếu gọi thẳng trong trường hợp đó.
+    private int? CurrentUserIdOrNull =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
     /// <summary>
-    /// [User] Bảng xếp hạng học sinh — toàn hệ thống (bỏ trống courseId) hoặc theo lớp/khóa học.
+    /// [Public] Bảng xếp hạng học sinh — toàn hệ thống (bỏ trống courseId) hoặc theo lớp/khóa học.
+    /// Mở cho khách chưa đăng nhập xem, cùng chính sách với trang danh sách khóa học; IsMe/IsFollowing
+    /// chỉ có ý nghĩa khi đã đăng nhập.
     /// period: week | month | all (mặc định all)
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetLeaderboard(
         [FromQuery] string period = "all",
         [FromQuery] int? courseId = null,
@@ -35,7 +41,7 @@ public class RankingController : ControllerBase
         if (!Enum.TryParse<RankPeriod>(period, ignoreCase: true, out var parsedPeriod))
             parsedPeriod = RankPeriod.All;
 
-        var result = await _rankingService.GetLeaderboardAsync(parsedPeriod, courseId, khoiHocId, CurrentUserId, page, pageSize);
+        var result = await _rankingService.GetLeaderboardAsync(parsedPeriod, courseId, khoiHocId, CurrentUserIdOrNull, page, pageSize);
         return StatusCode(result.HttpStatusCode, result);
     }
 }

@@ -20,6 +20,7 @@ public class StudentDocumentsController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var result = await _documentService.GetAllForStudentAsync();
@@ -27,6 +28,7 @@ public class StudentDocumentsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _documentService.GetForStudentAsync(id);

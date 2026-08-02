@@ -10,15 +10,27 @@
     </div>
   </div>
 
-  <div class="oc-lb-grade-tabs">
-    @for (grade of grades(); track grade.khoiHocId ?? -1) {
-      <button
-        type="button"
-        class="oc-lb-grade-chip"
-        [class.is-active]="grade === activeGrade()"
-        (click)="setGrade(grade)"
-      >
-        {{ grade.label }}
+  <div class="oc-lb-grade-tabs-wrap">
+    @if (canScrollGradesBack()) {
+      <button type="button" class="oc-lb-grade-tabs-arrow oc-lb-grade-tabs-arrow--back" (click)="scrollGradesBackward()" aria-label="Quay lại">
+        <app-oc-icon name="arrow-left" [size]="16" color="#fff" [strokeWidth]="2.5"></app-oc-icon>
+      </button>
+    }
+    <div class="oc-lb-grade-tabs" #gradeTabs (scroll)="onGradeTabsScroll()">
+      @for (grade of grades(); track gradeTrackId(grade)) {
+        <button
+          type="button"
+          class="oc-lb-grade-chip"
+          [class.is-active]="grade === activeGrade()"
+          (click)="setGrade(grade)"
+        >
+          {{ grade.label }}
+        </button>
+      }
+    </div>
+    @if (canScrollGrades()) {
+      <button type="button" class="oc-lb-grade-tabs-arrow" (click)="scrollGradesForward()" aria-label="Xem thêm khối">
+        <app-oc-icon name="arrow-right" [size]="16" color="#fff" [strokeWidth]="2.5"></app-oc-icon>
       </button>
     }
   </div>

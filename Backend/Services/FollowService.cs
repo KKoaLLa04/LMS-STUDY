@@ -72,11 +72,11 @@ public class FollowService : IFollowService
         }
     }
 
-    public async Task<ApiResponse<FollowStatusDto>> GetStatusAsync(int currentUserId, int targetUserId)
+    public async Task<ApiResponse<FollowStatusDto>> GetStatusAsync(int? currentUserId, int targetUserId)
     {
         try
         {
-            var isFollowing = await _context.Follows
+            var isFollowing = currentUserId.HasValue && await _context.Follows
                 .AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
             var followersCount = await _context.Follows.CountAsync(f => f.FollowingId == targetUserId);
             var followingCount = await _context.Follows.CountAsync(f => f.FollowerId == targetUserId);

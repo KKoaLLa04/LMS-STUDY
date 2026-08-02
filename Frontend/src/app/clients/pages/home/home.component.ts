@@ -125,9 +125,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const publishedCourses = courses.filter((c) => c.status === 'Published');
       this.courses.set(publishedCourses.filter((c) => c.featured).slice(0, 6));
       this.categories.set(buildCategories(publishedCourses));
-      this.teachers.set(
-        (teachers.data ?? []).slice(0, 4).map((pu) => toHomeTeacher(pu, publishedCourses))
-      );
+      const topExperienced = [...(teachers.data ?? [])]
+        .sort((a, b) => (b.experienceYears ?? 0) - (a.experienceYears ?? 0))
+        .slice(0, 4);
+      this.teachers.set(topExperienced.map((pu) => toHomeTeacher(pu, publishedCourses)));
     });
 
     this.statsService.getStats().subscribe((res) => {

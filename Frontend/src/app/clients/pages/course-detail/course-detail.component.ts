@@ -73,6 +73,16 @@ export class CourseDetailComponent implements OnInit {
     return course ? courseCtaLabel(course) : '';
   });
 
+  /** Tab "Tài liệu" chỉ hiển thị các bài học lessonType === 'Document', giữ nguyên nhóm theo
+   * chương — chương không còn bài Tài liệu nào sau khi lọc thì bỏ luôn khỏi danh sách. */
+  readonly documentChapters = computed(() => {
+    const course = this.course();
+    if (!course) return [];
+    return course.chapters
+      .map((chapter) => ({ ...chapter, lessons: chapter.lessons.filter((l) => l.lessonType === 'Document') }))
+      .filter((chapter) => chapter.lessons.length > 0);
+  });
+
   ngOnInit(): void {
     this.loadCourse(Number(this.route.snapshot.paramMap.get('id')));
   }

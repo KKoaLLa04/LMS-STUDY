@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Backend.Models;
 
 namespace Backend.DTOs;
 
@@ -12,6 +13,8 @@ public class CreateDocumentDto
 
     [MaxLength(500, ErrorMessage = "FileUrl không vượt quá 500 ký tự")]
     public string? FileUrl { get; set; }
+
+    public DocumentStatus Status { get; set; } = DocumentStatus.SharedAndForLesson;
 }
 
 public class UpdateDocumentDto
@@ -24,6 +27,8 @@ public class UpdateDocumentDto
 
     [MaxLength(500, ErrorMessage = "FileUrl không vượt quá 500 ký tự")]
     public string? FileUrl { get; set; }
+
+    public DocumentStatus Status { get; set; }
 }
 
 public class DocumentResponseDto
@@ -32,6 +37,7 @@ public class DocumentResponseDto
     public string Title { get; set; } = string.Empty;
     public string? Content { get; set; }
     public string? FileUrl { get; set; }
+    public DocumentStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public int LinkedLessonCount { get; set; }

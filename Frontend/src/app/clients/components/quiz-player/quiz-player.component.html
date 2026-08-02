@@ -4,51 +4,86 @@
   } @else if (questions().length === 0) {
     <div class="oc-quiz__empty">Bài quiz này chưa có câu hỏi.</div>
   } @else {
-    @if (result(); as r) {
-      <div class="oc-quiz__result">
-        <span class="oc-quiz__result-score">Điểm: {{ r.attempt.scorePercent }}%</span>
-        @if (r.pointsAwarded > 0) {
-          <span class="oc-quiz__result-points">+{{ r.pointsAwarded }} điểm thưởng</span>
+    <div class="oc-quiz__body" [class.oc-quiz__body--split]="layout === 'page' && questions().length > 1">
+      <div class="oc-quiz__main">
+        @if (result(); as r) {
+          <div class="oc-quiz__result">
+            <span class="oc-quiz__result-score">Điểm: {{ r.attempt.scorePercent }}%</span>
+            @if (r.pointsAwarded > 0) {
+              <span class="oc-quiz__result-points">+{{ r.pointsAwarded }} điểm thưởng</span>
+            }
+            <span class="oc-quiz__result-best">Điểm cao nhất: {{ r.bestScorePercent }}%</span>
+          </div>
+        } @else {
+          @if (latestAttempt; as last) {
+            <div class="oc-quiz__history">
+              <app-oc-icon name="check" [size]="13" color="#16A34A"></app-oc-icon>
+              Bạn đã làm bài này {{ attempts().length }} lần · Điểm cao nhất: {{ bestScorePercent }}% · Lần gần nhất: {{ last.scorePercent }}% ({{ last.attemptedAt | ocRelativeDate }})
+            </div>
+          }
         }
-        <span class="oc-quiz__result-best">Điểm cao nhất: {{ r.bestScorePercent }}%</span>
-      </div>
-    }
 
-    @for (question of questions(); track question.id; let qi = $index) {
-      <div class="oc-quiz__question">
-        <span class="oc-quiz__question-title">Câu {{ qi + 1 }}. {{ question.text }}</span>
-        <div class="oc-quiz__options">
-          @for (option of question.options; track option.id) {
-            <label
-              class="oc-quiz__option"
-              [class.is-selected]="isSelected(question.id, option.id)"
-              [class.is-correct]="optionState(question.id, option.id) === 'correct'"
-              [class.is-incorrect]="optionState(question.id, option.id) === 'incorrect'"
-            >
-              <input
-                [type]="question.allowMultipleAnswers ? 'checkbox' : 'radio'"
-                [name]="'question-' + question.id"
-                [checked]="isSelected(question.id, option.id)"
-                [disabled]="!!result()"
-                (change)="toggleOption(question, option.id)"
-              />
-              <span>{{ option.text }}</span>
-              @if (optionState(question.id, option.id) === 'correct') {
-                <app-oc-icon name="check" [size]="14" color="#16A34A"></app-oc-icon>
+        @for (question of questions(); track question.id; let qi = $index) {
+          <div class="oc-quiz__question" [attr.data-question-id]="question.id">
+            <span class="oc-quiz__question-title">Câu {{ qi + 1 }}. {{ question.text }}</span>
+            <div class="oc-quiz__options">
+              @for (option of question.options; track option.id) {
+                <label
+                  class="oc-quiz__option"
+                  [class.is-selected]="isSelected(question.id, option.id)"
+                  [class.is-correct]="optionState(question.id, option.id) === 'correct'"
+                  [class.is-incorrect]="optionState(question.id, option.id) === 'incorrect'"
+                >
+                  <input
+                    [type]="question.allowMultipleAnswers ? 'checkbox' : 'radio'"
+                    [name]="'question-' + question.id"
+                    [checked]="isSelected(question.id, option.id)"
+                    [disabled]="!!result()"
+                    (change)="toggleOption(question, option.id)"
+                  />
+                  <span>{{ option.text }}</span>
+                  @if (optionState(question.id, option.id) === 'correct') {
+                    <app-oc-icon name="check" [size]="14" color="#16A34A"></app-oc-icon>
+                  }
+                </label>
               }
-            </label>
+            </div>
+          </div>
+        }
+
+        <div class="oc-quiz__actions">
+          @if (result()) {
+            <button type="button" class="oc-btn oc-btn-ghost" (click)="retry()">Làm lại</button>
+          } @else {
+            <button type="button" class="oc-btn oc-btn-primary" [disabled]="!allAnswered || submitting()" (click)="submit()">
+              {{ submitting() ? 'Đang nộp bài...' : 'Nộp bài' }}
+            </button>
           }
         </div>
       </div>
-    }
 
-    <div class="oc-quiz__actions">
-      @if (result()) {
-        <button type="button" class="oc-btn oc-btn-ghost" (click)="retry()">Làm lại</button>
-      } @else {
-        <button type="button" class="oc-btn oc-btn-primary" [disabled]="!allAnswered || submitting()" (click)="submit()">
-          {{ submitting() ? 'Đang nộp bài...' : 'Nộp bài' }}
-        </button>
+      @if (layout === 'page' && questions().length > 1) {
+        <aside class="oc-quiz__nav">
+          <span class="oc-quiz__nav-title">{{ answeredCount }}/{{ questions().length }} câu đã trả lời</span>
+          <div class="oc-quiz__nav-grid">
+            @for (question of questions(); track question.id; let qi = $index) {
+              <button
+                type="button"
+                class="oc-quiz__nav-item"
+                [class.is-answered]="isAnswered(question.id)"
+                [class.is-active]="activeQuestionId() === question.id"
+                [attr.aria-label]="'Đến câu ' + (qi + 1)"
+                (click)="scrollToQuestion(question.id)"
+              >
+                @if (isAnswered(question.id)) {
+                  <app-oc-icon name="check" [size]="12" color="#fff"></app-oc-icon>
+                } @else {
+                  {{ qi + 1 }}
+                }
+              </button>
+            }
+          </div>
+        </aside>
       }
     </div>
   }

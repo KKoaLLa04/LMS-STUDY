@@ -77,4 +77,16 @@ public class QuizController : ControllerBase
         var result = await _quizService.GetMyAttemptsAsync(CurrentUserId, lesson!.QuizId!.Value);
         return StatusCode(result.HttpStatusCode, result);
     }
+
+    /// <summary>[User] Chi tiết đáp án đã chọn + đúng/sai từng câu của một lần làm cụ thể — dùng
+    /// để khôi phục lại đúng màn hình kết quả khi học sinh tải lại trang.</summary>
+    [HttpGet("attempts/{attemptId:int}")]
+    public async Task<IActionResult> GetAttemptDetail(int lessonId, int attemptId)
+    {
+        var (_, error) = await ResolveQuizLessonAsync(lessonId);
+        if (error != null) return error;
+
+        var result = await _quizService.GetAttemptDetailAsync(CurrentUserId, attemptId);
+        return StatusCode(result.HttpStatusCode, result);
+    }
 }

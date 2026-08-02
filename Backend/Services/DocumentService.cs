@@ -30,6 +30,7 @@ public class DocumentService : IDocumentService
                     Title = d.Title,
                     Content = d.Content,
                     FileUrl = d.FileUrl,
+                    Status = d.Status,
                     CreatedAt = d.CreatedAt,
                     UpdatedAt = d.UpdatedAt,
                     LinkedLessonCount = _context.Lessons.Count(l => l.DocumentId == d.Id)
@@ -75,6 +76,7 @@ public class DocumentService : IDocumentService
                 Title = dto.Title.Trim(),
                 Content = dto.Content?.Trim(),
                 FileUrl = dto.FileUrl?.Trim(),
+                Status = dto.Status,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -104,6 +106,7 @@ public class DocumentService : IDocumentService
             document.Title = dto.Title.Trim();
             document.Content = dto.Content?.Trim();
             document.FileUrl = dto.FileUrl?.Trim();
+            document.Status = dto.Status;
             document.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -147,6 +150,7 @@ public class DocumentService : IDocumentService
         try
         {
             var items = await _context.Documents
+                .Where(d => d.Status == DocumentStatus.Shared || d.Status == DocumentStatus.SharedAndForLesson)
                 .OrderByDescending(d => d.Id)
                 .Select(d => new StudentDocumentDto { Id = d.Id, Title = d.Title, Content = d.Content, FileUrl = d.FileUrl })
                 .ToListAsync();
@@ -165,7 +169,7 @@ public class DocumentService : IDocumentService
         try
         {
             var document = await _context.Documents.FirstOrDefaultAsync(d => d.Id == id);
-            if (document == null)
+            if (document == null || (document.Status != DocumentStatus.Shared && document.Status != DocumentStatus.SharedAndForLesson))
                 return ApiResponse<StudentDocumentDto>.NotFound("Không tìm thấy tài liệu");
 
             return ApiResponse<StudentDocumentDto>.Ok(new StudentDocumentDto
@@ -189,6 +193,7 @@ public class DocumentService : IDocumentService
         Title = d.Title,
         Content = d.Content,
         FileUrl = d.FileUrl,
+        Status = d.Status,
         CreatedAt = d.CreatedAt,
         UpdatedAt = d.UpdatedAt,
         LinkedLessonCount = linkedLessonCount

@@ -3,6 +3,15 @@ using Backend.Common;
 
 namespace Backend.Models;
 
+// Trạng thái tài liệu: Shared = public trên trang "Tài liệu chung" của học viên; ForLesson = chỉ
+// dùng nội bộ để gắn vào bài học, không public; SharedAndForLesson = cả hai.
+public enum DocumentStatus
+{
+    Shared,
+    ForLesson,
+    SharedAndForLesson
+}
+
 // Tài liệu dùng chung — không bắt buộc thuộc bài học/khóa học nào. Có thể được nhiều Lesson
 // (Lesson.DocumentId) tham chiếu tới cùng một Document, và học viên cũng có thể xem trực tiếp
 // qua trang "Tài liệu chung" mà không cần qua khóa học. Nội dung hybrid: Content (text soạn
@@ -20,6 +29,8 @@ public class Document : ISoftDelete
 
     [MaxLength(500)]
     public string? FileUrl { get; set; }
+
+    public DocumentStatus Status { get; set; } = DocumentStatus.SharedAndForLesson;
 
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

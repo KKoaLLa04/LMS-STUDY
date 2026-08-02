@@ -20,13 +20,6 @@ export interface Chapter {
   lessons: Lesson[];
 }
 
-export interface CourseMaterial {
-  id: number;
-  name: string;
-  sizeLabel: string;
-  url?: string;
-}
-
 export interface Review {
   id: number;
   studentName: string;
@@ -69,7 +62,6 @@ export interface Course {
   thumbnail?: string;
   previewVideoUrl?: string;
   chapters: Chapter[];
-  materials: CourseMaterial[];
   reviews: Review[];
   ratingBreakdown: RatingBreakdownItem[];
 }

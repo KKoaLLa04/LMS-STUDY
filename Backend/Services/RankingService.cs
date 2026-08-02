@@ -19,7 +19,7 @@ public class RankingService : IRankingService
     }
 
     public async Task<ApiResponse<LeaderboardResponseDto>> GetLeaderboardAsync(
-        RankPeriod period, int? courseId, int? khoiHocId, int currentUserId, int page, int pageSize)
+        RankPeriod period, int? courseId, int? khoiHocId, int? currentUserId, int page, int pageSize)
     {
         try
         {
@@ -70,11 +70,14 @@ public class RankingService : IRankingService
             var khoiHocNames = await _context.KhoiHocs.ToDictionaryAsync(k => k.Id, k => k.Name);
 
             // Người mà currentUser đang theo dõi — tính 1 lần cho cả trang thay vì N truy vấn/dòng.
-            var followingIds = (await _context.Follows
-                .Where(f => f.FollowerId == currentUserId)
-                .Select(f => f.FollowingId)
-                .ToListAsync())
-                .ToHashSet();
+            // Khách chưa đăng nhập (currentUserId null) thì bỏ qua, không ai được đánh dấu đang theo dõi.
+            var followingIds = currentUserId.HasValue
+                ? (await _context.Follows
+                    .Where(f => f.FollowerId == currentUserId)
+                    .Select(f => f.FollowingId)
+                    .ToListAsync())
+                    .ToHashSet()
+                : new HashSet<int>();
 
             // Hạng kỳ trước: cùng cách xếp hạng (điểm cao hơn đứng trước, hòa thì tài khoản tạo sớm
             // hơn đứng trên) nhưng tính trên tổng điểm của cửa sổ thời gian trước đó.

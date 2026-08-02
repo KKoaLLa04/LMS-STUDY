@@ -21,6 +21,7 @@ export type IconName =
   | 'help-circle'
   | 'shield';
 
+/** Still consumed by MOCK_STUDENT (student-shell header avatar/streak pill) — unrelated to this page. */
 export interface Student {
   name: string;
   grade: string;
@@ -40,29 +41,26 @@ export interface Stat {
   noteBg: string;
 }
 
-export type CourseStatus = 'active' | 'upcoming' | 'draft';
+export type DashboardCourseStatus = 'Draft' | 'Published' | 'Upcoming';
 
-export interface Course {
+export interface DashboardCourse {
+  id: number;
   emoji: string;
   subjectBg: string;
   name: string;
   teacher: string;
-  nextLesson: string;
-  progress: number;
-  progressColor: string;
-  status: CourseStatus;
+  status: DashboardCourseStatus;
   statusLabel: string;
   statusBg: string;
   statusColor: string;
-  actionLabel: string;
-  actionBg: string;
-  actionColor: string;
+  createdLabel: string;
 }
 
-export interface Deadline {
-  title: string;
-  due: string;
-  dotColor: string;
+export interface LeaderboardEntry {
+  rank: number;
+  name: string;
+  initials: string;
+  points: number;
 }
 
 export interface Activity {

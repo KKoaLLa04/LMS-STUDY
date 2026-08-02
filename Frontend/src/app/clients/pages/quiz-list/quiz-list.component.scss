@@ -51,6 +51,7 @@
 }
 
 .oc-quiz-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -63,6 +64,22 @@
   &:hover {
     border-color: color-mix(in srgb, var(--oc-text) 35%, transparent);
   }
+}
+
+.oc-quiz-card__done-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 @keyframes oc-card-in {
@@ -87,4 +104,9 @@
 
 .oc-quiz-card__desc {
   font-size: 12.5px;
+  line-height: 1.5;
+
+  ::ng-deep p {
+    margin: 0;
+  }
 }

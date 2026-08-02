@@ -20,7 +20,7 @@
       <div class="oc-card oc-elev-sm oc-quiz-detail-card">
         <h1 class="oc-quiz-detail-title">{{ q.title }}</h1>
         @if (q.description) {
-          <p class="oc-text-muted">{{ q.description }}</p>
+          <div class="oc-text-muted oc-quiz-detail-desc" [innerHTML]="q.description"></div>
         }
 
         <app-oc-quiz-player [quizId]="q.id"></app-oc-quiz-player>

@@ -175,13 +175,15 @@ public class AchievementService : IAchievementService
         }
     }
 
-    public async Task<ApiResponse<List<MyAchievementDto>>> GetMyAchievementsAsync(int userId)
+    public async Task<ApiResponse<List<MyAchievementDto>>> GetMyAchievementsAsync(int? userId)
     {
         try
         {
-            var unlockedMap = await _context.UserAchievements
-                .Where(ua => ua.UserId == userId)
-                .ToDictionaryAsync(ua => ua.AchievementId, ua => ua.UnlockedAt);
+            var unlockedMap = userId.HasValue
+                ? await _context.UserAchievements
+                    .Where(ua => ua.UserId == userId)
+                    .ToDictionaryAsync(ua => ua.AchievementId, ua => ua.UnlockedAt)
+                : new Dictionary<int, DateTime>();
 
             var items = await (
                 from a in _context.Achievements

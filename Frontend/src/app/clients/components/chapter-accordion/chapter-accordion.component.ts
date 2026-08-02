@@ -69,7 +69,7 @@ export class ChapterAccordionComponent implements OnChanges {
   }
 
   chapterMeta(chapter: Chapter): string {
-    return formatChapterMeta(chapter.lessons.length);
+    return formatChapterMeta(chapter.lessons);
   }
 
   isLessonPlayable(lesson: Lesson): boolean {

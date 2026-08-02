@@ -18,12 +18,18 @@
     <div class="oc-quizzes-grid">
       @for (quiz of quizzes(); track quiz.id; let i = $index) {
         <a class="oc-card oc-elev-sm oc-quiz-card" [routerLink]="['/client/quiz', quiz.id]" [style.animation-delay.s]="animationDelayFor(i)">
+          @if (quiz.hasAttempted) {
+            <span class="oc-quiz-card__done-badge">
+              <app-oc-icon name="check" [size]="11" color="#fff"></app-oc-icon>
+              Đã làm · {{ quiz.bestScorePercent }}%
+            </span>
+          }
           <div class="oc-quiz-card__icon">
             <app-oc-icon name="layers" [size]="22" color="var(--oc-accent-2-700)"></app-oc-icon>
           </div>
           <span class="oc-quiz-card__title">{{ quiz.title }}</span>
           @if (quiz.description) {
-            <span class="oc-text-muted oc-quiz-card__desc">{{ quiz.description }}</span>
+            <div class="oc-text-muted oc-quiz-card__desc" [innerHTML]="quiz.description"></div>
           }
           <span class="oc-tag">{{ quiz.questionCount }} câu hỏi</span>
         </a>

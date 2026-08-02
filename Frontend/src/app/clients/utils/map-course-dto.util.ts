@@ -38,7 +38,6 @@ export function mapCourseListItemToCourse(
     thumbnailVariant: thumbnailVariantFor(dto.id),
     thumbnail: dto.thumbnail,
     chapters: [],
-    materials: [],
     reviews: [],
     ratingBreakdown: [],
   };
@@ -117,7 +116,6 @@ export function mapCourseDetailToCourse(
     thumbnail: dto.thumbnail,
     previewVideoUrl: dto.previewVideoUrl,
     chapters,
-    materials: [],
     reviews: [],
     ratingBreakdown: [],
   };

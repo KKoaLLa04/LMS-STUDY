@@ -39,11 +39,48 @@
 }
 
 // — grade filter pills —
+.oc-lb-grade-tabs-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .oc-lb-grade-tabs {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.oc-lb-grade-tabs-arrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 6px;
+  border: none;
+  border-radius: 50%;
+  background: var(--oc-accent);
+  box-shadow: var(--oc-shadow-md);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+  }
+
+  &.oc-lb-grade-tabs-arrow--back {
+    margin-left: 0;
+    margin-right: 6px;
+  }
 }
 
 .oc-lb-grade-chip {

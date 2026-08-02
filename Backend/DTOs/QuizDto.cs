@@ -38,4 +38,8 @@ public class StudentQuizDto
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public int QuestionCount { get; set; }
+    /// <summary>Người dùng hiện tại đã làm quiz này ít nhất 1 lần chưa.</summary>
+    public bool HasAttempted { get; set; }
+    /// <summary>Điểm cao nhất của người dùng hiện tại — null nếu chưa từng làm.</summary>
+    public int? BestScorePercent { get; set; }
 }

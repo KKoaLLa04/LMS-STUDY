@@ -1,6 +1,6 @@
 .oc-quiz-detail {
   padding: 28px 32px 80px;
-  max-width: 840px;
+  max-width: 1040px;
   margin: 0 auto;
   width: 100%;
   display: flex;
@@ -54,4 +54,8 @@
   font-size: 24px;
   font-weight: 800;
   margin: 0;
+}
+
+.oc-quiz-detail-desc {
+  line-height: 1.7;
 }

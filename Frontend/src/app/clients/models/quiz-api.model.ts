@@ -6,6 +6,10 @@ export interface StudentQuizApi {
   title: string;
   description?: string;
   questionCount: number;
+  /** Người dùng hiện tại đã làm quiz này ít nhất 1 lần chưa. */
+  hasAttempted: boolean;
+  /** Điểm cao nhất của người dùng hiện tại — null nếu chưa từng làm. */
+  bestScorePercent?: number | null;
 }
 
 export interface QuizOptionApi {

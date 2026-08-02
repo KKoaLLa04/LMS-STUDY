@@ -134,10 +134,20 @@ public class QuizLibraryService : IQuizLibraryService
         }
     }
 
-    public async Task<ApiResponse<List<StudentQuizDto>>> GetAllForStudentAsync()
+    public async Task<ApiResponse<List<StudentQuizDto>>> GetAllForStudentAsync(int? userId)
     {
         try
         {
+            // Điểm cao nhất của user hiện tại cho từng quiz — gộp 1 lần, tránh N+1 query khi map.
+            // Khách chưa đăng nhập (userId null) thì bỏ qua, mọi quiz đều hiện HasAttempted = false.
+            var bestScoresByQuizId = userId.HasValue
+                ? await _context.QuizAttempts
+                    .Where(a => a.UserId == userId && a.QuizId != null)
+                    .GroupBy(a => a.QuizId!.Value)
+                    .Select(g => new { QuizId = g.Key, Best = g.Max(a => a.ScorePercent) })
+                    .ToDictionaryAsync(x => x.QuizId, x => x.Best)
+                : new Dictionary<int, int>();
+
             var items = await _context.Quizzes
                 .OrderByDescending(q => q.Id)
                 .Select(q => new StudentQuizDto
@@ -149,6 +159,13 @@ public class QuizLibraryService : IQuizLibraryService
                 })
                 .ToListAsync();
 
+            foreach (var item in items)
+            {
+                if (!bestScoresByQuizId.TryGetValue(item.Id, out var best)) continue;
+                item.HasAttempted = true;
+                item.BestScorePercent = best;
+            }
+
             return ApiResponse<List<StudentQuizDto>>.Ok(items);
         }
         catch (Exception ex)
@@ -158,7 +175,7 @@ public class QuizLibraryService : IQuizLibraryService
         }
     }
 
-    public async Task<ApiResponse<StudentQuizDto>> GetForStudentAsync(int id)
+    public async Task<ApiResponse<StudentQuizDto>> GetForStudentAsync(int id, int? userId)
     {
         try
         {
@@ -167,12 +184,21 @@ public class QuizLibraryService : IQuizLibraryService
                 return ApiResponse<StudentQuizDto>.NotFound("Không tìm thấy quiz");
 
             var questionCount = await _context.QuizQuestions.CountAsync(qq => qq.QuizId == id);
+            var bestScorePercent = userId.HasValue
+                ? await _context.QuizAttempts
+                    .Where(a => a.UserId == userId && a.QuizId == id)
+                    .Select(a => (int?)a.ScorePercent)
+                    .MaxAsync()
+                : null;
+
             return ApiResponse<StudentQuizDto>.Ok(new StudentQuizDto
             {
                 Id = quiz.Id,
                 Title = quiz.Title,
                 Description = quiz.Description,
-                QuestionCount = questionCount
+                QuestionCount = questionCount,
+                HasAttempted = bestScorePercent.HasValue,
+                BestScorePercent = bestScorePercent
             });
         }
         catch (Exception ex)

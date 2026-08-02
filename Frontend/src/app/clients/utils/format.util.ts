@@ -39,9 +39,9 @@ export function formatRelativeDate(date: Date, now: Date = new Date()): string {
   return 'Vừa xong';
 }
 
-export function formatChapterMeta(lessonCount: number): string {
-  const estimatedMinutes = Math.round(lessonCount * 11);
-  return `${lessonCount} bài · ${estimatedMinutes} phút`;
+export function formatChapterMeta(lessons: { durationMinutes: number }[]): string {
+  const totalMinutes = lessons.reduce((sum, l) => sum + l.durationMinutes, 0);
+  return `${lessons.length} bài · ${formatDuration(totalMinutes)}`;
 }
 
 /** "Thầy Nguyễn Văn An" -> "NA" — strips the honorific, then takes the first

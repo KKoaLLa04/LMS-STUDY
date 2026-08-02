@@ -11,6 +11,7 @@ public interface IAchievementService
     Task<ApiResponse<AchievementDto>> UpdateAsync(int id, UpdateAchievementDto dto);
     Task<ApiResponse<object?>> DeleteAsync(int id);
 
-    Task<ApiResponse<List<MyAchievementDto>>> GetMyAchievementsAsync(int userId);
+    // userId == null => khách chưa đăng nhập xem catalogue công khai, mọi huy hiệu hiển thị ở trạng thái chưa mở khóa.
+    Task<ApiResponse<List<MyAchievementDto>>> GetMyAchievementsAsync(int? userId);
     Task<ApiResponse<object?>> UnlockForUserAsync(int userId, int achievementId);
 }
