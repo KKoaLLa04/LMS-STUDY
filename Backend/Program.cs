@@ -152,12 +152,12 @@ if (googleEnabled)
 else
     builder.Services.AddKeyedScoped<IMeetingProviderService, FakeMeetingProviderService>("GoogleMeet");
 
-// Cấu hình SQL Server với EF Core
+// Cấu hình PostgreSQL với EF Core
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 
 // Authentication (JWT) & Authorization
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
@@ -233,10 +233,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// SPA fallback: mọi route không khớp API/static file đều trả về index.html
+// để Angular router (client-side routing) tự xử lý.
+app.MapFallbackToFile("index.html");
 
 app.Run();

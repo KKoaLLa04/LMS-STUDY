@@ -1,0 +1,13 @@
+.git/
+Backend/bin/
+Backend/obj/
+Backend/wwwroot/uploads/
+**/*.user
+.vs/
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.angular/
+can-hoan-thien/
+K-12 LMS Dashboard Redesign/
+Màn hình khóa học Angular/
+nghiep-vu/
