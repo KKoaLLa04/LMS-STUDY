@@ -775,7 +775,7 @@ namespace Backend.Migrations
                 table: "AchievementGroups",
                 column: "Code",
                 unique: true,
-                filter: "[IsDeleted] = 0");
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Achievements_GroupId",
@@ -797,14 +797,14 @@ namespace Backend.Migrations
                 table: "CourseCategories",
                 column: "Code",
                 unique: true,
-                filter: "[IsDeleted] = 0");
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseReviews_CourseId_UserId",
                 table: "CourseReviews",
                 columns: new[] { "CourseId", "UserId" },
                 unique: true,
-                filter: "[IsDeleted] = 0");
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseReviews_UserId",
@@ -857,7 +857,7 @@ namespace Backend.Migrations
                 table: "Enrollments",
                 columns: new[] { "UserId", "CourseId" },
                 unique: true,
-                filter: "[IsDeleted] = 0");
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Follows_FollowerId_FollowingId",
@@ -875,7 +875,7 @@ namespace Backend.Migrations
                 table: "KhoiHocs",
                 column: "Code",
                 unique: true,
-                filter: "[IsDeleted] = 0");
+                filter: "\"IsDeleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LessonProgresses_LessonId",

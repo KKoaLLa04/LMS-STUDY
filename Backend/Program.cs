@@ -206,6 +206,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         logger.LogError(ex, "An error occurred while applying database migrations.");
+        throw;
     }
 
     // Seed tài khoản admin mặc định nếu chưa có

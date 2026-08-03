@@ -65,7 +65,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CourseCategory>(entity =>
         {
             entity.ToTable("CourseCategories");
-            entity.HasIndex(c => c.Code).IsUnique().HasFilter("[IsDeleted] = 0");
+            entity.HasIndex(c => c.Code).IsUnique().HasFilter("\"IsDeleted\" = false");
         });
 
         modelBuilder.Entity<Section>(entity =>
@@ -123,7 +123,7 @@ public class AppDbContext : DbContext
             entity.ToTable("KhoiHocs");
             // Filtered index: mã chỉ cần duy nhất trong số các bản ghi chưa bị xóa mềm,
             // cho phép tái sử dụng mã sau khi khối học cũ đã bị xóa.
-            entity.HasIndex(k => k.Code).IsUnique().HasFilter("[IsDeleted] = 0");
+            entity.HasIndex(k => k.Code).IsUnique().HasFilter("\"IsDeleted\" = false");
         });
 
         modelBuilder.Entity<VirtualClassroom>(entity =>
@@ -217,7 +217,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AchievementGroup>(entity =>
         {
             entity.ToTable("AchievementGroups");
-            entity.HasIndex(g => g.Code).IsUnique().HasFilter("[IsDeleted] = 0");
+            entity.HasIndex(g => g.Code).IsUnique().HasFilter("\"IsDeleted\" = false");
         });
 
         modelBuilder.Entity<Enrollment>(entity =>
@@ -235,7 +235,7 @@ public class AppDbContext : DbContext
                   .HasForeignKey(e => e.CourseId)
                   .OnDelete(DeleteBehavior.Cascade);
             // Một học sinh chỉ ghi danh một lần vào một khóa học (trong số bản ghi chưa xóa mềm).
-            entity.HasIndex(e => new { e.UserId, e.CourseId }).IsUnique().HasFilter("[IsDeleted] = 0");
+            entity.HasIndex(e => new { e.UserId, e.CourseId }).IsUnique().HasFilter("\"IsDeleted\" = false");
         });
 
         modelBuilder.Entity<UserAchievement>(entity =>
@@ -319,7 +319,7 @@ public class AppDbContext : DbContext
                   .HasForeignKey(r => r.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
             // Một học sinh chỉ có 1 đánh giá cho 1 khóa học (trong số bản ghi chưa xóa mềm).
-            entity.HasIndex(r => new { r.CourseId, r.UserId }).IsUnique().HasFilter("[IsDeleted] = 0");
+            entity.HasIndex(r => new { r.CourseId, r.UserId }).IsUnique().HasFilter("\"IsDeleted\" = false");
         });
 
         modelBuilder.Entity<TeacherModulePermission>(entity =>

@@ -127,7 +127,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("AchievementGroups", (string)null);
                 });
@@ -307,7 +307,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("CourseCategories", (string)null);
                 });
@@ -353,7 +353,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CourseId", "UserId")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("CourseReviews", (string)null);
                 });
@@ -517,7 +517,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("UserId", "CourseId")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Enrollments", (string)null);
                 });
@@ -582,7 +582,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("KhoiHocs", (string)null);
                 });
