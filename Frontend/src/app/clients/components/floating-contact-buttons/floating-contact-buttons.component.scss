@@ -1,0 +1,236 @@
+.oc-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9990;
+}
+
+.oc-fab__items {
+  position: absolute;
+  right: 0;
+  bottom: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.oc-fab__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  opacity: 0;
+  transform: scale(0.4) translateY(14px);
+  pointer-events: none;
+}
+
+.oc-fab__items--open .oc-fab__item {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+  animation: ocFabBob 2.6s ease-in-out infinite;
+}
+
+.oc-fab__items--open .oc-fab__item--zalo {
+  animation-delay: 0s;
+}
+
+.oc-fab__items--open .oc-fab__item--hotline {
+  animation-delay: 0.3s;
+}
+
+.oc-fab__items--open .oc-fab__item--facebook {
+  animation-delay: 0.6s;
+}
+
+.oc-fab__label {
+  background: #fff;
+  color: var(--oc-text, #201e1d);
+  font-family: var(--oc-font-body, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+  box-shadow: var(--oc-shadow-md, 0 3px 10px rgba(0, 0, 0, 0.16));
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.oc-fab__item:hover .oc-fab__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.oc-fab__circle {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--oc-shadow-md, 0 3px 10px rgba(0, 0, 0, 0.16));
+  transition: transform 0.2s ease;
+}
+
+.oc-fab__item:hover .oc-fab__circle {
+  transform: scale(1.1);
+}
+
+.oc-fab__circle--zalo {
+  background: #0068ff;
+}
+
+.oc-fab__circle--hotline {
+  background: #22c55e;
+}
+
+.oc-fab__circle--facebook {
+  background: #1877f2;
+}
+
+.oc-fab__circle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  z-index: -1;
+  opacity: 0;
+}
+
+.oc-fab__items--open .oc-fab__circle::after {
+  animation: ocFabPulse 2.4s ease-out infinite;
+}
+
+.oc-fab__items--open .oc-fab__item--zalo .oc-fab__circle::after {
+  animation-delay: 0s;
+}
+
+.oc-fab__items--open .oc-fab__item--hotline .oc-fab__circle::after {
+  animation-delay: 0.5s;
+}
+
+.oc-fab__items--open .oc-fab__item--facebook .oc-fab__circle::after {
+  animation-delay: 1s;
+}
+
+.oc-fab__main {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--oc-accent-500, #d67f48), var(--oc-accent-700, #8c491a));
+  box-shadow: var(--oc-shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.22));
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.oc-fab__main:hover {
+  transform: scale(1.06);
+}
+
+.oc-fab__main:active {
+  transform: scale(0.96);
+}
+
+.oc-fab__main--open {
+  background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+}
+
+.oc-fab__main-icon-wrap {
+  position: relative;
+  width: 26px;
+  height: 26px;
+}
+
+.oc-fab__main-icon {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.oc-fab__main-icon--chat {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.oc-fab__main-icon--close {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+.oc-fab__main--open .oc-fab__main-icon--chat {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+
+.oc-fab__main--open .oc-fab__main-icon--close {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+@keyframes ocFabBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes ocFabPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .oc-fab__label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .oc-fab {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .oc-fab__items {
+    bottom: 70px;
+  }
+
+  .oc-fab__main {
+    width: 56px;
+    height: 56px;
+  }
+
+  .oc-fab__circle {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oc-fab__item,
+  .oc-fab__circle::after {
+    animation: none !important;
+  }
+}

@@ -6,10 +6,10 @@
 
   @if (course(); as course) {
     <div class="oc-detail__hero">
-      @if (isPlayingPreview() && course.previewVideoUrl) {
+      @if (isPlayingPreview() && previewPlaybackUrl()) {
         <video
           class="oc-detail__video oc-detail__video--player"
-          [src]="course.previewVideoUrl"
+          [src]="previewPlaybackUrl()"
           controls
           autoplay
           controlsList="nodownload noremoteplayback"

@@ -49,8 +49,12 @@
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen
                 ></iframe>
-              } @else {
-                <video [src]="selectedLesson.videoUrl" controls class="cp-video"></video>
+              } @else if (loadingPlayback) {
+                <div class="cp-video cp-video-loading">
+                  <div class="spinner-border text-light" role="status"></div>
+                </div>
+              } @else if (selectedPlaybackUrl) {
+                <video [src]="selectedPlaybackUrl" controls class="cp-video"></video>
               }
             } @else if (course.thumbnail) {
               <img [src]="course.thumbnail" class="cp-thumb" alt="" />

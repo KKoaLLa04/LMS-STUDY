@@ -57,18 +57,24 @@
                 <app-oc-quiz-player [lessonId]="lesson.id" layout="inline"></app-oc-quiz-player>
               }
               @default {
-                <video
-                  class="oc-accordion__lesson-video"
-                  [src]="lesson.videoUrl"
-                  controls
-                  autoplay
-                  controlsList="nodownload noremoteplayback"
-                  disablePictureInPicture
-                  (contextmenu)="$event.preventDefault()"
-                  (timeupdate)="onLessonTimeUpdate(lesson, $event)"
-                  (pause)="onLessonPaused(lesson, $event)"
-                  (ended)="onLessonEnded(lesson, $event)"
-                ></video>
+                @if (playbackLoading()) {
+                  <div class="oc-accordion__lesson-video oc-accordion__lesson-video--loading">
+                    <span class="spinner-border spinner-border-sm"></span>
+                  </div>
+                } @else if (playbackUrl()) {
+                  <video
+                    class="oc-accordion__lesson-video"
+                    [src]="playbackUrl()"
+                    controls
+                    autoplay
+                    controlsList="nodownload noremoteplayback"
+                    disablePictureInPicture
+                    (contextmenu)="$event.preventDefault()"
+                    (timeupdate)="onLessonTimeUpdate(lesson, $event)"
+                    (pause)="onLessonPaused(lesson, $event)"
+                    (ended)="onLessonEnded(lesson, $event)"
+                  ></video>
+                }
               }
             }
           }

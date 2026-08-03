@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CourseService } from '../../services/course.service';
 import { CourseDetail, LessonResponse, SectionDetail } from '../../models/course.model';
+import { UploadService } from '../../../../shared/services/upload.service';
 
 const DEFAULT_EMOJI = '📘';
 
@@ -48,13 +49,18 @@ export class CoursePreviewComponent implements OnInit {
   selectedSection: SectionDetail | null = null;
   selectedLesson: LessonResponse | null = null;
   selectedEmbedUrl: SafeResourceUrl | null = null;
+  /** Signed URL để phát video R2 (bucket private) — phải xin lại mỗi lần chọn lesson khác vì
+   * lesson.videoUrl giờ chỉ là object key, không phát trực tiếp được. */
+  selectedPlaybackUrl: string | null = null;
+  loadingPlayback = false;
   collapsedSectionIds = new Set<number>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private courseService: CourseService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private uploadService: UploadService
   ) {}
 
   ngOnInit(): void {
@@ -93,9 +99,23 @@ export class CoursePreviewComponent implements OnInit {
   selectLesson(section: SectionDetail, lesson: LessonResponse): void {
     this.selectedSection = section;
     this.selectedLesson = lesson;
+    this.selectedPlaybackUrl = null;
 
     const embedUrl = lesson.videoUrl ? toEmbedUrl(lesson.videoUrl) : null;
     this.selectedEmbedUrl = embedUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl) : null;
+
+    if (!embedUrl && lesson.lessonType === 'Video' && lesson.videoUrl) {
+      this.loadingPlayback = true;
+      this.uploadService.getLessonVideoPlaybackUrl(lesson.id).subscribe({
+        next: (res) => {
+          this.loadingPlayback = false;
+          if (res.success && res.data) this.selectedPlaybackUrl = res.data.url;
+        },
+        error: () => {
+          this.loadingPlayback = false;
+        }
+      });
+    }
   }
 
   toggleSection(sectionId: number): void {

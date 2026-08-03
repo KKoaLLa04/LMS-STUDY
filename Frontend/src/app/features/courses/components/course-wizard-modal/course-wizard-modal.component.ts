@@ -423,13 +423,8 @@ export class CourseWizardModalComponent implements AfterViewInit {
 
     this.previewVideoUploadState = { uploading: true };
     this.uploadService.uploadVideo(file).subscribe({
-      next: (res) => {
-        if (!res.success || !res.data) {
-          this.previewVideoUploadState = { uploading: false };
-          this.toast.error(res.message || 'Tải video lên thất bại');
-          return;
-        }
-        this.form.get('previewVideoUrl')?.setValue(res.data.url);
+      next: (key) => {
+        this.form.get('previewVideoUrl')?.setValue(key);
         this.previewVideoUploadState = { uploading: false, fileName: file.name };
       },
       error: (err) => {
@@ -648,13 +643,8 @@ export class CourseWizardModalComponent implements AfterViewInit {
 
     this.uploadState.set(lesson, { uploading: true });
     this.uploadService.uploadVideo(file).subscribe({
-      next: (res) => {
-        if (!res.success || !res.data) {
-          this.uploadState.set(lesson, { uploading: false });
-          this.toast.error(res.message || 'Tải video lên thất bại');
-          return;
-        }
-        lesson.get('videoUrl')?.setValue(res.data.url);
+      next: (key) => {
+        lesson.get('videoUrl')?.setValue(key);
         this.uploadState.set(lesson, { uploading: false, fileName: file.name });
       },
       error: (err) => {

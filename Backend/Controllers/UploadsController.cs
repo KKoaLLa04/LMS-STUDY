@@ -1,3 +1,5 @@
+using Backend.Common;
+using Backend.DTOs;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,21 +12,35 @@ namespace Backend.Controllers;
 public class UploadsController : ControllerBase
 {
     private readonly IUploadService _uploadService;
+    private readonly IR2StorageService _r2StorageService;
 
-    public UploadsController(IUploadService uploadService)
+    public UploadsController(IUploadService uploadService, IR2StorageService r2StorageService)
     {
         _uploadService = uploadService;
+        _r2StorageService = r2StorageService;
     }
 
     /// <summary>
-    /// [Admin] Tải video bài học lên server
+    /// [Admin] Xin presigned URL để upload video thẳng lên Cloudflare R2 (browser tự PUT, không qua server)
     /// </summary>
-    [HttpPost("video")]
-    [RequestSizeLimit(500 * 1024 * 1024)]
-    public async Task<IActionResult> UploadVideo(IFormFile file)
+    [HttpPost("video/presign")]
+    public async Task<IActionResult> PresignVideo([FromBody] PresignVideoRequestDto dto)
     {
-        var result = await _uploadService.SaveVideoAsync(file, Request.Scheme, Request.Host.Value);
-        return StatusCode(result.HttpStatusCode, result);
+        if (string.IsNullOrWhiteSpace(dto.FileName))
+            return StatusCode(400, ApiResponse<PresignResultDto>.BadRequest("Vui lòng cung cấp tên file"));
+
+        try
+        {
+            var (uploadUrl, key) = await _r2StorageService.GeneratePresignedUploadUrlAsync(dto.FileName, dto.ContentType);
+            var result = ApiResponse<PresignResultDto>.Ok(
+                new PresignResultDto { UploadUrl = uploadUrl, Key = key }, "Tạo URL upload thành công");
+            return StatusCode(result.HttpStatusCode, result);
+        }
+        catch (ArgumentException ex)
+        {
+            var result = ApiResponse<PresignResultDto>.BadRequest(ex.Message);
+            return StatusCode(result.HttpStatusCode, result);
+        }
     }
 
     /// <summary>

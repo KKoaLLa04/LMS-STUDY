@@ -86,6 +86,14 @@
   max-height: 360px;
   background: #000;
   border-top: 1px solid var(--oc-divider);
+
+  &--loading {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
 }
 
 .oc-accordion__lesson-icon {

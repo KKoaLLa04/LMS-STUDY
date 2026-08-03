@@ -67,12 +67,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// CORS – cho phép Angular dev server gọi API
+// CORS – Backend và Frontend (Vercel) chạy khác domain nên cần khai báo rõ origin được phép.
+// "Cors:AllowedOrigins" cấu hình qua appsettings hoặc biến môi trường (Cors__AllowedOrigins__0, __1, ...)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:4200"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularDev", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -93,6 +97,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITeacherPermissionService, TeacherPermissionService>();
 builder.Services.AddScoped<IPermissionGroupService, PermissionGroupService>();
 builder.Services.AddScoped<IUploadService, UploadService>();
+builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
+builder.Services.AddScoped<IR2StorageService, R2StorageService>();
+builder.Services.AddScoped<IVideoPlaybackService, VideoPlaybackService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -227,7 +234,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseCors("AllowAngularDev");
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -7,6 +7,7 @@ import { OcIconComponent } from '../icon/icon.component';
 import { QuizPlayerComponent } from '../quiz-player/quiz-player.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LessonProgressService } from '../../services/lesson-progress.service';
+import { UploadService } from '../../../shared/services/upload.service';
 
 /** Chỉ gửi PUT lên server tối đa mỗi N giây xem thêm được (qua sự kiện timeupdate) — tránh
  * gọi API dồn dập, pause/ended vẫn luôn gửi ngay để không mất tiến độ dở dang. */
@@ -38,12 +39,17 @@ export class ChapterAccordionComponent implements OnChanges {
 
   private readonly authService = inject(AuthService);
   private readonly lessonProgressService = inject(LessonProgressService);
+  private readonly uploadService = inject(UploadService);
 
   /** First chapter open by default, matching the reference design. */
   readonly expandedIds = signal<Set<number>>(new Set());
 
   /** Which lesson's inline video player is currently open, if any. */
   readonly playingLessonId = signal<number | null>(null);
+
+  /** Signed URL của video đang phát — phải xin lại mỗi lần mở vì bucket R2 private, URL hết hạn sau vài giờ. */
+  readonly playbackUrl = signal<string | null>(null);
+  readonly playbackLoading = signal(false);
 
   private hasInitializedDefault = false;
   private readonly lastReportedSecond = new Map<number, number>();
@@ -90,7 +96,11 @@ export class ChapterAccordionComponent implements OnChanges {
       this.videoBlocked.emit();
       return;
     }
+
+    const isClosing = this.playingLessonId() === lesson.id;
     this.playingLessonId.update((current) => (current === lesson.id ? null : lesson.id));
+    this.playbackUrl.set(null);
+    if (!isClosing && lesson.lessonType === 'Video') this.loadPlaybackUrl(lesson.id);
   }
 
   /** Mở (mở rộng chương + phát) một bài học cụ thể theo id — dùng cho nút "Tiếp tục: bài ..."
@@ -107,9 +117,26 @@ export class ChapterAccordionComponent implements OnChanges {
 
     this.expandedIds.update((current) => new Set(current).add(chapter.id));
     this.playingLessonId.set(lessonId);
+    this.playbackUrl.set(null);
+    if (lesson.lessonType === 'Video') this.loadPlaybackUrl(lessonId);
 
     setTimeout(() => {
       document.getElementById(`lesson-${lessonId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  /** Video nằm trên bucket R2 private nên phải xin signed URL riêng cho từng lần mở thay vì dùng
+   * thẳng lesson.videoUrl (giờ chỉ là object key, không phát trực tiếp được). */
+  private loadPlaybackUrl(lessonId: number): void {
+    this.playbackLoading.set(true);
+    this.uploadService.getLessonVideoPlaybackUrl(lessonId).subscribe({
+      next: (res) => {
+        this.playbackLoading.set(false);
+        if (res.success && res.data) this.playbackUrl.set(res.data.url);
+      },
+      error: () => {
+        this.playbackLoading.set(false);
+      }
     });
   }
 

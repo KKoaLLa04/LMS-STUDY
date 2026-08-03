@@ -40,3 +40,12 @@ wwwroot/uploads/*
 !wwwroot/uploads/videos/
 wwwroot/uploads/videos/*
 !wwwroot/uploads/videos/.gitkeep
+
+## Angular build được copy vào wwwroot khi build/deploy (xem .github/workflows/deploy.yml), không commit
+wwwroot/*.js
+wwwroot/*.js.map
+wwwroot/*.css
+wwwroot/*.css.map
+wwwroot/*.ico
+wwwroot/index.html
+wwwroot/media/

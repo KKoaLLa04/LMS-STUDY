@@ -15,6 +15,7 @@ import { StudentsCountPipe } from '../../pipes/students-count.pipe';
 import { RelativeDatePipe } from '../../pipes/relative-date.pipe';
 import { DiscussionPanelComponent } from '../../components/discussion-panel/discussion-panel.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { UploadService } from '../../../shared/services/upload.service';
 import { AuthService } from '../../../core/auth/auth.service';
 
 type DetailTab = 'content' | 'materials' | 'reviews' | 'discussion';
@@ -54,11 +55,13 @@ export class CourseDetailComponent implements OnInit {
   private readonly reviewService = inject(CourseReviewService);
   private readonly toast = inject(ToastService);
   private readonly authService = inject(AuthService);
+  private readonly uploadService = inject(UploadService);
 
   readonly course = signal<Course | undefined>(undefined);
   readonly notFound = signal(false);
   readonly activeTab = signal<DetailTab>('content');
   readonly isPlayingPreview = signal(false);
+  readonly previewPlaybackUrl = signal<string | null>(null);
 
   readonly reviews = signal<CourseReview[]>([]);
   readonly ratingSummary = signal<CourseRatingSummary>(EMPTY_RATING_SUMMARY);
@@ -168,7 +171,15 @@ export class CourseDetailComponent implements OnInit {
   /** Video giới thiệu là nội dung quảng bá công khai — xem được dù chưa đăng nhập/chưa đăng ký,
    * khác với video bài học thật (bên trong chương trình học) vẫn yêu cầu đăng nhập. */
   playPreview(): void {
-    if (this.course()?.previewVideoUrl) this.isPlayingPreview.set(true);
+    const course = this.course();
+    if (!course?.previewVideoUrl) return;
+
+    this.isPlayingPreview.set(true);
+    this.uploadService.getCoursePreviewVideoUrl(course.id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) this.previewPlaybackUrl.set(res.data.url);
+      },
+    });
   }
 
   onLessonVideoBlocked(): void {
