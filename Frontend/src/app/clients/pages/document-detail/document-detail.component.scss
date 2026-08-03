@@ -64,3 +64,17 @@
   line-height: 1.7;
   color: var(--oc-text);
 }
+
+@media (max-width: 640px) {
+  .oc-document-detail {
+    padding: 20px 16px 56px;
+  }
+
+  .oc-document-detail-card {
+    padding: 20px;
+  }
+
+  .oc-document-detail-title {
+    font-size: 20px;
+  }
+}

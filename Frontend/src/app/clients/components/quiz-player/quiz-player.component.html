@@ -1,6 +1,11 @@
 <div class="oc-quiz">
   @if (loading()) {
     <div class="oc-quiz__loading">Đang tải câu hỏi...</div>
+  } @else if (!isLoggedIn()) {
+    <div class="oc-quiz__empty oc-quiz__login-required">
+      <span>Bạn cần đăng nhập để làm bài quiz này.</span>
+      <a class="oc-btn oc-btn-primary" routerLink="/login">Đăng nhập</a>
+    </div>
   } @else if (questions().length === 0) {
     <div class="oc-quiz__empty">Bài quiz này chưa có câu hỏi.</div>
   } @else {

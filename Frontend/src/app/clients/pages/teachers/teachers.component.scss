@@ -10,6 +10,8 @@
 
   @media (max-width: 760px) {
     grid-template-columns: 1fr;
+    padding: 20px 16px 56px;
+    gap: 20px;
   }
 }
 
@@ -18,6 +20,17 @@
   position: sticky;
   top: 78px;
   gap: 18px;
+
+  @media (max-width: 760px) {
+    position: static;
+  }
+}
+
+.oc-teachers-filter__list {
+  @media (max-width: 760px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 .oc-teachers-filter__title {

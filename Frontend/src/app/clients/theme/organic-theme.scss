@@ -76,6 +76,7 @@
   font-family: var(--oc-font-body);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .oc-root h1, .oc-root h2, .oc-root h3, .oc-root h4 {

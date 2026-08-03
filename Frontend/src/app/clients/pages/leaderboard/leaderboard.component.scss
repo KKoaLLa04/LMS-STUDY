@@ -421,3 +421,51 @@
   color: #fff;
   flex: none;
 }
+
+@media (max-width: 640px) {
+  .oc-leaderboard {
+    padding: 20px 16px 110px;
+    gap: 20px;
+  }
+
+  .oc-lb-podium {
+    gap: 6px;
+  }
+
+  .oc-lb-podium-name,
+  .oc-lb-podium-subtitle,
+  .oc-lb-podium-points {
+    font-size: 11px;
+  }
+
+  .oc-lb-avatar--sm {
+    width: 34px;
+    height: 34px;
+    font-size: 11px;
+  }
+
+  .oc-lb-podium-bar span {
+    font-size: 17px;
+  }
+
+  .oc-lb-row {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .oc-lb-follow-btn {
+    padding: 5px 8px;
+    font-size: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .oc-lb-podium {
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 4px;
+  }
+
+  .oc-lb-podium-subtitle {
+    display: none;
+  }
+}

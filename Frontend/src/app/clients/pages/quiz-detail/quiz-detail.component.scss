@@ -59,3 +59,17 @@
 .oc-quiz-detail-desc {
   line-height: 1.7;
 }
+
+@media (max-width: 640px) {
+  .oc-quiz-detail {
+    padding: 20px 16px 56px;
+  }
+
+  .oc-quiz-detail-card {
+    padding: 20px;
+  }
+
+  .oc-quiz-detail-title {
+    font-size: 20px;
+  }
+}

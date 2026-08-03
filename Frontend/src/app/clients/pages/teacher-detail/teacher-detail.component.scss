@@ -353,3 +353,35 @@
   font-weight: 600;
   opacity: 0.85;
 }
+
+@media (max-width: 700px) {
+  .oc-teacher-detail {
+    padding: 24px 16px 56px;
+    gap: 40px;
+  }
+
+  .oc-td-hero {
+    padding: 28px 24px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .oc-td-hero__avatar {
+    width: 100px;
+    height: 100px;
+    font-size: 32px;
+  }
+
+  .oc-td-hero__info {
+    align-items: center;
+
+    h1 {
+      font-size: 22px;
+    }
+  }
+
+  .oc-td-hero__tags,
+  .oc-td-hero__actions {
+    justify-content: center;
+  }
+}

@@ -36,6 +36,14 @@
   color: var(--oc-text);
 }
 
+.oc-header__collapsible {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-width: 0;
+}
+
 .oc-header__nav {
   display: flex;
   align-items: center;
@@ -71,6 +79,112 @@
 
   input {
     padding-left: 36px;
+  }
+}
+
+.oc-header__burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+
+  span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--oc-text);
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+
+  &.is-open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  &.is-open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  &.is-open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+}
+
+@media (max-width: 960px) {
+  .oc-header {
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .oc-header__burger {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .oc-header__collapsible {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px 16px 18px;
+    background: var(--oc-bg);
+    border-bottom: 1px solid var(--oc-divider);
+    box-shadow: var(--oc-shadow-md);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    z-index: 39;
+  }
+
+  .oc-header__collapsible.is-open {
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .oc-header__nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 15px;
+
+    a {
+      padding: 10px 8px;
+      border-radius: 10px;
+    }
+
+    a.is-active {
+      background: var(--oc-accent-100);
+    }
+  }
+
+  .oc-header__search {
+    margin-left: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .oc-header {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .oc-header__brand-name {
+    display: none;
   }
 }
 

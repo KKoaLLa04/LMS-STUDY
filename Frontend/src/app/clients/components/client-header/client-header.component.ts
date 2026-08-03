@@ -22,6 +22,7 @@ export class ClientHeaderComponent implements OnInit {
   readonly currentUser = signal<CurrentUser | null>(null);
   readonly menuOpen = signal(false);
   readonly isAdminOrTeacher = signal(false);
+  readonly mobileNavOpen = signal(false);
 
   ngOnInit(): void {
     this.isLoggedIn.set(this.authService.isLoggedIn());
@@ -45,6 +46,14 @@ export class ClientHeaderComponent implements OnInit {
     this.menuOpen.set(false);
   }
 
+  toggleMobileNav(): void {
+    this.mobileNavOpen.update((open) => !open);
+  }
+
+  closeMobileNav(): void {
+    this.mobileNavOpen.set(false);
+  }
+
   onLogout(): void {
     this.closeMenu();
     this.authService.logout();
@@ -62,6 +71,9 @@ export class ClientHeaderComponent implements OnInit {
   onDocumentClick(event: MouseEvent): void {
     if (this.menuOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {
       this.closeMenu();
+    }
+    if (this.mobileNavOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {
+      this.closeMobileNav();
     }
   }
 }

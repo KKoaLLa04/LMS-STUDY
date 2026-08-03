@@ -293,3 +293,39 @@
   font-size: 13px;
   padding: 10px 18px;
 }
+
+@media (max-width: 640px) {
+  .oc-sp {
+    padding: 20px 16px 56px;
+    gap: 32px;
+  }
+
+  .oc-sp-hero {
+    padding: 24px 20px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .oc-sp-hero__info {
+    align-items: center;
+
+    h1 {
+      font-size: 20px;
+    }
+  }
+
+  .oc-sp-hero__points {
+    width: 100%;
+  }
+
+  .oc-sp-rank-card {
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .oc-sp-rank-card__text {
+    flex: 1 1 100%;
+    align-items: center;
+  }
+}

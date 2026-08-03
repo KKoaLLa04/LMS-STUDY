@@ -11,7 +11,9 @@ import {
   signal,
 } from '@angular/core';
 import { forkJoin } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { QuizAnswerSubmission, QuizAttemptApi, QuizAttemptResultApi, QuizQuestionApi } from '../../models/quiz-api.model';
 import { OcIconComponent } from '../icon/icon.component';
 import { RelativeDatePipe } from '../../pipes/relative-date.pipe';
@@ -25,7 +27,7 @@ function topmostEntry(entries: IntersectionObserverEntry[]): IntersectionObserve
 @Component({
   selector: 'app-oc-quiz-player',
   standalone: true,
-  imports: [OcIconComponent, RelativeDatePipe],
+  imports: [OcIconComponent, RelativeDatePipe, RouterLink],
   templateUrl: './quiz-player.component.html',
   styleUrl: './quiz-player.component.scss',
 })
@@ -41,8 +43,14 @@ export class QuizPlayerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() layout: 'page' | 'inline' = 'page';
 
   private readonly quizService = inject(QuizService);
+  private readonly authService = inject(AuthService);
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly ngZone = inject(NgZone);
+
+  /** Câu hỏi/kết quả chỉ tồn tại cho học sinh đã đăng nhập — API standalone/lesson quiz đều
+   * yêu cầu token nên khách chưa đăng nhập luôn nhận mảng rỗng, dễ hiểu lầm là "quiz chưa có
+   * câu hỏi". Chặn từ FE để hiện đúng thông báo "cần đăng nhập". */
+  readonly isLoggedIn = signal(this.authService.isLoggedIn());
 
   readonly questions = signal<QuizQuestionApi[]>([]);
   readonly loading = signal(true);
@@ -75,6 +83,12 @@ export class QuizPlayerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuestions(): void {
+    this.isLoggedIn.set(this.authService.isLoggedIn());
+    if (!this.isLoggedIn()) {
+      this.loading.set(false);
+      return;
+    }
+
     this.loading.set(true);
     this.result.set(null);
     this.selections.clear();

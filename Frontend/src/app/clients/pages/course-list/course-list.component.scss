@@ -52,3 +52,14 @@
   align-items: center;
   gap: 10px;
 }
+
+@media (max-width: 640px) {
+  .oc-list {
+    padding: 20px 16px 48px;
+    gap: 28px;
+  }
+
+  .oc-list__section h3 {
+    font-size: 19px;
+  }
+}

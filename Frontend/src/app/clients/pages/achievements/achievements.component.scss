@@ -210,3 +210,25 @@
   font-weight: 800;
   width: fit-content;
 }
+
+@media (max-width: 640px) {
+  .oc-achievements {
+    padding: 20px 16px 48px;
+    gap: 22px;
+  }
+
+  .oc-ach-summary {
+    padding: 24px 20px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .oc-ach-summary__number {
+    font-size: 34px;
+  }
+
+  .oc-ach-summary__latest {
+    width: 100%;
+    justify-content: center;
+  }
+}

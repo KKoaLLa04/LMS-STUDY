@@ -24,6 +24,13 @@
   font-size: 14px;
 }
 
+.oc-quiz__login-required {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 .oc-quiz__result {
   display: flex;
   gap: 12px;

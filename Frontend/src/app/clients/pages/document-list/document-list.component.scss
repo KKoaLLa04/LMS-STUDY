@@ -91,3 +91,13 @@
   gap: 6px;
   flex-wrap: wrap;
 }
+
+@media (max-width: 640px) {
+  .oc-documents {
+    padding: 20px 16px 56px;
+  }
+
+  .oc-documents-title {
+    font-size: 21px;
+  }
+}

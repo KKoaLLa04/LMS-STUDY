@@ -196,3 +196,34 @@
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.85);
 }
+
+@media (max-width: 900px) {
+  .oc-footer {
+    padding: 40px 24px 0;
+  }
+
+  .oc-footer__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px;
+  }
+
+  .oc-footer__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .oc-footer {
+    padding: 32px 20px 0;
+  }
+
+  .oc-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .oc-footer__bottom {
+    justify-content: center;
+    text-align: center;
+  }
+}

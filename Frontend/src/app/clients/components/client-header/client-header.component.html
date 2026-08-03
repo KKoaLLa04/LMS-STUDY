@@ -6,29 +6,44 @@
     <span class="oc-header__brand-name">Học Vui</span>
   </a>
 
-  <nav class="oc-header__nav">
-    <a routerLink="/client/khoa-hoc" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Khóa học</a>
-    <a routerLink="/client/tai-lieu" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Tài liệu</a>
-    <a routerLink="/client/quiz" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Quiz</a>
-    <a routerLink="/client/giao-vien" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Giảng viên</a>
-    <a routerLink="/client/bang-xep-hang" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Bảng xếp hạng</a>
-    <a routerLink="/client/thanh-tich" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Thành tích</a>
-    <a routerLink="/client/ho-so" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Của tôi</a>
-    <a class="is-muted">Yêu thích</a>
-  </nav>
+  <button
+    type="button"
+    class="oc-header__burger"
+    [class.is-open]="mobileNavOpen()"
+    (click)="toggleMobileNav()"
+    [attr.aria-expanded]="mobileNavOpen()"
+    aria-label="Mở menu"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 
-  <div class="oc-header__search">
-    <app-oc-icon name="search" [size]="16" color="color-mix(in srgb, var(--oc-text) 50%, transparent)"></app-oc-icon>
-    <input
-      class="oc-input"
-      type="text"
-      placeholder="Tìm kiếm khóa học..."
-      [value]="searchQuery"
-      (input)="onSearchInput($event)"
-    />
+  <div class="oc-header__collapsible" [class.is-open]="mobileNavOpen()">
+    <nav class="oc-header__nav">
+      <a routerLink="/client/khoa-hoc" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Khóa học</a>
+      <a routerLink="/client/tai-lieu" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Tài liệu</a>
+      <a routerLink="/client/quiz" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Quiz</a>
+      <a routerLink="/client/giao-vien" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Giảng viên</a>
+      <a routerLink="/client/bang-xep-hang" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Bảng xếp hạng</a>
+      <a routerLink="/client/thanh-tich" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Thành tích</a>
+      <a routerLink="/client/ho-so" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Của tôi</a>
+      <a class="is-muted" (click)="closeMobileNav()">Yêu thích</a>
+    </nav>
+
+    <div class="oc-header__search">
+      <app-oc-icon name="search" [size]="16" color="color-mix(in srgb, var(--oc-text) 50%, transparent)"></app-oc-icon>
+      <input
+        class="oc-input"
+        type="text"
+        placeholder="Tìm kiếm khóa học..."
+        [value]="searchQuery"
+        (input)="onSearchInput($event)"
+      />
+    </div>
   </div>
 
-  <button class="oc-btn oc-btn-icon oc-btn-secondary" type="button" aria-label="Thông báo">
+  <button class="oc-btn oc-btn-icon oc-btn-secondary oc-header__bell" type="button" aria-label="Thông báo">
     <app-oc-icon name="bell" [size]="17"></app-oc-icon>
   </button>
 

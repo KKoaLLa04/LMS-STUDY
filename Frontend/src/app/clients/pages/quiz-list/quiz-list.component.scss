@@ -110,3 +110,13 @@
     margin: 0;
   }
 }
+
+@media (max-width: 640px) {
+  .oc-quizzes {
+    padding: 20px 16px 56px;
+  }
+
+  .oc-quizzes-title {
+    font-size: 21px;
+  }
+}

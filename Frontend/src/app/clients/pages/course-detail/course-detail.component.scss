@@ -18,6 +18,10 @@
   display: grid;
   grid-template-columns: minmax(300px, 1.4fr) minmax(280px, 1fr);
   gap: 24px;
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .oc-detail__video {
@@ -373,4 +377,23 @@
   text-align: center;
   padding: 60px 20px;
   opacity: 0.6;
+}
+
+@media (max-width: 640px) {
+  .oc-detail {
+    padding: 16px 16px 48px;
+  }
+
+  .oc-detail__title {
+    font-size: 19px;
+  }
+
+  .oc-detail__tabs {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .oc-detail__rating-summary {
+    gap: 16px;
+  }
 }
