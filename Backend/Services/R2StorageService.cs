@@ -15,10 +15,15 @@ public class R2StorageService : IR2StorageService
     private readonly IAmazonS3 _client;
     private readonly string _bucketName;
 
+    private readonly bool _isConfigured;
+
     public R2StorageService(IOptions<R2Options> options)
     {
         var config = options.Value;
         _bucketName = config.BucketName;
+        _isConfigured = !string.IsNullOrWhiteSpace(config.AccountId) && !string.IsNullOrWhiteSpace(config.AccessKey) &&
+                        !string.IsNullOrWhiteSpace(config.SecretKey) && !string.IsNullOrWhiteSpace(config.BucketName);
+
         _client = new AmazonS3Client(config.AccessKey, config.SecretKey, new AmazonS3Config
         {
             ServiceURL = $"https://{config.AccountId}.r2.cloudflarestorage.com",
@@ -28,6 +33,11 @@ public class R2StorageService : IR2StorageService
 
     public async Task<(string UploadUrl, string Key)> GeneratePresignedUploadUrlAsync(string fileName, string contentType)
     {
+        if (!_isConfigured)
+            throw new InvalidOperationException(
+                "Thiếu cấu hình R2 (AccountId/AccessKey/SecretKey/BucketName). " +
+                "Kiểm tra biến môi trường R2__AccountId, R2__AccessKey, R2__SecretKey, R2__BucketName trên server.");
+
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
         if (!AllowedVideoExtensions.Contains(extension))
             throw new ArgumentException(

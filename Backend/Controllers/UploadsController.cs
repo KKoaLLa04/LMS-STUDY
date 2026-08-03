@@ -13,11 +13,13 @@ public class UploadsController : ControllerBase
 {
     private readonly IUploadService _uploadService;
     private readonly IR2StorageService _r2StorageService;
+    private readonly ILogger<UploadsController> _logger;
 
-    public UploadsController(IUploadService uploadService, IR2StorageService r2StorageService)
+    public UploadsController(IUploadService uploadService, IR2StorageService r2StorageService, ILogger<UploadsController> logger)
     {
         _uploadService = uploadService;
         _r2StorageService = r2StorageService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -39,6 +41,12 @@ public class UploadsController : ControllerBase
         catch (ArgumentException ex)
         {
             var result = ApiResponse<PresignResultDto>.BadRequest(ex.Message);
+            return StatusCode(result.HttpStatusCode, result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo presigned URL upload video lên R2");
+            var result = ApiResponse<PresignResultDto>.Error("Không thể tạo URL upload video. Vui lòng kiểm tra cấu hình lưu trữ trên server.");
             return StatusCode(result.HttpStatusCode, result);
         }
     }
